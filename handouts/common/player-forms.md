@@ -4,7 +4,7 @@ subtitle: "OPORD/FRAGO format, COA and Cons worksheets, request slips, Slack tem
 short: "Player Forms"
 ---
 
-**Audience:** every player. **Printing:** each team needs 1 OPORD/FRAGO format page, {{ turns }} COA worksheets, {{ turns }} Cons worksheets, {{ slip_pages }} pages of request slips (3 to a page, {{ slips }} slips){% if rules == "full" %}, and {{ secret_coas }} secret COA slips{% endif %}. The white cell's Print Packet already holds this many for both teams, plus spares; its Reference Forms version holds one of each per team, to copy from. The forms are black and white, so print them in greyscale. Requests, COAs, Cons{% if rules == "full" %}, and secret COAs{% endif %} are **posted in Slack** ({% if rules == "full" %}Rules Handbook §2.11{% else %}Basic Rules §5.4{% endif %}): use the worksheets to draft, the copy-and-paste templates in §5 to post, and the paper slips only if Slack goes down.
+**Audience:** every player. **Printing:** each team needs 1 OPORD/FRAGO format page, {{ turns }} COA worksheets, {{ turns }} Cons worksheets, {{ slip_pages }} pages of request slips (3 to a page, {{ slips }} slips){% if rules == "full" %}, and {{ secret_coas }} secret COA slips{% endif %}. The white cell's Print Packet already holds this many for each team, plus spares; its Reference Forms version holds one of each per team, to copy from. The forms are black and white, so print them in greyscale. Requests, COAs, Cons{% if rules == "full" %}, and secret COAs{% endif %} are **posted in Slack** ({% if rules == "full" %}Rules Handbook §2.11{% else %}Basic Rules §5.4{% endif %}): use the worksheets to draft, the copy-and-paste templates in §5 to post, and the paper slips only if Slack goes down.
 
 ## 1. Five-Paragraph OPORD and FRAGO Format
 

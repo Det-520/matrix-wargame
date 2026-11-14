@@ -2,7 +2,7 @@
 
 **Audience:** designer. Mentions where secrets go, but holds none.
 
-This guide takes you from an empty copy of the base to a game you can print. It follows the order that worked for the first game built this way: build the public world first, then each side's secrets, then the white cell's material, and the handouts last. Each step names the files it touches. `AGENTS.md` has the file map and the editing rules, and `RULES.md` has the mechanics, which a new scenario normally keeps as they are.
+This guide takes you from an empty copy of the base to a game you can print. It follows the order that worked for the first game built this way: build the public world first, then each team's secrets, then the white cell's material, and the handouts last. Each step names the files it touches. `AGENTS.md` has the file map and the editing rules, and `RULES.md` has the mechanics, which a new scenario normally keeps as they are.
 
 ## 1. Plan backward from the releases
 
@@ -12,7 +12,7 @@ Players get material in three releases, and each one fixes how late you can stil
 | --- | --- | --- | --- |
 | Common Matrix | As soon as possible | Rules handbook, player forms | The rules and forms |
 | Common Scenario | 1 week before | Scenario brief, schedule, starting conditions, map | The public world, map, tracks, starting conditions |
-| REDFOR and BLUEFOR | 24 hours before | Commander's letter, team packet, order of battle, intelligence products, counters | Forces, objectives, intelligence |
+| Each team ({{ teams }}) | 24 hours before | Commander's letter, team packet, order of battle, intelligence products, counters | Forces, objectives, intelligence |
 | White cell | Before the POC run-through | Everything else | Injects, ground truth, likely plans |
 
 The rules handbook goes out before the scenario is announced, so it must not name anything in the scenario. Its examples use descriptive placeholders.
@@ -34,7 +34,14 @@ Choose the rule set in `game.toml` `[rules]`: `"full"`, or `"basic"` if most pla
 - An even number of actors plays best, because the insight comes from action and counteraction. With three teams, give each one a reason to talk to both of the others.
 - Each team costs about 4 minutes a turn (`RULES.md` §2.6), so a third team usually means a shorter Prepare or fewer turns. Keep at least 6 turns.
 
-To add one: add the `[[side]]`; add its COA step and Cons step to `[[turn_step]]` (with `side` set to its id) and a minute to the resolve step; copy `handouts/redfor/` to `handouts/<id>/` and `scenario/redfor-packet.md` to `scenario/<id>-packet.md` and rewrite them; give it a `[[tq]]` entry for its commander's letter if it has one in Word; add its rows to `scenario/data/assets.csv` (its `side` is the label, its IDs use the prefix); add its placement form to the White Cell Forms §4; and add its Slack channel and logger in `EVENT-SETUP.md`. The tools find the rest: release folder, counters, intelligence products, Print Packet, site pages, timer colours, and opposed rolls. `python3 tools/check_assets.py` and `python3 tools/schedule.py --check` say what is missing.
+To add one:
+
+1. Add the `[[side]]`, and its COA step and Cons step to `[[turn_step]]` (with `side` set to its id: its first step is its COA slot, its second its Cons slot), and a minute to the resolve step. The COA step goes after the other COA steps and the Cons step after the other Cons steps.
+2. Copy `handouts/redfor/` to `handouts/<id>/` and `scenario/redfor-packet.md` to `scenario/<id>-packet.md`, and rewrite them. Its intelligence products are `<prefix>I-01` and up. Give it a `[[tq]]` entry for its commander's letter if it has one in Word.
+3. Add its rows to `scenario/data/assets.csv` (its `side` is the label, its IDs use the prefix).
+4. Write its share of the scenario content, which only you can: its actor entry, starting conditions, and directives in `scenario/00-overview.md` and the Scenario Brief; its starting conditions (S-*prefix*1 …) in `handouts/common/starting-conditions.md`; its rows in `scenario/whitecell-ground-truth.md` and the White Cell Intelligence and Injects; its section of the Master Asset List and the Likely Plans; its visible counters in Table Setup Guide §4 and hidden ones in Table Setup Guide §5; its RFF pool in White Cell Handbook §7.2 and its objectives in White Cell Handbook §8; and its placement form in the White Cell Forms §4, headed "4.*n* LABEL placement form". Those templates hold one section or column per team, in the order of `[[side]]`.
+
+The rest follows `game.toml` on the next build: the turn clock and the turn checklist, the release folder, the counters (and its blank counters), the intelligence files, the Print Packet (its player forms and spare placement form), the site pages, the timer's colours and opposed roll, and every place the rules and handouts name the teams, count them, or list their loggers, channels, and Slack names (`README.md`, Documents are templates). `python3 tools/check_assets.py` and `python3 tools/schedule.py --check` say what is missing; `game.toml` stops the build if a team lacks its two turn steps.
 
 **Cells.** A team can be split into cells under its flight commander, such as intelligence, communications, and an air component, with `[[side.cell]]` entries under its `[[side]]` (`RULES.md` §9.4). The team still makes one COA a turn: each cell proposes, the commander chooses. Give a cell its assets with the `cell` column in `scenario/data/assets.csv` (its short name prints on the counters), and its own one-page brief in `handouts/<id>/cells/<cell id>.md`, which builds into the team's release folder and the site. A brief can give a cell its own concern that pulls against another cell's, so the team has to agree before it acts. Cells suit a large team (more than about 8 players) or an exercise about coordination inside a staff.
 
@@ -51,7 +58,7 @@ Write it as the BLUF in `scenario/00-overview.md` §1.
 
 ### 2.3 Build the public world
 
-Fill in `scenario/00-overview.md`: background and a short timeline (`00-overview.md` §2), the actors and what everyone knows about them (`00-overview.md` §4), and the rules of engagement and national directives (`00-overview.md` §7). Everything here goes to both teams, so a fact belongs here only if both sides would really know it. Assume both sides read it closely.
+Fill in `scenario/00-overview.md`: background and a short timeline (`00-overview.md` §2), the actors and what everyone knows about them (`00-overview.md` §4), and the rules of engagement and national directives (`00-overview.md` §7). Everything here goes to every team, so a fact belongs here only if every team would really know it. Assume they all read it closely.
 
 ### 2.4 Draw the map
 
@@ -59,23 +66,23 @@ See `map/README.md`. Aim for 10–15 zones, including an off-map home box for ea
 
 ### 2.5 Set the tracks and starting conditions
 
-Tracks (`00-overview.md` §5.1) record what the map can't: opinion, will, stability, access. Use three to five, each with a short scale (−3 to +3, or 0 to 5) and stated triggers at the ends. Every track should be movable by both sides, and at least one should be easier to move with words than with weapons. Put the same tracks in `game.toml` `[[track]]`, which the timer program shows.
+Tracks (`00-overview.md` §5.1) record what the map can't: opinion, will, stability, access. Use three to five, each with a short scale (−3 to +3, or 0 to 5) and stated triggers at the ends. Every track should be movable by more than one team, and at least one should be easier to move with words than with weapons. Put the same tracks in `game.toml` `[[track]]`, which the timer program shows.
 
-Starting conditions (§5.2, and `handouts/common/starting-conditions.md`, which repeats them as cue cards) are standing ±1 modifiers with a stated way to remove them. Two or three for each side is enough. Each one should give the other side an obvious target for a COA.
+Starting conditions (§5.2, and `handouts/common/starting-conditions.md`, which repeats them as cue cards) are standing ±1 modifiers with a stated way to remove them. Two or three for each team is enough. Each one should give another team an obvious target for a COA.
 
 ### 2.6 Build the forces
 
-Fill in each packet's §1 (`scenario/redfor-packet.md`, `scenario/bluefor-packet.md`) and mirror every row in `scenario/data/assets.csv`. Then run:
+Fill in each packet's §1 (`scenario/<team id>-packet.md`) and mirror every row in `scenario/data/assets.csv`. Then run:
 
 ```bash
 python3 tools/check_assets.py && python3 tools/make_counters.py
 ```
 
-- **Real U.S. systems**, unclassified and approximate, with an Air Force emphasis. Use real names on both sides, so cadets learn the systems whichever side they play.
-- **Every asset has a limitation** the other side can use as a Con. If you can't think of one, the asset is too strong or too vague.
+- **Real U.S. systems**, unclassified and approximate, with an Air Force emphasis. Use real names on every team, so cadets learn the systems whichever team they play.
+- **Every asset has a limitation** another team can use as a Con. If you can't think of one, the asset is too strong or too vague.
 - Tag REDFOR Air Force assets with their **AFDP 3-0 core function**.
-- **One or two hidden assets a side** (`visibility` = hidden). Each needs a hint in the other side's intelligence that a careful team could catch, and a row in the ground truth.
-- **RFF pools** let a side ask for more as the game goes on. Give each RFF an arrival turn and a cost: approval, basing room, a track, or giving the other side warning.
+- **One or two hidden assets a side** (`visibility` = hidden). Each needs a hint in another team's intelligence that a careful team could catch, and a row in the ground truth.
+- **RFF pools** let a side ask for more as the game goes on. Give each RFF an arrival turn and a cost: approval, basing room, a track, or giving another team warning.
 - Put an asset spread over several zones on **one row with `parts`**, so it prints one counter for each zone.
 - The side with fewer assets needs advantages that **don't fit on a counter**: home ground, population, a backer, starting conditions in its favour.
 
@@ -127,7 +134,7 @@ Play the game at least once, all the way through, before the POC run-through. Tw
 - **Balance.** Does each side have at least three strong non-kinetic COAs? Can any one COA settle an objective? Is a win by the larger side costly?
 - **Dead turns.** If a side has nothing useful to do for two turns, give it a lever: an RFF, an inject, or a track it can move.
 - **Leaks.** Can a team learn the other side's hidden assets or objectives from a public file? Check the scenario brief, the map, the starting conditions, and the rules handbook's examples.
-- **Time.** The white cell has {{ mins(steps.res.min) }} to resolve both COAs. If rulings keep needing the ground truth, add a line to the likely plans.
+- **Time.** The white cell has {{ mins(steps.res.min) }} to resolve {{ "both" if n_teams == 2 else "all " ~ word(n_teams) }} COAs. If rulings keep needing the ground truth, add a line to the likely plans.
 
 Record what changed, and update the open decisions in `scenario/README.md`.
 
@@ -151,7 +158,7 @@ Record what changed, and update the open decisions in `scenario/README.md`.
 - [ ] `python3 tools/check_assets.py` passes.
 - [ ] `npx markdownlint-cli2` reports 0 issues.
 - [ ] `tools/build_all.sh` runs clean, and you have read the release's PDFs on paper.
-- [ ] No `[placeholder]` text is left in the release's files: `grep -rn "\[[A-Z][a-z]" handouts/common` (and the side folders for the 24-hour release).
+- [ ] No `[placeholder]` text is left in the release's files: `grep -rn "\[[A-Z][a-z]" handouts/common` (and the team folders, `handouts/<team id>/`, for the 24-hour release).
 - [ ] Nothing in a public file names a hidden asset, objective, or inject.
-- [ ] Each side's files hold nothing of the other side's.
+- [ ] Each team's files hold nothing of another team's.
 - [ ] `game.toml` matches the scenario: name, run of show, and tracks. `python3 tools/schedule.py --check` passes, and the timer program in `build/White Cell/` shows the right blocks and tracks.

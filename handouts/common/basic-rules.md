@@ -61,11 +61,12 @@ Each turn is **{{ mins(turn_min) }}** of real time and about **{{ days(game_days
 
 ### 2.2 Example turn
 
+{% set a, b = sides[0], sides[1] %}
 *Scenario details are replaced with bracketed placeholders such as [FIGHTER JET].*
 
-**REDFOR COA:** "A strike package of [FIGHTER JET]s and an [EW AIRCRAFT], refueled by [TANKER]s, strikes [AIR DEFENSE UNIT] **in order to** destroy it and open the air over [STRAIT AREA] for our ISR. It will work because: (1) the [FIGHTER JET] is a stealth aircraft built to get through air defenses; (2) [EW AIRCRAFT] jamming cuts [AIR DEFENSE UNIT] off from its early-warning radar, which is *synergistic effects*; (3) the war just started, so we have *surprise*."
+**{{ b.label }} COA:** "A strike package of [FIGHTER JET]s and an [EW AIRCRAFT], refueled by [TANKER]s, strikes [AIR DEFENSE UNIT] **in order to** destroy it and open the air over [STRAIT AREA] for our ISR. It will work because: (1) the [FIGHTER JET] is a stealth aircraft built to get through air defenses; (2) [EW AIRCRAFT] jamming cuts [AIR DEFENSE UNIT] off from its early-warning radar, which is *synergistic effects*; (3) the war just started, so we have *surprise*."
 
-**BLUEFOR Cons:** "(1) [AIR DEFENSE SYSTEM] is mobile, and our planning brief said we would move [AIR DEFENSE UNIT] when the war began. (2) Their fighters have to fly ~[XXX] miles each way, so they depend on tankers."
+**{{ a.label }} Cons:** "(1) [AIR DEFENSE SYSTEM] is mobile, and our planning brief said we would move [AIR DEFENSE UNIT] when the war began. (2) Their fighters have to fly ~[XXX] miles each way, so they depend on tankers."
 
 **White cell:** Pros 1 and 2 are strong (+2). Con 1 is strong (−1), because the move was briefed before the war, and it also cancels Pro 3 (no surprise). Con 2 is true, but the tankers are part of the package, so it counts 0. **Net +1.** The program rolls 9, and 9 + 1 = **10, a Success.** [AIR DEFENSE UNIT] is caught on the move and is **Destroyed**.
 

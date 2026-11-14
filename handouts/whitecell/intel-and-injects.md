@@ -6,7 +6,7 @@ short: "White Cell Intelligence and Injects"
 
 **WHITE CELL ONLY.** *Fictional training scenario.*
 
-> **FORMAT NOTE (delete before printing):** TEMPLATE. §1 and §4 are copied from `scenario/whitecell-ground-truth.md` and `scenario/whitecell-injects.md`. §3, the product key, exists only here: write it as you write the products. Keep the section headings: the white cell site splits this document into one page per `##` section and links to "Intelligence product key" and "Injects" by name.
+> **FORMAT NOTE (delete before printing):** TEMPLATE. §1 and §4 are copied from `scenario/whitecell-ground-truth.md` and `scenario/whitecell-injects.md`. §3, the product key, exists only here: write it as you write the products. Ground truth columns, sample RFIs, and product-key subsections come one per team, in the order of `game.toml` `[[side]]`; a team added there needs its own. Keep the section headings: the white cell site splits this document into one page per `##` section and links to "Intelligence product key" and "Injects" by name.
 
 ## 1. Ground truth
 
@@ -39,7 +39,7 @@ Answer from what that side would plausibly know: incomplete, uncertain ("unknown
 
 ## 3. Intelligence product key
 
-Both sides' products were written so that each team has **true hints** about the enemy's hidden assets and secret objectives, **misleading reports** that reinforce its estimate's errors, and **noise**. Use this key when a team builds a Pro or Con on a product (Handbook §5.2) or files an RFI about one.
+{{ Both }} teams' products were written so that each team has **true hints** about the enemy's hidden assets and secret objectives, **misleading reports** that reinforce its estimate's errors, and **noise**. Use this key when a team builds a Pro or Con on a product (Handbook §5.2) or files an RFI about one.
 
 **Verdicts:** **True** (accurate) · **Partly true** (accurate facts, wrong conclusion) · **False** (wrong or planted) · **Noise** (true but not decisive).
 

@@ -193,7 +193,8 @@ def main(argv):
     elif argv[1:] == ["values"]:
         show(values())
         print("functions: mins(m), clock(m), word(n), Word(n), days(d), days(d, adj=True), ticks(first=1), "
-              "turn_columns(), turn_rule(), team_rows(row), schedule_table(who), turn_clock_table(who)")
+              "turn_columns(), turn_rule(), team_rows(row), team_cols(cell, group), team_name(group, i), "
+              "schedule_table(who), turn_clock_table(who)")
     else:
         who = argv[1] if len(argv) > 1 else "players"
         t = tables()

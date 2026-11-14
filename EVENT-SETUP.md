@@ -45,9 +45,9 @@ The LLAB objective this base was built for, 1.3 *Apply wargaming principles to a
 
 - Teams and flight commanders (both Phase I–II and Phase III–IV) are assigned (§4).
 - Each player receives the **common player documents**: `handouts/common/rules-handbook.md` (especially `rules-handbook.md` §1, How to play; first-time players can start with the shorter `handouts/common/basic-rules.md`), `handouts/common/scenario-brief.md`, `handouts/common/scenario-schedule.md`, `handouts/common/player-forms.md`, and the doctrine one-pagers. Players are expected to arrive knowing how to play.
-- Each player receives the **team-specific documents and intelligence products** for their side (`handouts/redfor/` or `handouts/bluefor/`: Commander's Read-Ahead, Team Packet, Order of Battle, and every intelligence product in `intel/`), so they can read and weigh the intelligence before Phase I begins.
-- **[PROPOSED] Release schedule.** The build sorts the PDFs into release folders by when they go out: `Common Matrix - ASAP RELEASE` (rules and forms, as soon as teams are set), `Common Scenario - 1WK RELEASE` (the public scenario, a week out), and each side's `24H RELEASE` (secret documents, 24 hours out).
-- **[PROPOSED] Slack.** The designer creates the channels and sends the invitations with the team assignments. Every player joins their **group channel** (public, both teams) and their **team channel** (secret) before the event (`RULES.md` §2.5). Slack is the written record: COAs and Cons go in the group channel, requests and secret COAs in the team channel. Briefs are still given aloud. Every player may bring a laptop; each team needs at least one signed in at the table.
+- Each player receives the **team-specific documents and intelligence products** for their team (`handouts/<team id>/`, one folder per `game.toml` `[[side]]`: Commander's Read-Ahead, Team Packet, Order of Battle, every intelligence product in `intel/`, and the team's cell briefs in `cells/` if it has cells), so they can read and weigh the intelligence before Phase I begins.
+- **[PROPOSED] Release schedule.** The build sorts the PDFs into release folders by when they go out: `Common Matrix - ASAP RELEASE` (rules and forms, as soon as teams are set), `Common Scenario - 1WK RELEASE` (the public scenario, a week out), and each team's `<label> - 24H RELEASE` (secret documents, 24 hours out; {% for s in sides %}“{{ s.folder }}”{% if not loop.last %}, {% endif %}{% endfor %} in this game).
+- **[PROPOSED] Slack.** The designer creates the channels and sends the invitations with the team assignments. Every player joins their **group channel** (public, every team in the group) and their **team channel** (secret) before the event (`RULES.md` §2.5). Slack is the written record: COAs and Cons go in the group channel, requests and secret COAs in the team channel. Briefs are still given aloud. Every player may bring a laptop; each team needs at least one signed in at the table.
 
 ---
 
@@ -95,25 +95,25 @@ The timer program and the schedule tables in the Scenario Schedule and the White
 
 ### 4.1 Groups and teams
 
-- **[N] groups** of 9–10 players each. Each group plays its **own separate game** at its own table. Set `game.toml` `tables` to the number of groups.
-- **2 teams per group**, one REDFOR and one BLUEFOR, of 4–5 players each, named Alpha, Bravo, and so on.
+- **[N] groups**, one per table. Each group plays its **own separate game** at its own table. Set `game.toml` `tables` to the number of groups.
+- **{{ n_teams }} teams per group**, one of each `game.toml` `[[side]]` ({{ teams }}), of 4–5 players each, named Alpha, Bravo, and so on. A team split into cells (`RULES.md` §9.4) may be larger: about two players a cell, plus its flight commander.
 - Small teams are deliberate: they keep every member engaged for the whole event and give evaluators more to observe.
 
 ### 4.2 Flight commanders
 
 - Each team gets **one assigned flight commander for Phases I and II** and **a different assigned flight commander for Phases III and IV**. The handover happens after Debrief 1, and the Phase III–IV flight commander briefs a 1-minute FRAGO before Turn 5.
-- **Only the flight commander is assigned.** During Phase I, each team decides its own structure (who handles operations, intel, logistics, briefing, and so on).
+- **Only the flight commander is assigned.** During Phase I, each team decides its own structure (who handles operations, intel, logistics, briefing, and so on). If the scenario splits a team into cells (`game.toml` `[[side.cell]]`), the cells and their jobs are set, and the team decides who sits in each and who leads it.
 
 ---
 
 ## 5. Room setup
 
-- **One group per room.** Each group plays in its own room, at one table arranged so its two teams and white cell sit in a circle. The group's public Slack channel is named for its room (`RULES.md` §2.5).
+- **One group per room.** Each group plays in its own room, at one table arranged so its {{ word(n_teams) }} teams and white cell sit in a circle. The group's public Slack channel is named for its room (`RULES.md` §2.5).
 
 | Group | Room | Teams | Group channel |
 | --- | --- | --- | --- |
-| 1 | [room] | Alpha (REDFOR), Bravo (BLUEFOR) | `[prefix]-group1-[room]` |
-| 2 | [room] | Charlie (REDFOR), Delta (BLUEFOR) | `[prefix]-group2-[room]` |
+| 1 | [room] | {% for s in sides %}{{ team_name(1, loop.index0) }} ({{ s.label }}){% if not loop.last %}, {% endif %}{% endfor %} | `[prefix]-group1-[room]` |
+| 2 | [room] | {% for s in sides %}{{ team_name(2, loop.index0) }} ({{ s.label }}){% if not loop.last %}, {% endif %}{% endfor %} | `[prefix]-group2-[room]` |
 
 - **[PROPOSED] Devices.** The lead adjudicator shows the timer and dice program on the room's TV or projector, where every player can see it, running it on the room computer where one is connected to the screen and on a laptop otherwise. Each logger keeps the white cell site and Slack open on a laptop turned away from the players. `handouts/whitecell/table-setup.md` has the devices, table layout, and counter placement.
 - **[PROPOSED] No room leads.** Each group's white cell sets up its own room before the event and puts it back afterward.
@@ -125,12 +125,11 @@ The timer program and the schedule tables in the Scenario Schedule and the White
 | Role | Count | Job |
 | --- | --- | --- |
 | White cell lead adjudicator | 1 per group | Timekeeper (timer program), inject-giver, dice program, final adjudication (`RULES.md` §9.2) |
-| BLUEFOR action logger | 1 per group | Receives the BLUEFOR Phase I brief and Phase III FRAGO. Keeps the BLUEFOR placement form (`RULES.md` App. B). Watches BLUEFOR's team channel and posts the white cell's answers. Doesn't log every move. |
-| REDFOR action logger | 1 per group | The same for REDFOR |
+| {{ team_rows("{label} action logger | 1 per group | Receives the {label} Phase I brief and Phase III FRAGO. Keeps the {label} placement form (`RULES.md` App. B). Watches {label}'s team channel and posts the white cell's answers. Doesn't log every move.") }} |
 | Evaluator | 1 per team | Observes one team (§7) |
 | Extras | as available | |
 
-**[OPEN]** Confirm POC availability: at least 5 per group before extras.
+**[OPEN]** Confirm POC availability: at least {{ 1 + 2 * n_teams }} per group before extras (a lead adjudicator, and a logger and an evaluator for each team).
 
 ---
 
@@ -153,9 +152,9 @@ Evaluators can tie their observations to the training objective's performance me
 
 - **Dice:** a computer program rolls 2d6 for adjudication (`tools/whitecell-clock.html`). No physical dice.
 - **Timekeeping:** the same program runs the turn clock (`RULES.md` §2.2).
-- **Print Packet:** `build/White Cell/Print Packet - One Table.pdf` holds everything one table prints (checklist, White Cell Forms, starting-condition cue cards, counters, map tiles, both teams' player forms and slips, and spares at the back), with a cover listing it. Print one per group. `Print Packet - One Table, Reference Forms.pdf` holds one copy of each player form per side and no spares, to photocopy from. Print the game pieces in colour and the forms in greyscale.
+- **Print Packet:** `build/White Cell/Print Packet - One Table.pdf` holds everything one table prints (checklist, White Cell Forms, starting-condition cue cards, counters, map tiles, each team's player forms and slips, and spares at the back), with a cover listing it. Print one per group. `Print Packet - One Table, Reference Forms.pdf` holds one copy of each player form per team and no spares, to photocopy from. Print the game pieces in colour and the forms in greyscale.
 - **Map:** `build/Common Scenario - 1WK RELEASE/map-full.pdf` (one sheet, for a plotter) or `map-tiles.pdf` (letter tiles to trim and tape). See `map/README.md`.
-- **Counters:** `python3 tools/make_counters.py` builds them from `scenario/data/assets.csv` (the build runs it). Print at 100% scale, in colour, on card stock if available, and cut along the gray lines. The white cell sheet shows hidden assets and has blank R-, B-, and X- counters for forces created during play (`RULES.md` §5). Never give a team the other side's sheet or the white cell sheet.
+- **Counters:** `python3 tools/make_counters.py` builds them from `scenario/data/assets.csv` (the build runs it). Print at 100% scale, in colour, on card stock if available, and cut along the gray lines. The white cell sheet shows hidden assets and has blank counters for each team ({% for s in sides %}{{ s.prefix }}-{% if not loop.last %}, {% endif %}{% endfor %}) and grey X- counters for forces created during play (`RULES.md` §5). Never give a team another team's sheet or the white cell sheet.
 - **Tracks:** kept in the timer and dice program's tracker on the room's screen, not on paper.
 - **Slack:** one public channel per group and one secret channel per team (`RULES.md` §2.5).
 

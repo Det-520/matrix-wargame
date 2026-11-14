@@ -8,14 +8,13 @@ short: "Table Setup Guide"
 
 ## 1. Devices
 
-Both teams need to see the map, the ongoing-effects sheet, the cue cards, and the screen, which shows the tracks. No player should be able to see a logger's laptop or forms.
+{{ Both }} teams need to see the map, the ongoing-effects sheet, the cue cards, and the screen, which shows the tracks. No player should be able to see a logger's laptop or forms.
 
 | Device | Who runs it | What is on it | Where |
 | --- | --- | --- | --- |
 | **Room computer and TV or projector** | Lead adjudicator | The timer and dice program (`whitecell-clock.html`), on the Phase I block. Its tracker is the only track board: there is no paper one. Many rooms have a computer already connected to the TV or projector: use it. Copy the file onto it (USB drive or download) before the event. The program needs no network. | Where every player can see it. Test it before the event. |
 | **Lead adjudicator's laptop** | Lead adjudicator | Only if the room has no computer connected to the screen: connect it to the TV or projector and run the program on it. Keep nothing else open on the shared screen. | With the lead adjudicator |
-| **REDFOR logger's laptop** | REDFOR logger | The white cell reference site and Slack: the group channel and REDFOR's team channel | Screen turned away from both teams. The site shows both sides' secrets. |
-| **BLUEFOR logger's laptop** | BLUEFOR logger | The white cell reference site and Slack: the group channel and BLUEFOR's team channel | Same |
+| {{ team_rows("**{label} logger's laptop** | {label} logger | The white cell reference site and Slack: the group channel and {label}'s team channel | Screen turned away from the teams. The site shows every team's secrets.") }} |
 | **Players' laptops** | Any player | Slack (the group channel and the player's own team channel), plus anything players want to search online. Every player may bring one. | With the team |
 
 ## 2. Where everything goes on the table
@@ -23,18 +22,17 @@ Both teams need to see the map, the ongoing-effects sheet, the cue cards, and th
 | Item | Where | Face | Kept by |
 | --- | --- | --- | --- |
 | Map (letter tiles taped together, or the plotter sheet) | Middle of the table | Up | Table |
-| Ongoing effects and big projects sheet (White Cell Forms §2) | Beside the map, where both teams can see it | Up | Lead adjudicator |
-| Starting-condition cue cards (one per S-Rx and S-Bx) | Beside the map, standing or flat | Up | Table |
-| Visible counters | On the map by zone (§4) | Up | Each side's logger |
+| Ongoing effects and big projects sheet (White Cell Forms §2) | Beside the map, where {{ both }} teams can see it | Up | Lead adjudicator |
+| Starting-condition cue cards (one per {% for s in sides %}S-{{ s.prefix }}x{% if not loop.last %}, {% endif %}{% endfor %}) | Beside the map, standing or flat | Up | Table |
+| Visible counters | On the map by zone (§4) | Up | Each team's logger |
 | Hidden counters (§5) | In the envelope | Hidden | Lead adjudicator |
-| Blank counters (R-, B-, grey X-) | Beside the lead adjudicator | — | Lead adjudicator |
-| Objective status card (White Cell Forms §3) | With the REDFOR logger | **Down** | REDFOR logger |
-| REDFOR placement form (White Cell Forms §4.1) | With the REDFOR logger | **Down** | REDFOR logger |
-| BLUEFOR placement form (White Cell Forms §4.2) | With the BLUEFOR logger | **Down** | BLUEFOR logger |
+| Blank counters ({% for s in sides %}{{ s.prefix }}-, {% endfor %}grey X-) | Beside the lead adjudicator | — | Lead adjudicator |
+| Objective status card (White Cell Forms §3) | With the {{ sides[-1].label }} logger | **Down** | {{ sides[-1].label }} logger |
+| {{ team_rows("{label} placement form (White Cell Forms §4) | With the {label} logger | **Down** | {label} logger") }} |
 | Score sheet (White Cell Forms §1) | With the lead adjudicator, until the end of the game | **Down** | Lead adjudicator |
 | White Cell Checklist | With the lead adjudicator | — | Lead adjudicator |
 | Each team's player forms (OPORD format, COA and Cons worksheets, request {% if rules == "full" %}and secret COA {% endif %}slips) | With that team | — | The team |
-| Spare forms and slips | With the white cell | — | Either logger |
+| Spare forms and slips | With the white cell | — | Any logger |
 
 Never put the objective status card or a placement form beside the ongoing-effects sheet: they show what the secret objectives look for.
 
@@ -57,15 +55,9 @@ The ongoing-effects and big-projects sheet starts empty.
 
 Z1 [Red nation] is an off-map box. [Say where each off-map box sits on the map, and list the zones that start empty.]
 
-### 4.1 REDFOR: [n] counters
+> **FORMAT NOTE (delete before printing):** one subsection per team, in the order of `game.toml` `[[side]]`, numbered to match the setup checklist (§7). A team added in `game.toml` needs its own subsection here and its rows in §5.
 
-| Zone | Counter | Asset |
-| --- | --- | --- |
-| **Z1 [Red nation]** (off-map box) | R-16 | B-52H Stratofortress (JASSM-ER/LRASM) |
-| **Z6 [Red forward base]** | R-01 | F-35A Lightning II squadron |
-| | R-05 | KC-46A Pegasus tanker detachment |
-
-### 4.2 BLUEFOR: [n] counters
+### 4.1 BLUEFOR: [n] counters
 
 | Zone | Counter | Asset |
 | --- | --- | --- |
@@ -74,6 +66,14 @@ Z1 [Red nation] is an off-map box. [Say where each off-map box sits on the map, 
 | **Z11 [Blue capital]** | B-01 | F-16C/D Fighting Falcon squadron |
 | | B-07b | Early-warning radar site |
 | **Z12 [Blue interior]** | B-07c | Early-warning radar site |
+
+### 4.2 REDFOR: [n] counters
+
+| Zone | Counter | Asset |
+| --- | --- | --- |
+| **Z1 [Red nation]** (off-map box) | R-16 | B-52H Stratofortress (JASSM-ER/LRASM) |
+| **Z6 [Red forward base]** | R-01 | F-35A Lightning II squadron |
+| | R-05 | KC-46A Pegasus tanker detachment |
 
 <!-- pagebreak -->
 
@@ -90,8 +90,8 @@ If a team chooses where a hidden counter starts, its logger writes the zone on t
 
 ## 6. Counters that come later
 
-- **RFF arrivals** go on each side's main base zone (**Z6** for REDFOR, **Z11** for BLUEFOR, outside support included) unless the RFF names another destination (Handbook §7). Keep the RFF counters (R-30 and up, B-30 and up) off the map, beside the lead adjudicator, until one arrives.
-- **Blank counters** are for a force with no printed counter: R- and B- for free-text RFFs (number them from R-50 and B-50) and grey X- for forces an inject creates (from X-01). Write the ID and zone on it (Rules §5).
+- **RFF arrivals** go on each team's main base zone (**Z6** for REDFOR, **Z11** for BLUEFOR, outside support included) unless the RFF names another destination (Handbook §7). Keep the RFF counters (R-30 and up, B-30 and up) off the map, beside the lead adjudicator, until one arrives.
+- **Blank counters** are for a force with no printed counter: {% for s in sides %}{{ s.prefix }}-{% if not loop.last %}, {% endif %}{% endfor %} for free-text RFFs (number them from {% for s in sides %}{{ s.prefix }}-50{% if not loop.last %}, {% endif %}{% endfor %}) and grey X- for forces an inject creates (from X-01). Write the ID and zone on it (Rules §5).
 
 <!-- pagebreak -->
 
@@ -100,7 +100,7 @@ If a team chooses where a hidden counter starts, its logger writes the zone on t
 ### Room and devices
 
 - [ ] TV or projector on and showing the timer and dice program, on the **Phase I** block, visible to every player. Use the room computer if one is connected to the screen; otherwise the lead adjudicator's laptop.
-- [ ] Each logger's laptop open to the white cell site and Slack (the group channel and its side's team channel), screen turned away from the teams.
+- [ ] Each logger's laptop open to the white cell site and Slack (the group channel and its team's channel), screen turned away from the teams.
 - [ ] Each team has at least one laptop that can post in its group and team channels. Players may use their laptops to search online too.
 
 ### Map, tracks, and cue cards
@@ -112,15 +112,13 @@ If a team chooses where a hidden counter starts, its logger writes the zone on t
 
 ### Counters
 
-- [ ] REDFOR logger placed **[n]** REDFOR counters (§4.1).
-- [ ] BLUEFOR logger placed **[n]** BLUEFOR counters (§4.2).
+- [ ] Each logger placed its team's visible counters (§4): {% for s in sides %}**[n]** {{ s.label }} (§4.{{ loop.index }}){% if not loop.last %}, {% endif %}{% endfor %}.
 - [ ] **[n]** hidden counters in the envelope with the lead adjudicator (§5). None on the map.
 - [ ] RFF counters and blank counters set aside with the lead adjudicator (§6).
 
 ### Paper
 
-- [ ] REDFOR logger: REDFOR placement form and the objective status card, face down.
-- [ ] BLUEFOR logger: BLUEFOR placement form, face down.
+- [ ] Each logger: its team's placement form, face down. The {{ sides[-1].label }} logger also has the objective status card, face down.
 - [ ] Lead adjudicator: the White Cell Checklist and the score sheet, face down.
 - [ ] Each team's stack of player forms with the team. Spares with the white cell.
 

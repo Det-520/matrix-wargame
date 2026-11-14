@@ -1,14 +1,14 @@
 ---
 title: "Operation Example — Scenario Brief"
-subtitle: "The public situation, for both teams · [Event]"
+subtitle: "The public situation, for every team · [Event]"
 short: "Scenario Brief"
 ---
 
-**Audience:** every player, REDFOR and BLUEFOR. Everything here is public in the game world. Your team's own documents add what only your side knows.
+**Audience:** every player, {{ teams }}. Everything here is public in the game world. Your team's own documents add what only your side knows.
 
 *All countries, people, and events in this scenario are fictional. All military systems are real U.S. systems, described with unclassified, approximate capabilities.*
 
-> **FORMAT NOTE (delete before printing):** TEMPLATE. This is the player-facing copy of `scenario/00-overview.md`, in the same order: BLUF, background, map, actors, tracks, starting conditions, timing, and rules of engagement. Copy the text across once the overview is settled, drop the status tags and the design notes, and check that nothing here hints at a hidden asset or a secret objective. §6 is repeated in `starting-conditions.md`: keep the two the same.
+> **FORMAT NOTE (delete before printing):** TEMPLATE. This is the player-facing copy of `scenario/00-overview.md`, in the same order: BLUF, background, map, actors, tracks, starting conditions, timing, and rules of engagement. Copy the text across once the overview is settled, drop the status tags and the design notes, and check that nothing here hints at a hidden asset or a secret objective. Every place that lists the teams (§1, §4, §6, §7, §8) needs an entry for each team in `game.toml` `[[side]]`. §6 is repeated in `starting-conditions.md`: keep the two the same.
 
 ## 1. Bottom line up front
 

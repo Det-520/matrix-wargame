@@ -4,11 +4,11 @@ subtitle: "Quick reference and table cue cards · S-R1 to S-Rn, S-B1 to S-Bn"
 short: "Starting Conditions"
 ---
 
-**Audience:** every player, REDFOR and BLUEFOR, and the white cell. Nothing in this document is secret. It repeats Scenario Brief §6 (keep the two the same) and adds cue cards for the table. **Printing:** one copy per table, in colour if possible; cut the cue cards apart along the dashed lines and stand them face up beside the map.
+**Audience:** every player, {{ teams }}, and the white cell. Nothing in this document is secret. It repeats Scenario Brief §6 (keep the two the same) and adds cue cards for the table. **Printing:** one copy per table, in colour if possible; cut the cue cards apart along the dashed lines and stand them face up beside the map.
 
 Public, and on cue cards at the table. Use them in your Pros and Cons: each one that applies to a COA is worth **±1** until it is removed. The white cell writes the turn on a card when it is removed.
 
-> **FORMAT NOTE (delete before printing):** TEMPLATE. One table row and one card per starting condition in `scenario/00-overview.md` §5.2. A card is a `###` heading inside the `mw:begin cards` block; the build colours it red or blue from its ID (S-R or S-B) and gives each card a fixed size, so keep the text to about 60 words.
+> **FORMAT NOTE (delete before printing):** TEMPLATE. One table row and one card per starting condition in `scenario/00-overview.md` §5.2. A card is a `###` heading inside the `mw:begin cards` block; the build colours it in its team's colour from its ID (S- and the team's prefix: S-R, S-B) and gives each card a fixed size, so keep the text to about 60 words. A team added in `game.toml` `[[side]]` gets its own table and cards, with IDs S-*prefix*1, S-*prefix*2, and so on.
 
 ## REDFOR: more assets, longer reach, more constraints
 

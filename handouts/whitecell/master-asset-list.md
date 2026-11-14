@@ -1,6 +1,6 @@
 ---
 title: "Operation Example — Master Asset List"
-subtitle: "Every asset on both sides, hidden ones included"
+subtitle: "Every team's assets, hidden ones included"
 short: "Master Asset List"
 ---
 
@@ -10,7 +10,7 @@ short: "Master Asset List"
 **Core function** (AFDP 3-0, REDFOR Air Force assets): AS, GPA, RGM, GISR, C2. **Joint** = Army, Navy, or Marine Corps.\
 **Totals:** REDFOR [n] counters ([n] in theater, [n] at home, [n] hidden) · BLUEFOR [n] assets ([n] hidden) on [n] counters, counting each part of a split counter (Rules §4.5).
 
-> **FORMAT NOTE (delete before printing):** TEMPLATE. Every row of both packets' force tables (`scenario/redfor-packet.md` §1, `scenario/bluefor-packet.md` §1), in one place. When the Master Asset List and another white cell document disagree, this one wins, so update it whenever a packet changes. The rows below are the example assets.
+> **FORMAT NOTE (delete before printing):** TEMPLATE. Every row of every team packet's force table (`scenario/<team id>-packet.md` §1), in one place, one section per team in the order of `game.toml` `[[side]]`. When the Master Asset List and another white cell document disagree, this one wins, so update it whenever a packet changes. The rows below are the example assets.
 
 ## 1. REDFOR: [Red armed forces]
 

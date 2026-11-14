@@ -21,10 +21,10 @@ tools/build_map.sh
 
 - **Zones, not hexes.** Counters go in zones (`RULES.md` §4.5). Label each zone with its ID in large type (`Z7`) and a short name under it. Keep the IDs stable once anything else references them.
 - **Big enough for counters.** A counter is about 1 in square, and a busy zone may hold eight. On the printed map, a land zone that matters should be at least 4 in across. Check the tiles at print size before you finish.
-- **Off-map boxes** (dashed outline) hold each side's home and any distant backer: Z1 and Z2 in the placeholder.
-- **Colour by alignment**, lightly, so counters stay readable: one tint for each side's territory, one for neutrals, one for the other side's partners. Water is the background.
+- **Off-map boxes** (dashed outline) hold each team's home and any distant backer: Z1 and Z2 in the placeholder.
+- **Colour by alignment**, lightly, so counters stay readable: one tint for each team's territory, one for neutrals, one for each team's partners. Water is the background.
 - **A scale grid** (100 mi squares in the placeholder) lets players argue distance without a ruler. If a distance on the map matters to the game, record it in `scenario/00-overview.md` §3.3 so the white cell rules on the same number every time.
-- **No secrets.** The map goes to both teams. Don't mark hidden bases, routes, or objectives on it.
+- **No secrets.** The map goes to every team. Don't mark hidden bases, routes, or objectives on it.
 - **Fonts.** The placeholder uses Inter, which `tools/fetch_third_party.py` downloads into `map/fonts/` and `build_map.sh` makes visible to Chromium. Any other font has to be installed on the build machine, or converted to outlines in the SVG.
 
 ## When the map changes

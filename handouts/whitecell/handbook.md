@@ -8,25 +8,24 @@ short: "White Cell Handbook"
 
 *Fictional training scenario. All military systems are real U.S. systems, described with unclassified, approximate capabilities.*
 
-> **TEMPLATE.** The procedure in this handbook (§1, §2.1–2.2, §4, §5.1–5.3, §5.5, §7.1) is the same for every scenario. The tables that list the scenario's own tracks, counters, starting conditions, RFF pools, and objectives (§2.3, §2.4, §3, §5.4, §6, §7.2, §8) hold placeholders or example rows: fill them in from `scenario/` once it is settled.
+> **TEMPLATE.** The procedure in this handbook (§1, §2.1–2.2, §4, §5.1–5.3, §5.5, §7.1) is the same for every scenario, and follows the teams in `game.toml` `[[side]]`. The tables that list the scenario's own tracks, counters, starting conditions, RFF pools, and objectives (§2.3, §2.4, §3, §5.4, §6, §7.2, §8) hold placeholders or example rows: fill them in from `scenario/` once it is settled, with a column or a section for each team, in the order of `[[side]]`.
 
 <!-- pagebreak -->
 
 ## 0. What's Going On?
 
-We are running a matrix wargame where GMC will play opposing teams (BLUEFOR and REDFOR) in a conflict and POC will be adjudicating (the white cell). Each turn, teams present their COAs, give pro arguments for why it would be successful and then give cons for the opposing team's COA. The white cell will then evaluate the arguments which become modifiers to a roll which determines if the COA was successful. White cell then delivers the outcomes accordingly.
+We are running a matrix wargame where GMC will play opposing teams ({{ teams }}) in a conflict and POC will be adjudicating (the white cell). Each turn, teams present their COAs, give pro arguments for why it would be successful and then give cons against {{ "the opposing team's COA" if n_teams == 2 else "the other teams' COAs" }}. The white cell will then evaluate the arguments which become modifiers to a roll which determines if the COA was successful. White cell then delivers the outcomes accordingly.
 
 <!-- pagebreak -->
 
 ## 1. POC Roles
 
-The white cell is the neutral referee. It runs the clock, judges the arguments, rolls the dice, narrates the results, introduces fog and friction, and keeps the game on the rails. Each of the groups plays its own game at its own table, so each table has its own white cell consisting of at least three POC.
+The white cell is the neutral referee. It runs the clock, judges the arguments, rolls the dice, narrates the results, introduces fog and friction, and keeps the game on the rails. Each of the groups plays its own game at its own table, so each table has its own white cell consisting of at least {{ word(n_teams + 1) }} POC: a lead adjudicator and a logger for each team.
 
 | Role | Job |
 | --- | --- |
 | **Lead adjudicator** | Runs the **timer program** and the **dice program**, shown on the room's TV or projector. Calls each step. Gives injects. Rules on every COA and RFF. **Final authority.** |
-| **BLUEFOR logger** | Hears BLUEFOR's Phase I brief and Phase III FRAGO. Keeps the BLUEFOR placement form (White Cell Forms §4.2): planned COAs, hidden-counter locations, arrivals, and counters that changed. Moves BLUEFOR counters. Watches BLUEFOR's team channel, counts its requests, and posts the lead adjudicator's answers (§2.4). Doesn't log every move. Keeps the white cell site and Slack open on a laptop the teams can't see. |
-| **REDFOR logger** | Same for REDFOR (White Cell Forms §4.1), in REDFOR's team channel |
+| {{ team_rows("**{label} logger** | Hears {label}'s Phase I brief and Phase III FRAGO. Keeps the {label} placement form (White Cell Forms §4): planned COAs, hidden-counter locations, arrivals, and counters that changed. Moves {label} counters. Watches {label}'s team channel, counts its requests, and posts the lead adjudicator's answers (§2.4). Doesn't log every move. Keeps the white cell site and Slack open on a laptop the teams can't see.") }} |
 
 The white cell should work to be efficient and generally help teams stay within the bounds of the rules. As white cell, you are given lots of freedom:
 
@@ -45,11 +44,10 @@ Generally, you should be helpful in ensuring that teams understand the rules and
 | Who | Gets |
 | --- | --- |
 | **Every player** | {% if rules == "full" %}Player Rules Handbook{% else %}Basic Rules{% endif %} · Scenario Brief · Scenario Schedule · Starting Conditions · Player Forms |
-| **REDFOR players** | + REDFOR Commander's Read-Ahead · REDFOR Team Packet · REDFOR Order of Battle · REDFOR Intelligence Products |
-| **BLUEFOR players** | + BLUEFOR Commander's Read-Ahead · BLUEFOR Team Packet · BLUEFOR Order of Battle · BLUEFOR Intelligence Products |
+| {{ team_rows("**{label} players** | + {label} Commander's Read-Ahead · {label} Team Packet · {label} Order of Battle · {label} Intelligence Products") }} |
 | **White cell** | Everything |
 
-**Nobody on a team gets the other team's documents.** Teams and flight commanders should be assigned before distribution.
+**Nobody on a team gets another team's documents.** Teams and flight commanders should be assigned before distribution.
 
 **Distribution schedule**
 
@@ -62,11 +60,11 @@ Generally, you should be helpful in ensuring that teams understand the rules and
 The White Cell Checklist has the full list, from a week out to cleanup, in order.
 
 - [ ] Everyone in the white cell has at least skimmed the Likely Plans guide, so you know the COAs to expect and where to look up how to rule on them.
-- [ ] You're in your group's Slack channel and both of its team channels (§2.4).
-- [ ] Everyone in the white cell has at least skimmed **both** sides' intelligence products and the key (Intelligence and Injects §3), and knows how to look one up, so you can check a Pro that may be built on a false report.
+- [ ] You're in your group's Slack channel and {{ "both" if n_teams == 2 else "all " ~ word(n_teams) }} of its team channels (§2.4).
+- [ ] Everyone in the white cell has at least skimmed **every** team's intelligence products and the key (Intelligence and Injects §3), and knows how to look one up, so you can check a Pro that may be built on a false report.
 - [ ] The timer and dice program works on the room computer connected to the TV or projector (or the lead adjudicator's laptop, if the room has none) and shows on the screen, where every player can see it. Each logger's laptop opens the white cell site and Slack.
-- [ ] Printed: one **Print Packet** per table (`White Cell/Print Packet - One Table.pdf`). `Print Packet - One Table, Reference Forms.pdf` is the same packet with one copy of each player form and slip for each side and no spares, for tables that will photocopy their own. Its cover lists what is in it: the White Cell Checklist, White Cell Forms (score sheet, ongoing-effects sheet, objective status card, both placement forms), starting-condition cue cards, counters, the map in letter tiles, both teams' player forms and request slips, and spare forms and slips at the back. Print the game pieces (counters, map, cue cards) in colour and the rest in greyscale. For one large map, print `map-full.pdf` on a plotter.
-- [ ] Counters printed and cut out: one set per table. It shows **both** sides' hidden assets, so keep it with the white cell. The HIDDEN counters stay in an envelope until they go on the map (§2.3).
+- [ ] Printed: one **Print Packet** per table (`White Cell/Print Packet - One Table.pdf`). `Print Packet - One Table, Reference Forms.pdf` is the same packet with one copy of each player form and slip for each team and no spares, for tables that will photocopy their own. Its cover lists what is in it: the White Cell Checklist, White Cell Forms (score sheet, ongoing-effects sheet, objective status card, a placement form for each team), starting-condition cue cards, counters, the map in letter tiles, each team's player forms and request slips, and spare forms and slips at the back. Print the game pieces (counters, map, cue cards) in colour and the rest in greyscale. For one large map, print `map-full.pdf` on a plotter.
+- [ ] Counters printed and cut out: one set per table. It shows **every** team's hidden assets, so keep it with the white cell. The HIDDEN counters stay in an envelope until they go on the map (§2.3).
 
 ### 2.3 Table setup
 
@@ -79,9 +77,9 @@ The **Table Setup Guide** is the at-the-table version of this section: the devic
 | [Track] | **[start]**. [Any change at the kickoff inject.] |
 | [Track] | **[start]** |
 
-**Objective status card** (White Cell Forms §3): blank, **face down with the logger**. Each logger also keeps its side's **placement form** (White Cell Forms §4) face down. Never put it beside the ongoing-effects sheet, because it shows what the secret objectives look for.
+**Objective status card** (White Cell Forms §3): blank, **face down with the logger**. Each logger also keeps its team's **placement form** (White Cell Forms §4) face down. Never put it beside the ongoing-effects sheet, because it shows what the secret objectives look for.
 
-**Starting-condition cue cards** (face up, visible to both teams): [S-R1 to S-R*n*, S-B1 to S-B*n*].
+**Starting-condition cue cards** (face up, visible to {{ both }} teams): [S-R1 to S-R*n*, S-B1 to S-B*n*].
 
 **Counters on the central map (visible only)**
 
@@ -111,12 +109,12 @@ A hidden counter goes on the map under three conditions:
 
 ### 2.4 Slack channels
 
-Nothing is handed over on paper (Rules §2.5). Slack is the **record**: teams still brief and argue **aloud**, and only what is said in the slot counts. The designer creates the channels and sends the invitations. Each group has a **public group channel** (both teams and the white cell) and a **secret team channel** for each team (that team and the white cell). Each logger watches its side's team channel.
+Nothing is handed over on paper (Rules §2.5). Slack is the **record**: teams still brief and argue **aloud**, and only what is said in the slot counts. The designer creates the channels and sends the invitations. Each group has a **public group channel** ({{ both }} teams and the white cell) and a **secret team channel** for each team (that team and the white cell). Each logger watches its team's channel.
 
-| Group | Group channel (public) | REDFOR team channel | BLUEFOR team channel |
-| --- | --- | --- | --- |
-| 1 | `[prefix]-group1-[room]` | `[prefix]-alpha-redfor` | `[prefix]-bravo-bluefor` |
-| 2 | `[prefix]-group2-[room]` | `[prefix]-charlie-redfor` | `[prefix]-delta-bluefor` |
+| Group | Group channel (public) | {{ team_cols("{label} team channel") }} |
+| --- | --- | {{ team_cols("---") }} |
+| 1 | `[prefix]-group1-[room]` | {{ team_cols("[prefix]-{lname}-{id}", 1, code=True) }} |
+| 2 | `[prefix]-group2-[room]` | {{ team_cols("[prefix]-{lname}-{id}", 2, code=True) }} |
 
 | Teams post | Where | When | White cell does |
 | --- | --- | --- | --- |
@@ -130,7 +128,7 @@ Nothing is handed over on paper (Rules §2.5). Slack is the **record**: teams st
 
 {% endif %}
 
-- Post nothing in a team channel except answers and procedure ("Requests closed"). Never put anything from a team channel into the group channel or the other team's channel.
+- Post nothing in a team channel except answers and procedure ("Requests closed"). Never put anything from a team channel into the group channel or another team's channel.
 - **Slack down?** Hand out the backup paper slips from the Print Packet and carry on.
 
 <!-- pagebreak -->
@@ -186,7 +184,7 @@ Read these aloud, word for word or close to it.
 - **Laundry lists.** Count only the first three reasons and only one action. If a COA tries to do two unrelated things, tell the briefer to pick one, or pick the first.
 - **Behind schedule?** Shorten **Prepare** (to {{ flex }}). **Never cut the Cons.**
 - **Players out of bounds?** Kill the COA outright, or deliver I-13, a bounding directive.
-- **Simultaneous execution and REDFOR reacting to BLUEFOR.** Both COAs take place simultaneously across the {{ days(game_days, adj=True) }} turn window. REDFOR, briefing second, may react to BLUEFOR's COA, which is realistic. However, REDFOR **may not simply negate** BLUEFOR's COA ("their strike doesn't happen") or prevent BLUEFOR's roll. Negating is what Cons are for; a counter-move is resolved as an **Interacting** or **Directly Opposed** COA (§5.3).
+- **Simultaneous execution and reacting.** {{ Both }} COAs take place simultaneously across the {{ days(game_days, adj=True) }} turn window. A team that briefs later in the order ({{ team_order }}) may react to an earlier team's COA, which is realistic. However, it **may not simply negate** that COA ("their strike doesn't happen") or prevent its roll. Negating is what Cons are for; a counter-move is resolved as an **Interacting** or **Directly Opposed** COA (§5.3).
 
 <!-- pagebreak -->
 
@@ -254,11 +252,11 @@ Ask four questions. **Four yeses = strong (±1).** Decisive on its own = ±2. An
 
 ### 5.3 Interacting COAs (simultaneous execution)
 
-Both COAs happen simultaneously across the {{ days(game_days, adj=True) }} turn window. Because REDFOR briefs second, REDFOR's COA cannot preempt BLUEFOR from rolling; instead, resolve interactions using one of these three cases:
+{{ Both }} COAs happen simultaneously across the {{ days(game_days, adj=True) }} turn window. A team that briefs later can't stop an earlier team's COA from being rolled; instead, resolve interactions using one of these three cases:
 
-- **Independent** (different places or effects): resolve each normally, BLUEFOR's first.
+- **Independent** (different places or effects): resolve each normally, in briefing order ({{ first_team }}'s first).
 - **Interacting** (one affects the other's odds): fold the interaction into the modifiers.
-- **Directly opposed** (both can't succeed): **opposed roll**. Roll 2d6 for each side, each adds its own modifiers, and the higher total wins. A tie means both are **Partial**, the situation stays contested, and you describe a stalemate.
+- **Directly opposed** (both can't succeed): **opposed roll**. Roll 2d6 for each team in the contest (the dice program's opposed roll takes every team), each adds its own modifiers, and the highest total wins. A tie for highest means those teams are **Partial**, the situation stays contested, and you describe a stalemate.
 
 ### 5.4 Special COA types
 
@@ -335,9 +333,9 @@ At the end of each resolve step, state any **ongoing effects** in one line ("ref
 
 ### 7.1 Parleys and diplomacy (no RFF)
 
-**A parley** (Rules §6.1) is a talk of up to {{ clock(parley) }} between the two teams during Prepare. It stands for talks between the governments during the turn, and it is the only way one team gets a decision from the other. It is not a COA or a request: no roll, no Pros or Cons, and it doesn't count against the {{ requests }} requests.
+**A parley** (Rules §6.1) is a talk of up to {{ clock(parley) }} between {{ "the two teams" if n_teams == 2 else "two or more teams" }} during Prepare. It stands for talks between the governments during the turn, and it is the only way one team gets a decision from another. It is not a COA or a request: no roll, no Pros or Cons, and it doesn't count against the {{ requests }} requests.
 
-1. A flight commander (or delegate) asks you. Authorize it unless Prepare is nearly over. The other team may decline.
+1. A flight commander (or delegate) asks you. Authorize it unless Prepare is nearly over. A team asked to parley may decline.
 2. One person from each team comes to the white cell end of the table. Start the **Parley** timer in the timer program (≤ {{ clock(parley) }}). Listen; don't mediate or advise.
 3. At the end, each side says aloud what it agreed to. Repeat the deal back. The logger notes it on the objective status card (White Cell Forms), including what each side says it agreed, if they differ.
 4. The deal **happens**. Apply its effects in this turn's resolve step. If the teams later dispute it, you decide from the logger's note. A broken deal is an established fact; you may move tracks.
@@ -367,7 +365,7 @@ Rule on RFFs during the resolve step and tell the team the **arrival turn**. **A
 | B-30 | Reserve mobilization: 2 infantry brigades | N+1 | Routine. If repeated, you may move a track for the economic cost. |
 | B-40 | Arms shipment from [Backer] | N+2 | **Routine.** REDFOR may try to interdict it in transit. |
 
-**No counter for it?** A free-text RFF or a force an inject creates (a third party's escort, a pirate band, an ally's squadron) goes on a **blank counter** from the white cell counter sheet: red R-, blue B-, or grey X- for third parties. Write the ID (free-text RFFs from **R-50** and **B-50**, inject forces from **X-01**), a short name, and the zone. Note it on that side's placement form.
+**No counter for it?** A free-text RFF or a force an inject creates (a third party's escort, a pirate band, an ally's squadron) goes on a **blank counter** from the white cell counter sheet: {% for s in sides %}{{ s.prefix }}- for {{ s.label }}, {% endfor %}or grey X- for third parties. Write the ID (free-text RFFs from {% for s in sides %}**{{ s.prefix }}-50**{% if not loop.last %}, {% endif %}{% endfor %}; inject forces from **X-01**), a short name, and the zone. Note it on that team's placement form.
 
 **Free-text RFFs** (not in a pool): judge them by realism, the timing table, and politics. A big request may need a successful COA first to build the case. **All assets must be U.S. systems.**
 
