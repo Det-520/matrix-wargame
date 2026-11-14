@@ -43,7 +43,7 @@ game_days = 3                       # days of game time one turn stands for (RUL
 #   - a block with its own [[block.step]] list (planning, an inject, a debrief, a break).
 # Block fields: name (long), short (on the bar), tag (2-3 letters, in the dice log),
 #   brief (optional, players' schedule: what the players do).
-# Step fields: name, min, who, side ("blue" or "red" colours it), say (the script or
+# Step fields: name, min, who, side (a [[side]] id: the step is that team's, in its colour), say (the script or
 #   action shown on the timer, which is on the room's screen, so nothing secret), and
 #   brief (optional, players' schedule; for a [[turn_step]], the players' turn clock
 #   table). requests_due = true marks the planning step at whose end the planning
@@ -146,7 +146,17 @@ name = "End of game & Debrief 2"
   say = "“That was the final turn. Here is where things stand.” Read the tracks and key map facts, and score (handbook §8). Phase III–IV flight commanders lead Debrief 2."
   brief = "The white cell scores objectives; your Phase III–IV flight commander leads Debrief 2."
 
-# The steps of one full turn, in order (RULES.md §2.2). BLUEFOR always goes first.
+# The steps of one full turn, in order (RULES.md §2.2). The teams brief in the order of
+# [[side]]. Each team has a COA step and a Cons step. A third team adds one of each (after
+# the other COA steps, and after the other Cons steps) and about one more minute of resolve
+# time (RULES.md §2.6), for example:
+#   [[turn_step]]
+#   id = "gcoa"
+#   name = "GRAYFOR COA + Pros"
+#   min = 2
+#   who = "GRAYFOR"
+#   side = "grayfor"
+#   say = "“GRAYFOR, your COA.” No interruptions."
 [[turn_step]]
 id = "prep"
 name = "Prepare"
@@ -160,7 +170,7 @@ id = "bcoa"
 name = "BLUEFOR COA + Pros"
 min = 2
 who = "BLUEFOR"
-side = "blue"
+side = "bluefor"
 say = "“BLUEFOR, your COA.” No interruptions."
 brief = "Brief aloud: action, measurable effect, up to 3 reasons. Post the same COA in the group channel before the step ends."
 
@@ -169,7 +179,7 @@ id = "rcoa"
 name = "REDFOR COA + Pros"
 min = 2
 who = "REDFOR"
-side = "red"
+side = "redfor"
 say = "“REDFOR, your COA.” No interruptions. REDFOR may react to BLUEFOR's COA but not negate it."
 brief = "Brief aloud: action, measurable effect, up to 3 reasons. Post the same COA in the group channel before the step ends."
 
@@ -186,7 +196,7 @@ id = "rcons"
 name = "REDFOR Cons → BLUEFOR COA"
 min = 1
 who = "REDFOR"
-side = "red"
+side = "redfor"
 say = "“REDFOR, your Cons on BLUEFOR's COA.”"
 brief = "Up to 3 reasons BLUEFOR's COA fails or has costs. Post them in the group channel before the step ends."
 
@@ -195,7 +205,7 @@ id = "bcons"
 name = "BLUEFOR Cons → REDFOR COA"
 min = 1
 who = "BLUEFOR"
-side = "blue"
+side = "bluefor"
 say = "“BLUEFOR, your Cons on REDFOR's COA.”"
 brief = "Up to 3 reasons REDFOR's COA fails or has costs. Post them in the group channel before the step ends."
 
@@ -248,11 +258,57 @@ range = [0, 5]
 start = 4
 triggers = [{ at = 0, text = "BLUEFOR's government collapses." }]
 
-[sides]
-# The two player sides are always REDFOR and BLUEFOR (folder names, R-/B- IDs,
-# colours). These are who each side plays in the game world, for display only.
-red = "Redland"
-blue = "Blueland"
+# ---------------------------------------------------------------- teams
+# The player teams, in briefing order: the first one listed briefs its COA first in every
+# turn (RULES.md §2.2). Two teams is the default. For a third player team (GRAYFOR, a
+# coalition partner with its own agenda, an insurgency), add a [[side]], give it a COA step
+# and a Cons step in [[turn_step]] (side = its id), and copy a team's files for it
+# (DESIGN-GUIDE.md §2.1). Fields:
+#   id      folder name: handouts/<id>/ and scenario/<id>-packet.md; a step's `side` names it
+#   label   what the documents call the team; its release folder is "<label> - 24H RELEASE"
+#   nation  who the team plays in the game world
+#   prefix  one capital letter for its IDs: assets B-01, intelligence products BI-01,
+#           starting conditions S-B1, objectives B1 (X and S are taken)
+#   color   its colour on counters, PDFs, the site, and the timer (#rrggbb)
+#
+# Cells (optional): [[side.cell]] splits a team into cells under its commander, such as
+# intelligence, communications, and an air component (RULES.md §9.1). The team still makes
+# one COA a turn. Fields: id, name, short (up to 4 letters, printed on its counters),
+# lead (the cell lead's title), job (one line). A cell owns the assets whose `cell` column
+# in scenario/data/assets.csv names it, and gets its own brief if
+# handouts/<side id>/cells/<cell id>.md exists.
+[[side]]
+id = "bluefor"
+label = "BLUEFOR"
+nation = "Blueland"
+prefix = "B"
+color = "#0969da"
+
+[[side]]
+id = "redfor"
+label = "REDFOR"
+nation = "Redland"
+prefix = "R"
+color = "#cf222e"
+#  [[side.cell]]
+#  id = "air"
+#  name = "Air Component"
+#  short = "AIR"
+#  lead = "Air component commander"
+#  job = "Plans and briefs the air COAs; owns the fighters, bombers, and tankers"
+#  [[side.cell]]
+#  id = "intel"
+#  name = "Intelligence Cell"
+#  short = "INT"
+#  lead = "Senior intelligence officer"
+#  job = "Owns the RFIs and the ISR assets; keeps the enemy picture"
+
+# [[side]]
+# id = "grayfor"
+# label = "GRAYFOR"
+# nation = "Grayland"
+# prefix = "G"
+# color = "#6e7781"
 
 [map]
 svg = "map/source/map.svg"          # the master map, drawn in any tool and saved as SVG

@@ -11,7 +11,7 @@ What it does:
 - Renders each handout in RELEASES from markdown to HTML (CommonMark plus
   tables and task lists) and prints it to PDF in Chromium. The look follows the
   "Repo" theme at markdown.style (GitHub's markdown style) with one accent colour
-  per audience: green public, red REDFOR, blue BLUEFOR, purple white cell.
+  per audience: green public, purple white cell, and each team its game.toml colour.
   The running header (short name | // MARKING // | date) and the page numbers
   sit in CSS page-margin boxes, inside the page margins, so nothing is lost
   when a printer trims the edge.
@@ -19,8 +19,11 @@ What it does:
   handouts/word/, built by tools/tq/build_tq.py. Run that first after changing
   one of them. An intelligence product with a Word version (handouts/word/RI-07 ...)
   uses it in place of its markdown.
-- Splices each side's intelligence products into one "Full Intel" PDF, each
+- Splices each team's intelligence products into one "Full Intel" PDF, each
   product starting on a new page.
+- Makes one release folder per team ([[side]] in game.toml), from the files in
+  handouts/<side id>/ that exist: commander's letter, team packet, order of battle,
+  intelligence, counters, and a brief for each cell (cells/<cell id>.md).
 - Copies the counters, the map (game.toml [map]), and the white cell clock into place
   (tools/build_handouts.sh first runs tools/schedule.py --write, which sets up the clock
   from game.toml's run of show).
@@ -70,34 +73,74 @@ FIN = os.path.join(ROOT, "build")
 FONTS = os.path.join(ROOT, "tools", "fonts")
 
 ASAP, WEEK = "Common Matrix - ASAP RELEASE", "Common Scenario - 1WK RELEASE"
-RED, BLUE, WC = "REDFOR - 24H RELEASE", "BLUEFOR - 24H RELEASE", "White Cell"
+WC = "White Cell"
+SIDES = GAME["side"]   # the player teams, in briefing order: id, label, prefix, color, cells, folder
 
 G = GAME["game"]
 MATRIX = (G["rules_label"], "// PUBLIC //", G["rules_date"])
 PUBLIC = (G["name"], "// PUBLIC //", G["date_short"])
-RED_ONLY = (G["name"], "// REDFOR ONLY //", G["date_short"])
-BLUE_ONLY = (G["name"], "// BLUEFOR ONLY //", G["date_short"])
 WC_ONLY = (G["name"], "// WHITE CELL ONLY //", G["date_short"])
+
+
+def only(side):
+    """The running header for one team's documents."""
+    return (G["name"], f"// {side['label']} ONLY //", G["date_short"])
+
+
+def tint(hexcolor, keep=0.12):
+    """A light tint of a colour: mostly white."""
+    rgb = [int(hexcolor[i:i + 2], 16) for i in (1, 3, 5)]
+    return "#" + "".join("%02x" % round(255 - (255 - c) * keep) for c in rgb)
+
 
 # Accent and tint for each marking.
 THEMES = {
     "PUBLIC": ("#1a7f37", "#dafbe1"),
-    "REDFOR": ("#cf222e", "#ffebe9"),
-    "BLUEFOR": ("#0969da", "#ddf4ff"),
     "WHITE CELL": ("#8250df", "#fbefff"),
+    **{f"{s['label']} ONLY": (s["color"], tint(s["color"])) for s in SIDES},
 }
 
 
 def theme(header):
     mark = header[1] if header else "PUBLIC"
     for k, v in THEMES.items():
-        if k in mark:
+        if f"// {k} //" == mark or (k in ("PUBLIC", "WHITE CELL") and k in mark):
             return v
     return THEMES["PUBLIC"]
 
 
-def intel(side):
-    return sorted(glob.glob(os.path.join(H, side, "intel", f"{side[0].upper()}I-*.md")))
+INTEL_ID = re.compile(r"^[%s]I-\d\d" % "".join(s["prefix"] for s in SIDES))
+
+
+def intel(side_id):
+    side = next(s for s in SIDES if s["id"] == side_id)
+    return sorted(glob.glob(os.path.join(H, side_id, "intel", f"{side['prefix']}I-*.md")))
+
+
+def side_releases(side):
+    """One team's release folder, from the files in handouts/<side id>/ that exist."""
+    sid, label, hdr, rel = side["id"], side["label"], only(side), side["folder"]
+    has = lambda f: os.path.exists(os.path.join(H, sid, f))  # noqa: E731
+    out = []
+    letter = f"{sid}/commanders-letter.md"
+    tq = next((d["key"] for d in GAME["tq"] if d["src"] == f"handouts/{letter}"), None)
+    if tq:
+        out.append((rel, f"{tq}.pdf", None, [("word", tq)]))
+    elif has("commanders-letter.md"):
+        out.append((rel, f"{label} - Commander's Letter.pdf", hdr, [letter]))
+    if has("team-packet.md"):
+        out.append((rel, f"{label} Team Packet.pdf", hdr, [f"{sid}/team-packet.md"]))
+    for c in side["cells"]:
+        if has(f"cells/{c['id']}.md"):
+            out.append((rel, f"{label} Cell Brief - {c['name']}.pdf", hdr, [f"{sid}/cells/{c['id']}.md"]))
+    if has("order-of-battle.md"):
+        out.append((rel, f"{label} Order of Battle.pdf", hdr, [f"{sid}/order-of-battle.md"]))
+    if has("intel/00-read-me-first.md"):
+        out.append((rel, f"{label} Intel - Read Me First.pdf", hdr, [f"{sid}/intel/00-read-me-first.md"]))
+    if intel(sid):
+        out.append((rel, f"{label} Full Intel.pdf", hdr, f"intel:{sid}"))
+    out.append((rel, "counters.pdf", None, [("copy", f"handouts/{sid}/counters.pdf")]))
+    return out
 
 
 PACKET_NAME = "Print Packet - One Table.pdf"
@@ -119,18 +162,7 @@ RELEASES = [
     (WEEK, "Starting Conditions.pdf", PUBLIC, ["common/starting-conditions.md"]),
     (WEEK, "map-full.pdf", None, [("copy", map_pdf("full"))]),
     (WEEK, "map-tiles.pdf", None, [("copy", map_pdf("tiles_letter"))]),
-    (RED, "REDFOR - Commander's Letter.pdf", None, [("word", "REDFOR - Commander's Letter")]),
-    (RED, "REDFOR Team Packet.pdf", RED_ONLY, ["redfor/team-packet.md"]),
-    (RED, "REDFOR Order of Battle.pdf", RED_ONLY, ["redfor/order-of-battle.md"]),
-    (RED, "REDFOR Intel - Read Me First.pdf", RED_ONLY, ["redfor/intel/00-read-me-first.md"]),
-    (RED, "REDFOR Full Intel.pdf", RED_ONLY, "intel:redfor"),
-    (RED, "counters.pdf", None, [("copy", "handouts/redfor/counters.pdf")]),
-    (BLUE, "BLUEFOR - Commander's Letter.pdf", None, [("word", "BLUEFOR - Commander's Letter")]),
-    (BLUE, "BLUEFOR Team Packet.pdf", BLUE_ONLY, ["bluefor/team-packet.md"]),
-    (BLUE, "BLUEFOR Order of Battle.pdf", BLUE_ONLY, ["bluefor/order-of-battle.md"]),
-    (BLUE, "BLUEFOR Intel - Read Me First.pdf", BLUE_ONLY, ["bluefor/intel/00-read-me-first.md"]),
-    (BLUE, "BLUEFOR Full Intel.pdf", BLUE_ONLY, "intel:bluefor"),
-    (BLUE, "counters.pdf", None, [("copy", "handouts/bluefor/counters.pdf")]),
+    *[r for side in SIDES for r in side_releases(side)],
     (WC, "White Cell Handbook.pdf", WC_ONLY, ["whitecell/handbook.md"]),
     (WC, "White Cell Checklist.pdf", WC_ONLY, ["whitecell/checklist.md"]),
     (WC, "White Cell Table Setup Guide.pdf", WC_ONLY, ["whitecell/table-setup.md"]),
@@ -160,11 +192,11 @@ PACKET = [
     ("Table Setup Guide", (WC, "White Cell Table Setup Guide.pdf"), None, 1, "Devices, table layout, and where every counter starts. Set up before Phase I."),
     ("White Cell Forms", (WC, "White Cell Forms.pdf"), None, 1, "Score sheet, ongoing-effects sheet, objective status card, both placement forms. The ongoing-effects sheet goes beside the map; the rest stays face down with the loggers."),
     ("Starting conditions: reference and cue cards", (WEEK, "Starting Conditions.pdf"), None, 1, "Cut the cue cards apart and stand them face up beside the map."),
-    ("Counters, both sides", (WC, "counters.pdf"), None, 1, "Print at 100% (not \"fit to page\"), in colour, on card stock if you can. Shows hidden assets: white cell only."),
+    ("Counters, every team", (WC, "counters.pdf"), None, 1, "Print at 100% (not \"fit to page\"), in colour, on card stock if you can. Shows hidden assets: white cell only."),
     ("Map, letter tiles", (WEEK, "map-tiles.pdf"), None, 1, "Portrait, like the rest of the packet (the map is turned on the page). Trim and tape. For one large sheet, print map-full.pdf on a plotter instead."),
 ]
-# Each side's player forms, then spares for whichever side runs short. The player forms have a side box, so one stack serves both.
-for _side in ("REDFOR", "BLUEFOR"):
+# Each team's player forms, then spares for whichever team runs short. The player forms have a team box, so one stack serves all.
+for _side in [s["label"] for s in SIDES]:
     PACKET += [
         (f"{_side}: OPORD/FRAGO format", (ASAP, "Player Forms and Templates.pdf"), "1. Five-Paragraph", 1, "For reference; the brief doesn't have to follow it"),
         (f"{_side}: COA worksheets", (ASAP, "Player Forms and Templates.pdf"), "2. COA Worksheet", TURNS, "One per turn"),
@@ -178,8 +210,8 @@ PACKET += [
     ("Spare: COA worksheets", (ASAP, "Player Forms and Templates.pdf"), "2. COA Worksheet", 2, "Either side"),
     ("Spare: Cons worksheets", (ASAP, "Player Forms and Templates.pdf"), "3. Cons Worksheet", 2, "Either side"),
     ("Spare: secret COA slips", (ASAP, "Player Forms and Templates.pdf"), "6. Secret COA Slip", 2 if SECRET else 0, "Either side"),
-    ("Spare: REDFOR placement form", (WC, "White Cell Forms.pdf"), "4.1 REDFOR placement form", 1, "If the first fills up with crossings-out"),
-    ("Spare: BLUEFOR placement form", (WC, "White Cell Forms.pdf"), "4.2 BLUEFOR placement form", 1, "If the first fills up with crossings-out"),
+    *[(f"Spare: {s['label']} placement form", (WC, "White Cell Forms.pdf"), f"{s['label']} placement form", 1,
+       "If the first fills up with crossings-out") for s in SIDES],
 ]
 
 
@@ -252,7 +284,7 @@ def clean(text, is_intel=False, where="markdown"):
         if s.startswith("**Audience:**"):
             continue
         # the audience marking ("**REDFOR EYES ONLY.**", "**WHITE CELL ONLY.**"), not any bold REDFOR text
-        m = re.match(r"^\*\*(?:(?:REDFOR|BLUEFOR) EYES ONLY|WHITE CELL ONLY)\.\*\*\s*(\*\*Never show[^*]*\*\*\s*)?", s)
+        m = MARKING.match(s)
         if m:
             rest = s[m.end():].strip()
             if is_intel or not rest.startswith("*") or rest.startswith("**"):
@@ -265,13 +297,16 @@ def clean(text, is_intel=False, where="markdown"):
     return text
 
 
+MARKING = re.compile(r"^\*\*(?:(?:%s) EYES ONLY|WHITE CELL ONLY)\.\*\*\s*(\*\*Never show[^*]*\*\*\s*)?"
+                     % "|".join(re.escape(s["label"]) for s in SIDES))
+
+
 def side_class(heading_html):
-    """red/blue for a card or slip whose heading names a side (S-R1, R-30, REDFOR ...)."""
+    """mw-side-<id> for a card or slip whose heading names a team (S-R1, R-30, REDFOR ...)."""
     t = re.sub(r"<[^>]+>", "", heading_html)
-    if re.match(r"\s*(S-)?R-?\d|.*\bREDFOR\b", t):
-        return " mw-red"
-    if re.match(r"\s*(S-)?B-?\d|.*\bBLUEFOR\b", t):
-        return " mw-blue"
+    for side in SIDES:
+        if re.match(r"\s*(S-)?%s-?\d|.*\b%s\b" % (side["prefix"], re.escape(side["label"])), t):
+            return " mw-side-" + side["id"]
     return ""
 
 
@@ -418,7 +453,7 @@ table.mw-checkgrid td:first-child { width: 10%; white-space: nowrap; color: var(
 .mw-card h3 { margin: -0.16in -0.22in 0.12in; padding: 0.1in 0.22in; font-size: 15pt; color: #fff; background: var(--card); border-radius: 5px 5px 0 0; }
 .mw-card p { margin: 0 0 0.45em; }
 .mw-card { --card: var(--accent); }
-.mw-card.mw-red { --card: #cf222e; } .mw-card.mw-blue { --card: #0969da; }
+%(side_cards)s
 .mw-slip { border-bottom: 1.2pt dashed var(--muted); padding: 0 0 0.12in; margin: 0 0 0.16in; break-inside: avoid; }
 .mw-slip:last-child { border-bottom: 0; }
 table.mw-compact { font-size: 8pt; table-layout: fixed; line-height: 1.3; }
@@ -430,7 +465,7 @@ table.mw-compact th:nth-child(3) { width: 50%; }
 
 .pagebreak { break-after: page; height: 0; }
 .product { break-before: page; } .product:first-child { break-before: auto; }
-"""
+""".replace("%(side_cards)s", " ".join(".mw-card.mw-side-%s { --card: %s; }" % (x["id"], x["color"]) for x in SIDES))
 
 # Page frame. The header and footer sit in the margin boxes, inside the page margins.
 PAGE = """
@@ -464,11 +499,11 @@ def title_block(meta):
 def page_html(md_paths, header=WC_ONLY, doc_title=""):
     """One HTML document for one or more markdown files (several = intel products)."""
     bodies = []
-    many = any(re.match(r"^[RB]I-\d\d", os.path.basename(p)) for p in md_paths)
+    many = any(INTEL_ID.match(os.path.basename(p)) for p in md_paths)
     for rel in md_paths:
         path = rel if os.path.isabs(rel) else os.path.join(H, rel)
         meta, text = front_matter(open(path, encoding="utf-8").read())
-        is_product = bool(re.match(r"^[RB]I-\d\d", os.path.basename(path)))
+        is_product = bool(INTEL_ID.match(os.path.basename(path)))
         text = clean(text, is_intel=is_product, where=os.path.relpath(path, ROOT))
         body = render_markdown(text, os.path.dirname(path))
         if meta.get("title"):
@@ -563,7 +598,7 @@ def build_one(browser, folder, name, header, sources, work):
                     sys.exit(f"missing {os.path.relpath(p, ROOT)}: run tools/tq/build_tq.py first")
                 print(f"  note: no {os.path.relpath(p, ROOT)}; using {src} (run tools/tq/build_tq.py for the Word version)")
                 p = os.path.join(work, f"{len(os.listdir(work))}-{i}.pdf")
-                side = header or (RED_ONLY if "/redfor/" in src else BLUE_ONLY if "/bluefor/" in src else WC_ONLY)
+                side = header or next((only(x) for x in SIDES if f"/{x['id']}/" in src), WC_ONLY)
                 print_pdf(browser, page_html([os.path.join(ROOT, src)], side, short), p)
             pdfs.append(p)
     write_pdf(pdfs, name, dst, even=True)
@@ -581,10 +616,12 @@ def section_pages(pdf, heading):
     for i, pg in enumerate(pages):
         text = pg.extract_text() or ""
         for h in others:
-            if re.search(r"^\s*" + re.escape(h), text, re.M):
+            if re.search(r"^\s*(?:\d+(?:\.\d+)*\.?\s+)?" + re.escape(h), text, re.M):
                 starts.setdefault(h, i)
     if heading not in starts:
-        sys.exit(f"{os.path.relpath(pdf, ROOT)}: no section {heading!r}")
+        sys.exit(f"{os.path.relpath(pdf, ROOT)}: no section {heading!r}"
+                 + (" (each team in game.toml [[side]] needs its own placement form in the White Cell Forms §4)"
+                    if heading.endswith("placement form") else ""))
     later = sorted(v for v in starts.values() if v > starts[heading])
     return list(range(starts[heading], later[0] if later else len(pages)))
 
@@ -615,13 +652,13 @@ def packet_markdown(rows=None, variant="full"):
         'short: "Print Packet"',
         "---",
         "",
-        "**WHITE CELL ONLY.** This packet holds **both** sides' hidden counters and the white cell forms. "
+        "**WHITE CELL ONLY.** This packet holds **every team's** hidden counters and the white cell forms. "
         "Print it, split it into the stacks below, and keep it away from the players until each piece is handed out.",
         "",
     ]
     if ref:
         lines += [
-            "This version holds **one copy of each player form and slip for each side**, as a reference, and no spares. "
+            "This version holds **one copy of each player form and slip for each team**, as a reference, and no spares. "
             f"Photocopy more from it as needed, or print `{PACKET_NAME}` for the full count.",
             "",
         ]
@@ -650,7 +687,7 @@ def packet_markdown(rows=None, variant="full"):
         "- Print **double-sided** (flip on the long edge) **at 100% scale** (\"actual size\", not \"fit to page\"). Every page keeps its content inside a 0.75 in margin.",
         "- Every item starts on a new sheet: blank pages fill out any item with an odd page count. "
         "The counters, map tiles, and starting conditions have a blank back behind every page, so they can be cut apart and taped.",
-        "- **Colour** for the game pieces: the counters, map tiles, and cue cards use colour for sides. "
+        "- **Colour** for the game pieces: the counters, map tiles, and cue cards use colour for teams. "
         "Everything else (the forms, worksheets, and slips) is black and white, so print it in greyscale to save ink.",
         "- **Card stock** for the counters and cue cards, if you have it.",
         "- Cut the counters along the grey lines, and the cue cards and request slips along the dashed lines.",

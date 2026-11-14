@@ -27,6 +27,17 @@ To try timings out, open the timer program (`tools/whitecell-clock.html`), choos
 
 Choose the rule set in `game.toml` `[rules]`: `"full"`, or `"basic"` if most players are new to matrix games (no secret COAs and no estimative vote; `RULES.md` §0). Then confirm or change each tag in `RULES.md` and record what you changed in `RULES.md` §11. The turn clock tables, the step and turn lengths, the request limits and deadline, the parley length, the turn counts, the phase times, and the number of forms in the documents all follow `game.toml` on the next build (`python3 tools/schedule.py values` lists them). Only the phases' names and shape are written out by hand: if you rename or reshape the phases, update the handouts that name them (the Scenario Schedule's §1.2–1.4, the White Cell Checklist, the forms' planned-COA rows, the Rules Handbook, and the Basic Rules), and give each block the `tag` the documents quote (`P2.turns`, `P1.span`).
 
+**Teams.** The teams are the `[[side]]` entries in `game.toml`, in briefing order: BLUEFOR and REDFOR by default. Each has an `id` (its folder name), a `label`, the `nation` it plays, a one-letter ID `prefix`, and a `color`. Two teams is the right number for most events. Mouat's advice on choosing actors (*Practical Advice on Matrix Games*, "Number of Actors"):
+
+- Add a third player team (a GRAYFOR) only for an actor with real capacity for independent action and objectives that pull against **every** other team: a host nation that wants the foreigners gone, a coalition partner with its own agenda, an insurgency. A third team that only backs one side turns the game into two against one. An actor that matters only now and then is cheaper as a white-cell actor (`RULES.md` §3.5), with X- counters.
+- Don't list every state involved as its own team. Group them into blocs by what they want.
+- An even number of actors plays best, because the insight comes from action and counteraction. With three teams, give each one a reason to talk to both of the others.
+- Each team costs about 4 minutes a turn (`RULES.md` §2.6), so a third team usually means a shorter Prepare or fewer turns. Keep at least 6 turns.
+
+To add one: add the `[[side]]`; add its COA step and Cons step to `[[turn_step]]` (with `side` set to its id) and a minute to the resolve step; copy `handouts/redfor/` to `handouts/<id>/` and `scenario/redfor-packet.md` to `scenario/<id>-packet.md` and rewrite them; give it a `[[tq]]` entry for its commander's letter if it has one in Word; add its rows to `scenario/data/assets.csv` (its `side` is the label, its IDs use the prefix); add its placement form to the White Cell Forms §4; and add its Slack channel and logger in `EVENT-SETUP.md`. The tools find the rest: release folder, counters, intelligence products, Print Packet, site pages, timer colours, and opposed rolls. `python3 tools/check_assets.py` and `python3 tools/schedule.py --check` say what is missing.
+
+**Cells.** A team can be split into cells under its flight commander, such as intelligence, communications, and an air component, with `[[side.cell]]` entries under its `[[side]]` (`RULES.md` §9.4). The team still makes one COA a turn: each cell proposes, the commander chooses. Give a cell its assets with the `cell` column in `scenario/data/assets.csv` (its short name prints on the counters), and its own one-page brief in `handouts/<id>/cells/<cell id>.md`, which builds into the team's release folder and the site. A brief can give a cell its own concern that pulls against another cell's, so the team has to agree before it acts. Cells suit a large team (more than about 8 players) or an exercise about coordination inside a staff.
+
 ### 2.2 Write the premise
 
 One paragraph: who is fighting over what, why now, and why neither side can simply win. A good premise:
@@ -77,7 +88,9 @@ Each side gets **three secret objectives** (packet §3), each with criteria the 
 - can't be settled by a single COA;
 - include at least one that a negotiated outcome can satisfy for **both** sides, which gives the teams a reason to talk;
 - include one that is directly opposed to the other side's, through a track or a zone;
-- leave a trace the white cell can see. If the map and tracks don't record it, add a line to the objective status card (`scenario/whitecell-ground-truth.md` §3).
+- leave a trace the white cell can see. If the map and tracks don't record it, add a line to the objective status card (`scenario/whitecell-ground-truth.md` §3);
+- include one long-term objective, about the world after the crisis, so a team that plays only for the next turn has itself to blame (Mouat);
+- read well with an exclamation mark: "Keep the strait open!", not "Ensure the continued freedom of navigation through…". Put the scoring detail in the criteria, not the objective.
 
 Make the larger side's objectives aggressive and the other side's defensive, so a win by the larger side is possible but costly.
 

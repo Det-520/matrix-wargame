@@ -4,7 +4,7 @@ subtitle: "End-of-game scores, ongoing effects and big projects, objective statu
 short: "White Cell Forms"
 ---
 
-**WHITE CELL ONLY.** Fill each placement form (§4) with one row per hidden counter from the packets' force tables. **Printing:** each table needs 1 score sheet, 1 ongoing-effects sheet, 1 objective status card, and 1 placement form for each side (REDFOR and BLUEFOR).
+**WHITE CELL ONLY.** Fill each placement form (§4) with one row per hidden counter from the packets' force tables. **Printing:** each table needs 1 score sheet, 1 ongoing-effects sheet, 1 objective status card, and 1 placement form for each team ({{ teams }}).
 
 ## 1. End-of-game scores
 
@@ -15,16 +15,13 @@ Fill this in after Turn {{ turns }} (Handbook §8). Score each objective **A** (
 | End-of-game scores | Group ___ |
 | --- | --- |
 | **Lead adjudicator** | |
-| **REDFOR flight commanders** (Phase I–II / III–IV) | |
-| **BLUEFOR flight commanders** (Phase I–II / III–IV) | |
+| {{ team_rows("**{label} flight commanders** (Phase I–II / III–IV) | ") }} |
 
 <!-- mw:log -->
 
-| REDFOR objective | Result | BLUEFOR objective | Result |
+| Team | Objective 1 | Objective 2 | Objective 3 |
 | --- | --- | --- | --- |
-| R1 [Objective] | ☐ A ☐ P ☐ N | B1 [Objective] | ☐ A ☐ P ☐ N |
-| R2 [Objective] | ☐ A ☐ P ☐ N | B2 [Objective] | ☐ A ☐ P ☐ N |
-| R3 [Objective] | ☐ A ☐ P ☐ N | B3 [Objective] | ☐ A ☐ P ☐ N |
+| {{ team_rows("**{label}** | {prefix}1 ☐ A ☐ P ☐ N | {prefix}2 ☐ A ☐ P ☐ N | {prefix}3 ☐ A ☐ P ☐ N") }} |
 
 <!-- mw:form med -->
 
@@ -81,6 +78,8 @@ This sheet sits beside the map where both teams can see it. The tracks are not o
 ## 4. Placement forms
 
 **Keep face down, with that side's logger.** This form shows where things are **now**. It is not a log: don't write down every move. When a counter moves or changes state, cross out the old entry and write the new one. Visible counters start where Handbook §2.3 shows them; list one here only after it moves, is Degraded, or is Destroyed. The lead adjudicator checks this form before ruling on a hidden counter or a planned COA. **State:** R = Ready, D = Degraded, X = Destroyed.
+
+> **FORMAT NOTE (delete before printing):** one form per team, in the order of `game.toml` `[[side]]`, each headed "4.*n* LABEL placement form" (the Print Packet finds its spares by that heading). A team added in `game.toml` needs its own copy of the form.
 
 ### 4.1 REDFOR placement form
 

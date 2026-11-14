@@ -24,7 +24,7 @@ DEFAULTS = {
              "tables": 1, "rules_label": "Matrix Wargame", "rules_date": ""},
     "turns": {"requests_per_turn": 3, "planning_requests": 4, "secret_coas": 2, "game_days": 3},
     "rules": {"set": "full"},
-    "sides": {"red": "REDFOR", "blue": "BLUEFOR"},
+    "side": [],
     "map": {"svg": "map/source/map.svg", "name": "game_map", "tiles": 3},
     "schedule": {"start": "", "parley": 2, "flex_step": "", "flex_options": []},
     "block": [],
@@ -32,6 +32,36 @@ DEFAULTS = {
     "track": [],
     "tq": [],
 }
+
+
+# A side's colour when game.toml gives none, in the order the sides are listed.
+PALETTE = ["#0969da", "#cf222e", "#6e7781", "#1a7f37", "#bc4c00", "#8250df"]
+LEGACY_STEP_SIDE = {"blue": "bluefor", "red": "redfor"}
+RESERVED_IDS = {"common", "whitecell", "word", "assets", "intel", "design"}
+RESERVED_PREFIXES = {"X", "S"}   # X- third-party counters, S- starting conditions
+
+
+def sides_from(data):
+    """The player teams, in briefing order, with every field filled in. An old game.toml's
+    [sides] red/blue table (names only) gives the two default teams."""
+    raw = data.get("side")
+    if raw is None:
+        old = data.get("sides", {})
+        raw = [{"id": "bluefor", "label": "BLUEFOR", "nation": old.get("blue", "BLUEFOR"), "prefix": "B"},
+               {"id": "redfor", "label": "REDFOR", "nation": old.get("red", "REDFOR"), "prefix": "R"}]
+    out = []
+    for i, s in enumerate(raw):
+        sid = str(s.get("id", "")).strip()
+        label = s.get("label") or sid.upper()
+        cells = []
+        for c in s.get("cell", []):
+            cid = str(c.get("id", "")).strip()
+            cells.append({"id": cid, "name": c.get("name") or cid, "short": c.get("short") or cid.upper()[:4],
+                          "lead": c.get("lead", ""), "job": c.get("job", "")})
+        out.append({"id": sid, "label": label, "nation": s.get("nation") or label,
+                    "prefix": s.get("prefix") or label[:1].upper(), "color": s.get("color") or PALETTE[i % len(PALETTE)],
+                    "cells": cells, "folder": f"{label} - 24H RELEASE"})
+    return out
 
 
 def load(path=os.path.join(ROOT, "game.toml")):
@@ -43,6 +73,10 @@ def load(path=os.path.join(ROOT, "game.toml")):
             out[key] = {**default, **data.get(key, {})}
         else:
             out[key] = data.get(key, default)
+    out["side"] = sides_from(data)
+    for s in out["turn_step"] + [st for b in out["block"] for st in b.get("step", [])]:
+        if s.get("side") in LEGACY_STEP_SIDE:  # side = "blue" / "red", from before [[side]]
+            s["side"] = LEGACY_STEP_SIDE[s["side"]]
     check(out)
     out["turns"]["total"] = sum(b.get("turns", 0) for b in out["block"])
     return out
@@ -81,8 +115,56 @@ def check(g):
         vals = track_values(t)
         if t.get("start") not in vals:
             errs.append(f"[[track]] {t.get('name', '?')}: `start` must be one of its values")
+    errs += check_sides(g)
     if errs:
         sys.exit("game.toml:\n  " + "\n  ".join(errs))
+
+
+def check_sides(g):
+    errs, seen = [], {"id": set(), "label": set(), "prefix": set()}
+    if len(g["side"]) < 2:
+        errs.append("[[side]]: a game needs at least two player teams")
+    for s in g["side"]:
+        at = f"[[side]] {s['id'] or '?'}"
+        if not re.fullmatch(r"[a-z][a-z0-9-]*", s["id"]) or s["id"] in RESERVED_IDS:
+            errs.append(f"{at}: `id` must be lowercase letters, digits, or hyphens (it names a folder), "
+                        f"and not one of {', '.join(sorted(RESERVED_IDS))}")
+        if not re.fullmatch(r"[A-Z]", s["prefix"]) or s["prefix"] in RESERVED_PREFIXES:
+            errs.append(f"{at}: `prefix` must be one capital letter other than X (third parties) and S (starting conditions)")
+        if not re.fullmatch(r"#[0-9a-fA-F]{6}", s["color"]):
+            errs.append(f"{at}: `color` must be #rrggbb")
+        for k in seen:
+            if s[k] in seen[k]:
+                errs.append(f"{at}: another side has the same `{k}` ({s[k]})")
+            seen[k].add(s[k])
+        cids = [c["id"] for c in s["cells"]]
+        for c in s["cells"]:
+            if not re.fullmatch(r"[a-z][a-z0-9-]*", c["id"]):
+                errs.append(f"{at} cell {c['id'] or '?'}: `id` must be lowercase letters, digits, or hyphens")
+            if cids.count(c["id"]) > 1:
+                errs.append(f"{at}: two cells have the id {c['id']}")
+    ids = {s["id"] for s in g["side"]}
+    for st in g["turn_step"] + [x for b in g["block"] for x in b.get("step", [])]:
+        if st.get("side") and st["side"] not in ids:
+            errs.append(f"step {st.get('name', '?')}: side = {st['side']!r} names no [[side]] id")
+    return errs
+
+
+def warnings(g=None):
+    """Advice, not errors: things Mouat's Practical Advice on Matrix Games warns against."""
+    g = g or GAME
+    out = []
+    if g["turns"]["total"] < 6:
+        out.append(f"the run of show has {g['turns']['total']} turns; Mouat recommends at least 6, so each team "
+                   "lives with the consequences of its moves through two cycles of action, reaction, and counteraction")
+    if len(g["side"]) > 2 and len(g["side"]) % 2:
+        out.append(f"{len(g['side'])} player teams: Mouat finds an even number of actors plays best, since the insight "
+                   "comes from action and counteraction; give the odd team objectives that conflict with every other team")
+    turn_sides = {st.get("side") for st in g["turn_step"]}
+    for s in g["side"]:
+        if g["turn_step"] and s["id"] not in turn_sides:
+            out.append(f"no [[turn_step]] has side = \"{s['id']}\", so {s['label']} has no COA or Cons slot in a turn")
+    return out
 
 
 # ---------------------------------------------------------------- templates
@@ -125,6 +207,22 @@ def days(n, adj=False):
     return f"{q}-{unit}" if adj else f"{q} {unit}{'' if q == '1' else 's'}"
 
 
+def join(items, conj="and"):
+    """['A', 'B', 'C'] -> 'A, B, and C'; two items take no comma."""
+    items = list(items)
+    if len(items) < 3:
+        return f" {conj} ".join(items)
+    return ", ".join(items[:-1]) + f", {conj} " + items[-1]
+
+
+def team_rows(row, g=None):
+    """One table row per team. `row` is the cells between the outer pipes, with {label}, {prefix},
+    {nation}, and {id} filled in for each team. Write the line as | {{ team_rows("{label} | {prefix}1") }} |
+    so the markdown stays one valid table row."""
+    g = g or GAME
+    return " |\n| ".join(row.format(**x) for x in g["side"])
+
+
 def span(a, b):
     return f"{a}–{b}" if a != b else f"{a}"
 
@@ -153,7 +251,16 @@ def context(g=None, rule_set=None):
     slips = t["planning_requests"] + t["total"] * t["requests_per_turn"]
     c = {
         "rules": rule_set or g["rules"]["set"],
-        "game": g["game"], "sides": g["sides"],
+        "game": g["game"],
+        "sides": g["side"],                         # the player teams, in briefing order
+        "side": {x["id"]: x for x in g["side"]},    # side.redfor.label, .nation, .prefix, .cells
+        "teams": join([x["label"] for x in g["side"]]),            # "BLUEFOR and REDFOR"
+        "teams_or": join([x["label"] for x in g["side"]], "or"),   # "BLUEFOR or REDFOR"
+        "team_boxes": " ".join("☐ " + x["label"] for x in g["side"]),  # a form's tick boxes
+        "team_slash": "/".join(x["label"] for x in g["side"]),     # "BLUEFOR/REDFOR"
+        "first_team": g["side"][0]["label"],
+        "team_order": ", ".join(x["label"] for x in g["side"][:-1]) + ", then " + g["side"][-1]["label"],  # "BLUEFOR, then REDFOR"
+        "cells": any(x["cells"] for x in g["side"]),   # some team works in cells (RULES.md §9.4)
         "turn_min": turn_len,                       # minutes in one turn
         "turns": t["total"],                        # turns in the game
         "game_days": t["game_days"],                # days of game time a turn stands for
@@ -161,7 +268,7 @@ def context(g=None, rule_set=None):
         "secret_coas": t["secret_coas"], "parley": g["schedule"]["parley"],
         "slips": slips, "slip_pages": -(-slips // 3),
         "mins": mins, "clock": clock_len, "word": word, "Word": lambda n: word(n).capitalize(), "days": days,
-        "ticks": ticks, "turn_columns": turn_columns, "turn_rule": turn_rule,
+        "ticks": ticks, "turn_columns": turn_columns, "turn_rule": turn_rule, "team_rows": team_rows,
     }
     flex = next((s for s in g["turn_step"] if s.get("id") and s["id"] == g["schedule"]["flex_step"]), None)
     c["flex"] = ", then ".join(clock_len(m) for m in g["schedule"]["flex_options"] if flex and m < flex["min"])
@@ -334,6 +441,7 @@ def clock_config(g=None):
         "start": str(sch["start"]),
         "parley": sch["parley"],
         "flex": {"step": sch["flex_step"], "options": sch["flex_options"]} if sch["flex_step"] else None,
+        "sides": [{"id": x["id"], "label": x["label"], "color": x["color"]} for x in g["side"]],
         "blocks": blocks,
         "turn": [{k: s[k] for k in ("id", "name", "min", "who", "side", "say", "brief") if k in s} for s in g["turn_step"]],
         "tracks": [{k: t[k] for k in ("id", "name", "values", "range", "start", "ends", "triggers") if k in t}
@@ -342,6 +450,14 @@ def clock_config(g=None):
 
 
 GAME = load()
+
+
+def side_of(label_or_id):
+    """The side whose id, label, or ID prefix this is (redfor, REDFOR, R), or None."""
+    for x in GAME["side"]:
+        if label_or_id in (x["id"], x["label"], x["prefix"]):
+            return x
+    return None
 
 
 def map_pdf(kind):
