@@ -1,0 +1,21 @@
+// markdownlint settings for the wargame's markdown.
+// Check:  npx markdownlint-cli2
+// Fix what can be fixed automatically:  npx markdownlint-cli2 --fix
+{
+  "config": {
+    "default": true,
+    // One paragraph per line is the house style, so line length isn't checked.
+    "MD013": false,
+    // Headings stop at h3. A fourth-level label is a bold line instead, which MD036 would flag.
+    "MD036": false
+  },
+  "globs": ["**/*.md"],
+  "ignores": [
+    "site/src/**",
+    "site/book/**",
+    "references/**",
+    "node_modules/**",
+    // CLAUDE.md is a one-line import of AGENTS.md.
+    "CLAUDE.md"
+  ]
+}

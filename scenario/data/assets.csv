@@ -1,0 +1,12 @@
+id,side,owner,asset,service,availability,zone,parts,part_asset,visibility,core_function,arrives,approval,role,limitation
+R-01,REDFOR,RED,F-35A Lightning II squadron (~12),USAF,start,Z6,,,visible,AS;GPA,,,"Stealth multirole strike, sensor fusion","Limited internal load; needs tankers; high maintenance"
+R-05,REDFOR,RED,KC-46A Pegasus tanker detachment,USAF,start,Z6,,,visible,RGM,,,"Air refueling","Unarmed high-value target"
+R-16,REDFOR,RED,B-52H Stratofortress (JASSM-ER/LRASM),USAF,home,Z1,,,visible,GPA,,,"Standoff strike from home","Whole-turn sortie; not stealthy"
+R-18,REDFOR,RED,B-2A Spirit,USAF,home,Z1,,,hidden,GPA,,,"Stealth penetrating bomber","Very few airframes; loss is a shock"
+R-30,REDFOR,RED,Additional F-35A squadron,USAF,rff,Z6,,,visible,AS;GPA,N+1,"Needs basing room","Stealth multirole","Forward base crowded"
+B-01,BLUEFOR,BLUE,F-16C/D Fighting Falcon squadron (~12),Air Force,start,Z11,,,visible,,,,"Multirole air defense and strike","Outclassed by 5th-gen fighters; one main base"
+B-04,BLUEFOR,BLUE,Patriot battalion (PAC-2),Army,start,Z10,,,visible,,,,"Air and missile defense of the coast","Slow to relocate; radar emits"
+B-07,BLUEFOR,BLUE,Early-warning radar network (3 sites),Air Force,start,Z10;Z11;Z12,3,Early-warning radar site,visible,,,,"Cues fighters and Patriot","Fixed emitting sites; easy to find and jam"
+B-09,BLUEFOR,BLUE,Harpoon coastal-defense battery,Navy,start,Z10,,,hidden,,,,"Mobile anti-ship missiles","Needs targeting data; exposed once it fires"
+B-30,BLUEFOR,BLUE,Reserve mobilization (2 infantry brigades),Army,rff,Z11,,,visible,,N+1,Routine,"Ground defense","Costly if repeated"
+B-40,BLUEFOR,BACKER,Arms shipment (Stinger/Javelin/Harpoon/PAC-2),Army,rff,Z11,,,visible,,N+2,Routine,"Reloads and new weapons","Interceptable in transit"

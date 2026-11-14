@@ -1,0 +1,51 @@
+# The facts about this game that the tools need. Edit these when you start a new
+# scenario; everything else the tools read comes from the markdown and the CSV.
+# Read by tools/game.py (standard library tomllib, Python 3.11 or later).
+
+[game]
+name = "Operation Example"          # the scenario's name: PDF headers, counters, site, stamps
+designer = "C/Lastname"             # owner and designer, written into PDF metadata
+event = "AFROTC LLAB N"             # the event that hosts the game
+date = "1 January 2027"             # event date as written in prose
+date_short = "01Jan2027"            # event date in the PDF running headers
+tables = 4                          # tables (groups) playing at once: one Print Packet each
+
+# The scenario-free release (rules handbook and player forms) goes out before the
+# scenario is announced, so it carries a generic header instead of the game's name.
+rules_label = "Matrix Wargame"
+rules_date = "January 2027"
+
+[turns]
+total = 7                           # full turns in the game (RULES.md §2.1)
+requests_per_turn = 3               # RFIs and RFFs combined (RULES.md §5)
+planning_requests = 4               # Phase I limit (RULES.md §2.3)
+secret_coas = 2                     # one per playing phase (RULES.md §3.4)
+
+[sides]
+# The two player sides are always REDFOR and BLUEFOR (folder names, R-/B- IDs,
+# colours). These are who each side plays in the game world, for display only.
+red = "Redland"
+blue = "Blueland"
+
+[map]
+svg = "map/source/map.svg"          # the master map, drawn in any tool and saved as SVG
+name = "game_map"                   # builds map/maps/<name>_full.pdf and <name>_tiles_letter.pdf
+tiles = 3                           # the letter tiles are tiles x tiles pages
+
+# Tongue and Quill documents built with WordCraft (tools/tq/build_tq.py). One entry
+# per document: key is the output name in handouts/word/, kind is "memo" or "letter",
+# letterhead is three lines (line 1 may come from the markdown instead), and mark
+# (intelligence products only) is the audience marking printed in the product stamp.
+# An intelligence product's key starts with its ID (RI-07 ...), so the build swaps
+# the Word PDF in for the markdown version.
+[[tq]]
+key = "REDFOR - Commander's Letter"
+src = "handouts/redfor/commanders-letter.md"
+kind = "memo"
+letterhead = ["[RED NATION] MINISTRY OF DEFENSE", "OFFICE OF THE CHIEF OF STAFF", ""]
+
+[[tq]]
+key = "BLUEFOR - Commander's Letter"
+src = "handouts/bluefor/commanders-letter.md"
+kind = "letter"
+letterhead = ["OFFICE OF THE PRESIDENT", "[BLUE NATION]", "[CAPITAL]"]

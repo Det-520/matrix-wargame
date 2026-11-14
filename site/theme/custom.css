@@ -1,0 +1,49 @@
+/* The white cell site's additions to mdbook's theme: the same accent per
+   audience as the PDFs (green both teams, red REDFOR, blue BLUEFOR, purple
+   white cell), shown in the banner at the top of each page. */
+
+.mw-aud-public { --mw-accent: #1a7f37; --mw-tint: #dafbe1; }
+.mw-aud-red    { --mw-accent: #cf222e; --mw-tint: #ffebe9; }
+.mw-aud-blue   { --mw-accent: #0969da; --mw-tint: #ddf4ff; }
+.mw-aud-wc     { --mw-accent: #8250df; --mw-tint: #fbefff; }
+.navy .mw-banner, .coal .mw-banner, .ayu .mw-banner { --mw-tint: transparent; }
+
+/* Who may see this page. */
+.mw-banner {
+  margin: 0 0 1.5rem;
+  padding: 0.35rem 0.75rem;
+  border-left: 4px solid var(--mw-accent);
+  background: var(--mw-tint);
+  color: var(--mw-accent);
+  font-weight: 700;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+}
+
+/* The first heading, with the game name above and the subtitle below. */
+.mw-kicker {
+  margin: 0 0 -0.5rem;
+  font-size: 0.75em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg);
+  opacity: 0.7;
+}
+.mw-subtitle { margin-top: -0.5rem; font-size: 1.05em; opacity: 0.8; }
+
+/* The page's printable versions. */
+.mw-downloads {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--table-border-color);
+  border-radius: 6px;
+  font-size: 0.9em;
+}
+.mw-downloads span { font-weight: 700; margin-right: 0.4rem; }
+
+/* Wide tables scroll inside the page instead of widening it. */
+.content table { display: block; overflow-x: auto; }
+.content img { max-width: 100%; height: auto; }
+
+/* A table whose header row is empty (the key-value tables in intelligence products) shows no header. */
+.content table thead:not(:has(th:not(:empty))) { display: none; }

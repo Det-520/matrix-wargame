@@ -1,0 +1,65 @@
+# Build the white cell site (tools/build_all.sh) and publish it to GitHub Pages.
+# WHITE CELL ONLY: the site shows both sides' secrets, and a Pages site is public.
+# It runs only when started by hand (Actions -> Publish site -> Run workflow), so a
+# fresh scenario is never published by accident. To publish on every push to main,
+# add `push: branches: [main]` under `on:`.
+# WordCraft doesn't run here, so the Tongue and Quill documents come from the
+# copies committed in handouts/word/: rebuild them locally (tools/tq/build_tq.py)
+# and commit them when their markdown changes.
+name: Publish site
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Python packages and Chromium
+        run: |
+          pip install markdown-it-py mdit-py-plugins pypdf playwright numpy "shapely>=2" pillow
+          python3 -m playwright install --with-deps chromium
+          sudo apt-get install -y poppler-utils
+
+      - name: Install mdbook
+        run: |
+          mkdir -p "$HOME/.local/bin"
+          curl -fsSL https://github.com/rust-lang/mdBook/releases/download/v0.5.4/mdbook-v0.5.4-x86_64-unknown-linux-gnu.tar.gz | tar -xz -C "$HOME/.local/bin" || exit 1
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      # The Air Force reference PDFs often refuse scripted downloads, and the
+      # build doesn't need them; build_all.sh stops if the fonts are missing.
+      - name: Fetch fonts
+        run: python3 -I tools/fetch_third_party.py || true
+
+      - name: Build map, handouts, and site
+        run: SKIP_TQ=1 tools/build_all.sh
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/book
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

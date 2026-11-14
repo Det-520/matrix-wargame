@@ -1,0 +1,26 @@
+# The white cell site, built with mdbook. Run tools/build_site.sh from the project root:
+# it generates src/ from the project markdown, then runs mdbook into book/.
+# Don't edit src/ or book/. The title comes from game.toml ([game] name).
+[book]
+title = "White Cell Site"
+language = "en"
+src = "src"
+
+[build]
+build-dir = "book"
+create-missing = false
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "navy"
+additional-css = ["theme/custom.css"]
+smart-punctuation = false
+# Chapters are not numbered in the sidebar: the documents number their own sections.
+no-section-label = true
+# The release PDFs are the printable versions; one long print page of everything isn't needed.
+print = { enable = false }
+
+[output.html.search]
+enable = true
+limit-results = 30
+use-boolean-and = true

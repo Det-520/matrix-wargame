@@ -1,0 +1,72 @@
+# Matrix Wargame Base — Guide for AI Agents (and Humans Editing the Docs)
+
+This repository is a **base for building matrix wargames** run as AFROTC leadership exercises: a scenario-free rule set, templates for every scenario file and handout, and the tools that build them into printable packets and a white cell site. It was generalized from a game first run at an AFROTC LLAB (`README.md`). A copy of it becomes one scenario. Read this file before you change anything. `README.md` covers setup and building, and `DESIGN-GUIDE.md` covers building a scenario.
+
+**Base or scenario?** In this repository itself, keep everything generic: no scenario names, and placeholders in `[square brackets]`. The small Redland vs. Blueland example (assets R-01…, B-01…) exists only so the tools run. In a copy that has become a scenario, the designer named in `game.toml` owns the content, and the status tags below apply to it.
+
+## File map
+
+| Path | What it is | Notes |
+| --- | --- | --- |
+| `game.toml` | The facts the tools read: game name, designer, event, dates, tables, turn counts, side names, map, and the Tongue and Quill documents (`[[tq]]`) | Read by `tools/game.py` (`python3 tools/game.py map.name` prints one value). Change it first in a new scenario. |
+| `RULES.md` | Game mechanics: turns, COAs, adjudication, requests, injects | Single source of truth for *how* to play. Scenario-free. `RULES.md` §11 lists the decisions carried over from the first game. |
+| `EVENT-SETUP.md` | Event logistics: schedule, rooms, groups, flight commanders, POC staffing, evaluation, risks | Not game rules. The first game's schedule is kept as the example. |
+| `DESIGN-GUIDE.md` | How to build a scenario from the templates, in order, with balance heuristics, lessons learned, and a pre-release checklist | |
+| `scenario/README.md` | Scenario index, packet assembly, scenario open decisions | Start here for scenario work |
+| `scenario/00-overview.md` | Public world: background, map, actors, tracks, starting conditions, timing, ROE | Goes to **both** teams |
+| `scenario/redfor-packet.md` | REDFOR forces, intel estimate, objectives | **REDFOR + white cell only** |
+| `scenario/bluefor-packet.md` | BLUEFOR forces, outside support, intel estimate, objectives | **BLUEFOR + white cell only** |
+| `scenario/whitecell-injects.md` | Kickoff inject, inject pool, white-cell actor notes | **White cell only** |
+| `scenario/whitecell-ground-truth.md` | Truth behind each side's intel, scoring notes, objective status card | **White cell only** |
+| `scenario/data/assets.csv` | One row per asset, mirrored from the packets. `parts` (blank = 1) prints that many lettered counters (B-07a, b, c) for an asset spread over several zones, with part zones listed in `zone` as `Z10;Z11` and an optional singular `part_asset` name for each part. RFF rows give the arrival zone. | Run `python3 tools/check_assets.py` after edits, then `python3 tools/make_counters.py` to regenerate the printable counters (`handouts/{redfor,bluefor,whitecell}/counters.pdf`). The white cell sheet also prints blank R-, B-, and grey X- counters (`--blanks`). |
+| `tools/whitecell-clock.html` | The timer, dice, and track program the lead adjudicator runs on the room's screen (`EVENT-SETUP.md` §3; `RULES.md` §2.2, §4; App. C; `scenario/00-overview.md` §5.1) | One self-contained file that works offline. It holds durations only, not clock times. If the game name, block order or durations, turn timings, result bands, the estimative-vote table, or the tracks change, update `GAME_NAME`, `BLOCKS`, `turnSteps`, `BANDS`, `VOTES`, and `TRACKS`. |
+| `handouts/<group>/*.md` | The documents players and the white cell use, in four audience folders: `common/` (rules handbook, scenario brief, scenario schedule, starting conditions, player forms), `redfor/` and `bluefor/` (commander's letter, team packet, order of battle, and an `intel/` folder with one file per intelligence product plus `00-read-me-first.md`), `whitecell/` (handbook, checklist, table setup guide, likely plans, intelligence and injects, master asset list, forms) | Mostly derived from the design docs, so update them when those change. The intelligence products (RI-xx, BI-xx) and their key exist only here. The folder sets the audience, and the same secrecy rules apply as in `scenario/`. Audience lines and `FORMAT NOTE` blocks stay in the markdown only. `common/starting-conditions.md` repeats Scenario Brief §6 as a reference page and cue cards, so change both together. The white cell's Print Packet cover has no markdown file: `packet_markdown()` in `tools/build_handouts.py` writes it. |
+| `build/` | The release files (not in git), in release folders: `Common Matrix - ASAP RELEASE`, `Common Scenario - 1WK RELEASE`, `REDFOR - 24H RELEASE`, `BLUEFOR - 24H RELEASE`, `White Cell` | **Generated.** Don't edit the PDFs: change the markdown and run `tools/build_handouts.sh` (or `tools/build_all.sh`). `RELEASES` in `tools/build_handouts.py` lists which markdown makes which file. |
+| `tools/build_handouts.sh` | Builds everything in `build/`: checks `assets.csv` and makes the counters, then the Tongue and Quill documents, then each handout (markdown → HTML → PDF in Chromium), the Full Intel files, copies of the counters, map, and clock, and last the white cell's `Print Packet - One Table.pdf` and `Print Packet - One Table, Reference Forms.pdf` | Headers, the packet cover, and the number of worksheets and request slips come from `game.toml`. Every handout is padded to an even page count for double-sided printing; the game pieces (`GAME_PIECES`) get a blank back behind every page. NixOS: the script pulls Python packages with `nix-shell`. Elsewhere it needs `markdown-it-py`, `mdit-py-plugins`, `pypdf`, and `playwright` with Chromium 131 or later. `--only NAME` builds part of it, and `SKIP_TQ=1` skips WordCraft. Layout hooks are HTML comments in the markdown (`<!-- mw:form -->` before a table, `<!-- mw:begin cards -->` … `<!-- mw:end -->`, `<!-- pagebreak -->`); the module docstring lists them. |
+| `tools/tq/` | The Tongue and Quill documents, built with WordCraft through its MCP server: `build_tq.py` (reads the markdown, writes `handouts/word/*.docx` and `.pdf`), `wcmcp.py` (MCP client), `make_templates.py` and `templates/` (`official/` holds the AF templates, which are fetched; `mw-*.dotx` are the game versions, in git) | The documents and their letterheads are listed in `game.toml` `[[tq]]`. Needs `wordcraft-cli` on the PATH. If a document has no Word PDF yet, the handout build prints its markdown instead. |
+| `handouts/word/` | Generated Word and PDF versions of the Tongue and Quill documents, kept in git because CI can't run WordCraft | Don't edit them. Change the markdown, run `python3 tools/tq/build_tq.py`, and commit the results. Empty in the base. |
+| `site/` | The white cell site, built with mdbook: every handout by audience (one page per intelligence product), the design documents (this file, `README.md`, `DESIGN-GUIDE.md`, `RULES.md`, `EVENT-SETUP.md`, `scenario/`, `map/README.md`, the writing guide), the timer program, and downloads of `build/` | **White cell only.** Run `tools/build_site.sh` (or `tools/build_site.sh serve`) after `tools/build_handouts.sh`. `pages()` in `tools/build_site.py` lists every page; add one there with each new handout. The build turns cross-references (`RULES.md` §4.5, Rules Handbook §2.3, a bare `§3.2` for the same document) into links and reports any that name a missing section, so write references in those forms. `site/README.md` says which files are hand-written. |
+| `map/` | The master map SVG (`map/source/map.svg`, a placeholder in the base) and the scripts that print it | See `map/README.md`. Run `tools/build_map.sh`: it writes `map/maps/` (not in git) and `handouts/assets/game-map.png`. If a distance changes, update `scenario/00-overview.md` §3.3. |
+| `.markdownlint-cli2.jsonc` | markdownlint settings: every rule on except line length (MD013) and MD036, since headings stop at h3 and a fourth-level label is a bold line | Run `npx markdownlint-cli2` after editing any markdown, and keep it at 0 issues. Don't use inline HTML (MD033): use the `mw:` comment hooks instead. |
+| `references/` | `training-objective.txt` (LLAB training objective 1.3), `tongue-and-quill-summary.md`, and the third-party references: AFH 33-337 *The Tongue and Quill*, Tom Mouat's *Practical Advice on Matrix Games* v15 (the method), and `doctrine/` (AFDP and JP PDFs), each with a `text/` copy for grep | Read-only. The PDFs and text copies are not in git: `python3 tools/fetch_third_party.py` downloads them. |
+| `tools/fetch_third_party.py` | Downloads everything that belongs to others: the reference PDFs (and their text copies), the AF Word templates, and the Inter and JetBrains Mono fonts | Run once after cloning. Each file is checked against a SHA-256. |
+| `.github/workflows/pages.yml` | GitHub Action, started by hand: runs `SKIP_TQ=1 tools/build_all.sh` and publishes the white cell site to GitHub Pages | A Pages site is public, and this site shows both sides' secrets. Don't add a push trigger without the designer's say. |
+| `tools/build_all.sh` | Builds everything in order: the map (if missing, or with `--map`), then `tools/build_handouts.sh`, then `tools/build_site.sh` | Fetch the third-party files first. |
+
+## Status tags
+
+| Tag | Meaning | What you may do |
+| --- | --- | --- |
+| **[CANON]** | Decided by the designer | Don't change it without the designer's explicit approval |
+| **[PROPOSED]** | Drafted to fill a gap | Refine it. Say what you changed and why. |
+| **[OPEN]** | Awaiting the designer's decision | Present options with a recommendation. Don't decide silently. |
+
+The tags in `RULES.md` come from the first game played with these rules. A new scenario's designer re-confirms or changes them (`RULES.md` §0). Open decisions are listed in `RULES.md` §11 and `scenario/README.md`.
+
+## Rules for editing
+
+1. **Keep the separation.** Mechanics go in `RULES.md`, event logistics in `EVENT-SETUP.md`, game settings the tools need in `game.toml`, and world facts in `scenario/`. Reference other files by path and section rather than restating them.
+2. **Secrecy is enforced by files.** Each file has an audience line at the top. Never put hidden assets, secret objectives, injects, or ground truth into `00-overview.md` or `handouts/common/`, and never put one side's secrets into the other side's packet. Watch for indirect leaks too: a public file must not describe a capability that only the hidden asset list reveals. The rules handbook goes out before the scenario, so it must not name anything in it.
+3. **IDs are stable.** Assets (R-xx, B-xx), zones (Zxx), starting conditions (S-Rx, S-Bx), objectives (R1–R3, B1–B3), injects (I-xx), intelligence products (RI-xx, BI-xx), and open items (Ox, Sx) are referenced across files and on the forms. Add new items with new IDs. Don't renumber.
+4. **Forces have two homes.** When you change a force table in a packet, update `scenario/data/assets.csv` and run `python3 tools/check_assets.py`.
+5. **Keep it simple.** No turn-order switching, no event cards, no recalculation of late objections. A turn is 15 minutes, and the white cell has 2 minutes to resolve both COAs. Any proposed rule should state its time cost.
+6. **Keep the tools generic.** Nothing scenario-specific goes in `tools/`: put it in `game.toml`, the markdown, or the CSV. The exception is the clock's `GAME_NAME` and `TRACKS`, which the designer sets by hand.
+7. **Real U.S. systems.** All assets are real U.S. systems, with an Air Force emphasis. Use unclassified, approximate capabilities. Every asset needs a stated limitation the other side can use as a Con. Tag REDFOR Air Force assets with their AFDP 3-0 core function.
+8. **Write in-world documents the way the real thing reads.** Follow `references/tongue-and-quill-summary.md`: plain language, BLUF, active voice, understated tone. Official correspondence uses the Tongue and Quill memorandum or letter format; intelligence products use the intelligence conventions in `references/tongue-and-quill-summary.md` §6. Write the words only, and add a `FORMAT NOTE` for layout done by hand.
+9. **Ground doctrine claims** in `references/doctrine/` by citing the file and section. `references/doctrine/JP_3-0_Joint_Operations_2017_SUPERSEDED.pdf` is the 2017 edition; the 2022 edition is CAC-only.
+10. **Placeholders** are `[square brackets]` in prose. Keep them out of headings that other files link to, and replace them all before a release (`DESIGN-GUIDE.md` §5).
+
+## Useful tasks
+
+- Draft a scenario from a premise, following `DESIGN-GUIDE.md` §2 in order.
+- Stress-test balance by playing out likely COA sequences for both sides.
+- Draft each side's intelligence products in the writer's own voice (Mouat: one page, short and interesting).
+- Propose extra injects in the I-xx format.
+- Write a "Turn Zero" practice example for homework.
+
+## Balance heuristics
+
+- Each side should have at least 3 strong non-kinetic COA options.
+- The weaker side's advantages should make a win by the stronger side *costly*, not impossible.
+- No single COA should be able to settle an objective.
+- At least one objective on each side should be reachable by a negotiated outcome both sides can accept.
