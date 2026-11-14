@@ -47,7 +47,7 @@ jobs:
           python-version: "3.12"
       - name: Install Python packages and Chromium
         run: |
-          pip install markdown-it-py mdit-py-plugins pypdf playwright numpy "shapely>=2" pillow
+          pip install jinja2 markdown-it-py mdit-py-plugins pypdf playwright numpy "shapely>=2" pillow
           python3 -m playwright install --with-deps chromium
           sudo apt-get install -y poppler-utils
 
@@ -62,7 +62,7 @@ jobs:
       - name: Fetch fonts
         run: python3 -I tools/fetch_third_party.py || true
 
-      # The generated schedule tables and timer settings must match game.toml.
+      # Every document template renders, and the timer settings match game.toml.
       - name: Check the run of show
         run: python3 -I tools/schedule.py --check
 

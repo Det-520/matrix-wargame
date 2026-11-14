@@ -6,8 +6,9 @@
 # Needs mdbook 0.5 or later; on NixOS without it installed, the script uses nix-shell.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-python3 -I tools/schedule.py --write
-python3 -I tools/build_site.py
+. tools/pyenv.sh
+py tools/schedule.py --write
+py tools/build_site.py
 TITLE="$(python3 -I tools/game.py game.name) — White Cell Site"
 CMD="build"
 [ "${1:-build}" = serve ] && CMD="serve --open"

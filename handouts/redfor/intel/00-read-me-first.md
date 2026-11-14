@@ -4,7 +4,7 @@
 
 ## Rules for using them
 
-- **Nothing here is an established fact.** A Pro or Con that relies on a report counts only as far as the report is believable. Confirm what matters with an RFI or an ISR COA before you bet a turn on it (Rules Handbook §2.3).
+- **Nothing here is an established fact.** A Pro or Con that relies on a report counts only as far as the report is believable. Confirm what matters with an RFI or an ISR COA before you bet a turn on it ({% if rules == "full" %}Rules Handbook §2.3{% else %}Basic Rules §3.2{% endif %}).
 - **Ratings.** [Red] reports carry an analyst's rating in the NATO "Admiralty" format: a letter for the **source** and a number for the **information**. The rating is an analyst's judgment, not the truth. Analysts can be wrong too.
 
 | Source reliability | | Information credibility | |

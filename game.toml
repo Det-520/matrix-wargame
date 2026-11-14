@@ -15,16 +15,27 @@ tables = 4                          # tables (groups) playing at once: one Print
 rules_label = "Matrix Wargame"
 rules_date = "January 2027"
 
+[rules]
+# The rule set the game is played with (RULES.md §0):
+#   "full"  - every rule. Players get the Player Rules Handbook (and the Basic Rules as a first read).
+#   "basic" - for groups new to matrix games: no secret COAs and no estimative vote. Players
+#             get the Basic Rules instead; the forms, packet, timer, and white cell
+#             documents follow.
+# A text that holds for one rule set only goes inside {% if rules == 'full' %} ... {% endif %}
+# (single quotes in this file), as in the markdown.
+set = "full"
+
 [turns]
 # The number of turns comes from the run of show below (the sum of every block's `turns`).
 requests_per_turn = 3               # RFIs and RFFs combined (RULES.md §5)
 planning_requests = 4               # Phase I limit (RULES.md §2.3)
-secret_coas = 2                     # one per playing phase (RULES.md §3.4)
+secret_coas = 2                     # one per playing phase (RULES.md §3.4); none print under the basic rules
+game_days = 3                       # days of game time one turn stands for (RULES.md §2.1); 0.5 = 12 hours
 
 # ---------------------------------------------------------------- run of show
 # The game's phase structure and timing (RULES.md §2.1, EVENT-SETUP.md §3). The timer
 # program, the schedule tables in the handouts, and the turn count all come from here:
-# change it, then run `python3 tools/schedule.py --write` (the handout build does it too).
+# change it, and the next build follows (the timer: `python3 tools/schedule.py --write`).
 # Every `min` is minutes and may be a fraction (0.5 = 30 seconds).
 #
 # Each [[block]] is one entry on the timer's run-of-show bar, in order. It is either
@@ -34,8 +45,13 @@ secret_coas = 2                     # one per playing phase (RULES.md §3.4)
 #   brief (optional, players' schedule: what the players do).
 # Step fields: name, min, who, side ("blue" or "red" colours it), say (the script or
 #   action shown on the timer, which is on the room's screen, so nothing secret), and
-#   brief (optional, players' schedule).
-# Text can use {turn}, {first} and {last} (turn numbers) and {min} (the step's minutes).
+#   brief (optional, players' schedule; for a [[turn_step]], the players' turn clock
+#   table). requests_due = true marks the planning step at whose end the planning
+#   requests are due (the documents quote that minute).
+# Text can use {turn}, {first} and {last} (turn numbers) and {min} (the step's minutes),
+# which the timer fills in as it runs. Texts are also Jinja2 templates, like the
+# documents: {{ requests }}, {{ blocks.P1.min }}, {{ word(planning_requests) }} ("four").
+# `python3 tools/schedule.py values` lists every name.
 
 [schedule]
 start = "1345"        # 24-hour clock time the first block starts, for the printed tables; "" prints minutes from the start
@@ -52,13 +68,14 @@ brief = "Organize your team, synthesize your pre-read intel, and build a plan. N
   name = "Team planning & requests"
   min = 12
   who = "Both teams"
-  say = "“You have 18 minutes to organize your team, synthesize your intelligence, and build a plan. You may submit up to four requests, RFIs or RFFs, due at minute 12. In the last three minutes you will brief your plan to your logger. There are no COAs in Phase I. Your time starts now.”"
-  brief = "Plan and post up to **4 requests** (RFIs/RFFs) in your team's secret Slack channel. **Due at the end of this step.**"
+  requests_due = true
+  say = "“You have {{ blocks.P1.min }} minutes to organize your team, synthesize your intelligence, and build a plan. You may submit up to {{ word(planning_requests) }} requests, RFIs or RFFs, due at minute {{ request_deadline }}. In the last three minutes you will brief your plan to your logger. There are no COAs in Phase I. Your time starts now.”"
+  brief = "Plan and post up to **{{ planning_requests }} requests** (RFIs/RFFs) in your team's secret Slack channel. **Due at the end of this step.**"
   [[block.step]]
   name = "Brief rehearsal"
   min = 3
   who = "Both teams"
-  say = "“Six minutes left in Phase I. Requests close now. We'll answer the first four posted in your team channel. You have three minutes to rehearse before you brief your logger.” Answer the requests during this step and the next."
+  say = "“Six minutes left in Phase I. Requests close now. We'll answer the first {{ word(planning_requests) }} posted in your team channel. You have three minutes to rehearse before you brief your logger.” Answer the requests during this step and the next."
   brief = "Finalize and rehearse your brief."
   [[block.step]]
   name = "OPORD briefs"
@@ -135,7 +152,8 @@ id = "prep"
 name = "Prepare"
 min = 5
 who = "Both teams"
-say = "“Turn {turn}. Prepare, {min} minutes. Your RFI answers are in your team channel. Requests are due there when the timer ends.” Check last turn's RFI answers are posted. At the end, close requests: count the first 3 request posts per team."
+say = "“Turn {turn}. Prepare, {min} minutes. Your RFI answers are in your team channel. Requests are due there when the timer ends.” Check last turn's RFI answers are posted. Authorize parleys (up to {{ parley }} minutes) on request and listen in. At the end, close requests: count the first {{ requests }} request posts per team and don't answer extras or late posts."
+brief = "Pick this turn's COA. Post up to {{ requests }} RFIs/RFFs in your team channel. When this step ends, requests close: the white cell counts your first {{ requests }} posts, and later or extra posts aren't answered. Negotiate if you want (a parley, up to {{ parley }} minutes). Last turn's RFI answers are in your team channel at the start."
 
 [[turn_step]]
 id = "bcoa"
@@ -144,6 +162,7 @@ min = 2
 who = "BLUEFOR"
 side = "blue"
 say = "“BLUEFOR, your COA.” No interruptions."
+brief = "Brief aloud: action, measurable effect, up to 3 reasons. Post the same COA in the group channel before the step ends."
 
 [[turn_step]]
 id = "rcoa"
@@ -151,14 +170,16 @@ name = "REDFOR COA + Pros"
 min = 2
 who = "REDFOR"
 side = "red"
-say = "“REDFOR, your COA.” No interruptions."
+say = "“REDFOR, your COA.” No interruptions. REDFOR may react to BLUEFOR's COA but not negate it."
+brief = "Brief aloud: action, measurable effect, up to 3 reasons. Post the same COA in the group channel before the step ends."
 
 [[turn_step]]
 id = "pcons"
 name = "Prepare Cons"
 min = 2
 who = "Both teams"
-say = "“Two minutes to prepare Cons.” Note the Pros you'll accept while they huddle."
+say = "“{{ Word(steps.pcons.min) }} minutes to prepare Cons.” Note the Pros you'll accept while they huddle."
+brief = "Huddle to pick up to 3 Cons against the other team's COA."
 
 [[turn_step]]
 id = "rcons"
@@ -167,6 +188,7 @@ min = 1
 who = "REDFOR"
 side = "red"
 say = "“REDFOR, your Cons on BLUEFOR's COA.”"
+brief = "Up to 3 reasons BLUEFOR's COA fails or has costs. Post them in the group channel before the step ends."
 
 [[turn_step]]
 id = "bcons"
@@ -175,13 +197,15 @@ min = 1
 who = "BLUEFOR"
 side = "blue"
 say = "“BLUEFOR, your Cons on REDFOR's COA.”"
+brief = "Up to 3 reasons REDFOR's COA fails or has costs. Post them in the group channel before the step ends."
 
 [[turn_step]]
 id = "res"
 name = "White cell resolves"
 min = 2
 who = "White cell"
-say = "Resolve both COAs (BLUEFOR's first). Rule on RFFs and give arrival turns (N = this turn). Place counters for forces arriving next turn; they can be used in next turn's COA. Track checks: per-turn track effects and trigger values; starting conditions that switch on at a set turn; RFF arrivals; secret COA triggers. At most one inject."
+say = "Resolve both COAs (BLUEFOR's first). Rule on RFFs and give arrival turns (N = this turn). Place counters for forces arriving next turn; they can be used in next turn's COA. Track checks: per-turn track effects and trigger values; starting conditions that switch on at a set turn; RFF arrivals{% if rules == 'full' %}; secret COA triggers{% endif %}. At most one inject. Loggers move counters and tracks and update the placement forms."
+brief = "Rolls, narrates, rules on RFFs, moves counters and tracks, maybe an inject."
 
 # ---------------------------------------------------------------- tracks
 # The scenario's tracks (scenario/00-overview.md §5.1), shown on the timer program's

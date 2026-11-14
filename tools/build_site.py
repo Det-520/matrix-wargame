@@ -81,7 +81,7 @@ def side_pages(side, label):
 def pages():
     """The site, as [(part title, [page])]. A page is a dict: src (repo path, or None), page (site path),
     title (else the front matter's short title or the first heading), dl [(label, path in build/)],
-    children, text (markdown used in place of the file), intel (an intelligence product)."""
+    children, text (markdown used in place of the file), intel (an intelligence product), note (a line above the page)."""
     return [
         ("Running the game", [
             dict(src="handouts/whitecell/checklist.md", page="whitecell/checklist.md",
@@ -105,7 +105,12 @@ def pages():
         ("Player handouts", [
             dict(src=None, page="common/index.md", title="Both Teams", text=INTROS["common"], children=[
                 dict(src="handouts/common/rules-handbook.md", page="common/rules-handbook.md",
-                     dl=[("PDF", f"{ASAP}/Player Rules Handbook.pdf")]),
+                     dl=[("PDF", f"{ASAP}/Player Rules Handbook.pdf")],
+                     note=None if GAME["rules"]["set"] == "full" else
+                     "**Not released in this game.** It uses the basic rules (`game.toml` `[rules]`), so players get the "
+                     "Basic Rules instead. The full rules are here for the white cell's reference."),
+                dict(src="handouts/common/basic-rules.md", page="common/basic-rules.md",
+                     dl=[("PDF", f"{ASAP}/Basic Rules.pdf")]),
                 dict(src="handouts/common/player-forms.md", page="common/player-forms.md",
                      dl=[("PDF", f"{ASAP}/Player Forms and Templates.pdf")]),
                 dict(src="handouts/common/scenario-brief.md", page="common/scenario-brief.md",
@@ -247,6 +252,7 @@ def add_ids(text):
 TITLES = {
     "Player Rules Handbook": "handouts/common/rules-handbook.md",
     "Rules Handbook": "handouts/common/rules-handbook.md",
+    "Basic Rules": "handouts/common/basic-rules.md",
     "White Cell Handbook": "handouts/whitecell/handbook.md",
     "White Cell Checklist": "handouts/whitecell/checklist.md",
     "White Cell Forms": "handouts/whitecell/forms.md",
@@ -282,7 +288,7 @@ class Linker:
         for p in all_pages(site):
             if p["src"]:
                 self.page[p["src"]] = p["page"]
-                self.ids[p["src"]] = headings(p.get("text") or read(p["src"]))
+                self.ids[p["src"]] = headings(source_text(p)[1])
         self.problems = []
 
     def resolve_path(self, path):
@@ -416,7 +422,7 @@ def source_text(p):
     """A page's markdown, without front matter, audience lines, or FORMAT NOTEs: (meta, text)."""
     meta, text = front_matter(p.get("text") or read(p["src"]))
     if p["src"]:
-        text = clean(text, is_intel=p.get("intel", False))
+        text = clean(text, is_intel=p.get("intel", False), where=p["src"])
     return meta, text
 
 
@@ -434,12 +440,24 @@ def fix_images(text, src, page):
     return re.sub(r"!\[((?:[^\]]|\][^(])*)\]\(([^)]+)\)", one, text)
 
 
+def draw_boxes(text):
+    """A form's ☐ as a drawn box, as in the PDFs (custom.css), not a font glyph of varying size.
+    Code blocks keep the character, since HTML there would show as text."""
+    out, fence = [], False
+    for ln in text.split("\n"):
+        if re.match(r"^\s*(```|~~~)", ln):
+            fence = not fence
+        out.append(ln if fence else ln.replace("☐", '<span class="mw-box" aria-hidden="true">☐</span>'))
+    return "\n".join(out)
+
+
 def write_page(p, linker):
     meta, text = source_text(p)
     if p["src"]:
         text = fix_images(text, p["src"], p["page"])
     here = p["src"] or p["page"]
     body = linker.link(add_ids(text), here, p["page"])
+    body = draw_boxes(body)
     if meta.get("title"):
         head = heading(meta)
     else:
@@ -448,7 +466,11 @@ def write_page(p, linker):
     if not p["src"] and p.get("children"):
         body += "\n" + "\n".join("- [%s](%s)" % (c["title"], os.path.relpath(c["page"], os.path.dirname(p["page"])))
                                  for c in p["children"]) + "\n"
-    out = banner(p["page"]) + head.strip() + "\n\n" + (downloads_line(p["page"], p["dl"]) if p.get("dl") else "") + body.strip() + "\n"
+    # a file this build didn't release (the Player Rules Handbook under the basic rules) gets no link
+    dl = [(label, f) for label, f in p.get("dl", [])
+          if os.path.exists(os.path.join(H, f) if f.startswith("word/") else os.path.join(FIN, f))]
+    note = f"> {p['note']}\n\n" if p.get("note") else ""
+    out = banner(p["page"]) + head.strip() + "\n\n" + (downloads_line(p["page"], dl) if dl else "") + note + body.strip() + "\n"
     path = os.path.join(SRC, p["page"])
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:

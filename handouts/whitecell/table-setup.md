@@ -33,7 +33,7 @@ Both teams need to see the map, the ongoing-effects sheet, the cue cards, and th
 | BLUEFOR placement form (White Cell Forms §4.2) | With the BLUEFOR logger | **Down** | BLUEFOR logger |
 | Score sheet (White Cell Forms §1) | With the lead adjudicator, until the end of the game | **Down** | Lead adjudicator |
 | White Cell Checklist | With the lead adjudicator | — | Lead adjudicator |
-| Each team's player forms (OPORD format, COA and Cons worksheets, request and secret COA slips) | With that team | — | The team |
+| Each team's player forms (OPORD format, COA and Cons worksheets, request {% if rules == "full" %}and secret COA {% endif %}slips) | With that team | — | The team |
 | Spare forms and slips | With the white cell | — | Either logger |
 
 Never put the objective status card or a placement form beside the ongoing-effects sheet: they show what the secret objectives look for.

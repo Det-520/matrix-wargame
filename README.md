@@ -12,7 +12,7 @@ It was generalized from *Operation Zugzwang* (AFROTC LLAB 12, November 2026). Th
 
 1. Copy this repository (GitHub **Use this template**, or clone it and change the remote).
 2. Fetch the third-party files and build the example once to check your setup (see [Building](#building)).
-3. Edit `game.toml`: the game's name, designer, event, date, number of tables, side names, the run of show (the phases, their order and timing, and the turns in each), the tracks, and the Tongue and Quill letterheads. The default run of show is the first game's: four phases and 7 turns in a 3-hour block (`RULES.md` §2.1).
+3. Edit `game.toml`: the game's name, designer, event, date, number of tables, side names, the rule set (full, or basic for new players), the run of show (the phases, their order and timing, and the turns in each), the tracks, and the Tongue and Quill letterheads. The default run of show is the first game's: four phases and 7 turns in a 3-hour block (`RULES.md` §2.1).
 4. Follow `DESIGN-GUIDE.md`. It walks through the scenario files in the order that works best, from the public world to the injects.
 5. Draw the map (`map/README.md`) and fill in the handouts (`handouts/`).
 6. Rebuild, playtest, and repeat.
@@ -21,7 +21,7 @@ It was generalized from *Operation Zugzwang* (AFROTC LLAB 12, November 2026). Th
 
 | Path | What it is |
 | --- | --- |
-| `game.toml` | The facts about this game that the tools read: name, dates, tables, run of show (phases, timing, turns), tracks, map, Tongue and Quill documents |
+| `game.toml` | The facts about this game that the tools read: name, dates, tables, rule set, run of show (phases, timing, turns), tracks, map, Tongue and Quill documents |
 | `RULES.md` | How to play: turns, COAs, adjudication, requests, injects. Scenario-free. |
 | `EVENT-SETUP.md` | Event logistics: schedule, rooms, groups, staffing, evaluation, risks |
 | `DESIGN-GUIDE.md` | How to build a scenario from these templates, with balance heuristics and lessons learned |
@@ -46,13 +46,13 @@ npx markdownlint-cli2                # after editing markdown: keep it at 0 issu
 
 | Step | Script | Output |
 | --- | --- | --- |
-| Schedule tables and timer settings | `python3 tools/schedule.py --write` (the next two steps run it) | generated tables in the handouts, `tools/whitecell-clock.html` |
+| Timer settings, template check | `python3 tools/schedule.py --write` (the next two steps run it), `--check` | `tools/whitecell-clock.html` |
 | Map | `tools/build_map.sh` | `map/maps/`, `handouts/assets/game-map.png` |
 | Release PDFs | `tools/build_handouts.sh` (`--only NAME` for one, `SKIP_TQ=1` to skip WordCraft) | `build/`, by release folder |
 | White cell site | `tools/build_site.sh` (`serve` to preview) | `site/book/` |
 | Publish | `.github/workflows/pages.yml` | GitHub Pages |
 
-Needs Python 3.11 or later, Chromium 131 or later, poppler-utils (`pdftotext`, `pdftoppm`), [mdbook](https://rust-lang.github.io/mdBook/) 0.5 or later, and `wordcraft-cli` for the Tongue and Quill documents. On NixOS the scripts pull the Python packages with `nix-shell`. Elsewhere, install `markdown-it-py`, `mdit-py-plugins`, `pypdf`, and `playwright`.
+Needs Python 3.11 or later, Chromium 131 or later, poppler-utils (`pdftotext`, `pdftoppm`), [mdbook](https://rust-lang.github.io/mdBook/) 0.5 or later, and `wordcraft-cli` for the Tongue and Quill documents. On NixOS the scripts pull the Python packages with `nix-shell` (`tools/pyenv.sh`). Elsewhere, install `jinja2`, `markdown-it-py`, `mdit-py-plugins`, `pypdf`, and `playwright`.
 
 Without WordCraft (or with `SKIP_TQ=1`), the build uses the files committed in `handouts/word/`. If a document has none yet, it prints the markdown version instead and says so. After changing a Tongue and Quill document, run `python3 tools/tq/build_tq.py` and commit the results.
 
@@ -60,14 +60,38 @@ Air Force sites often refuse scripted downloads. When one does, `fetch_third_par
 
 ### Changing the schedule and timing
 
-The phase structure and timing live in `game.toml`: `[schedule]` (start time, parley length, which turn step can be shortened), `[[block]]` (each phase or break in order, with its steps or its number of turns), and `[[turn_step]]` (the steps of one turn). The timer program, the schedule tables in the Scenario Schedule and the White Cell Handbook, the turn count, and the number of forms printed all follow it.
+The phase structure and timing live in `game.toml`: `[schedule]` (start time, parley length, which turn step can be shortened), `[[block]]` (each phase or break in order, with its steps or its number of turns), and `[[turn_step]]` (the steps of one turn). The timer program, the schedule and turn clock tables, every time and limit the rules and handouts quote, the turn count, and the number of forms printed all follow it.
 
 ```bash
 python3 tools/schedule.py            # print the schedule with clock times (whitecell for the white cell's)
-python3 tools/schedule.py --write    # refresh the timer and the tables (the builds do this too)
+python3 tools/schedule.py --write    # refresh the timer's settings (the builds do this too)
 ```
 
 To try a different schedule without editing files, open `tools/whitecell-clock.html` in a browser and choose **Setup**. **Apply** keeps the change in that browser, **Download page** saves a copy of the program with it built in, and **Copy as game.toml** gives the text to paste back into `game.toml`.
+
+### Choosing the rule set
+
+`game.toml` `[rules]` `set` picks the rules the game is played with (`RULES.md` §0). `"full"` is every rule: players get the Player Rules Handbook, with the Basic Rules as a short first read. `"basic"`, for groups new to matrix games, drops secret COAs and the estimative vote: players get the Basic Rules in place of the handbook, and the player forms, the Print Packet, the timer, and the white cell documents follow on the next build. Text that holds for one rule set only sits inside `{% if rules == "full" %}` … `{% endif %}` (below).
+
+### Documents are templates
+
+Every markdown document (handouts, `RULES.md`, `scenario/`) is a [Jinja2](https://jinja.palletsprojects.com/templates/) template, filled in from `game.toml` when the PDFs and the site are built. Never type a number `game.toml` sets: quote it.
+
+```text
+Each turn is **{{ mins(turn_min) }}** of real time and about **{{ days(game_days) }}** of game time,
+so {{ turns }} turns cover about {{ days(game_days * turns) }}.
+Post up to {{ requests }} requests (Phase I: {{ planning_requests }}, due at minute {{ request_deadline }}).
+Prepare runs {{ steps.prep.span }}; Phase IV is Turns {{ blocks.P4.turns }} ({{ blocks.P4.span }}).
+{% if rules == "full" %}Secret COAs ...{% else %}...{% endif %}
+{{ turn_clock_table() }}    {{ schedule_table("whitecell") }}    | {{ ticks() }} |
+```
+
+- `python3 tools/schedule.py values` lists every name: the numbers, `steps.ID` (each `[[turn_step]]` by `id`) and `blocks.TAG` (each `[[block]]` by `tag`), and the functions `mins()`, `clock()` (`5:00`), `word()` and `Word()` (`four`), `days()` (`3 days`, `3 weeks`; `days(n, adj=True)` gives `3-day`), `ticks()`, `turn_columns()`, `turn_rule()`, `schedule_table()`, and `turn_clock_table()`.
+- Use the function form, not Jinja filters (`{{ mins(turn_min) }}`, not `{{ turn_min | mins }}`): a `|` breaks a markdown table.
+- A `{% if %}` or `{% endif %}` alone on its line disappears with the line. Don't put one on its own line inside a table or a list; put it inside the cell or the item instead.
+- Anything in backticks is printed as written, so a document can show an example.
+- The game.toml texts (`say`, `brief`) are templates too; there, write the test as `{% if rules == 'full' %}` (single quotes).
+- A misspelled name stops the build with the file and line. `python3 tools/schedule.py --check` (run in CI) renders every document under both rule sets.
 
 ### Publishing the white cell site
 

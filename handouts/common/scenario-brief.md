@@ -82,7 +82,7 @@ Public, and on cue cards at the table. Use them in your Pros and Cons: each one 
 
 ## 7. Timing and movement
 
-Each turn is about [3 days]. "N" is the turn an RFF is submitted (Phase I RFFs count as Turn 1), and a force can be used in the COA of the turn it arrives. Forces that arrive by RFF go to **[REDFOR's main base zone]** or **[BLUEFOR's main base zone]** unless the RFF names another destination.
+Each turn is about {{ days(game_days) }}. "N" is the turn an RFF is submitted (Phase I RFFs count as Turn 1), and a force can be used in the COA of the turn it arrives. Forces that arrive by RFF go to **[REDFOR's main base zone]** or **[BLUEFOR's main base zone]** unless the RFF names another destination.
 
 | Movement | Takes |
 | --- | --- |

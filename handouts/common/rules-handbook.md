@@ -25,22 +25,22 @@ short: "Player Rules Handbook"
 1. **What this is.** A *matrix wargame*: there is no rulebook of unit stats. You win via arguments. Each turn your team proposes **one course of action (COA)** and gives **up to three reasons it will work**. The other team gives **up to three reasons it won't**. The **white cell** weighs the reasons, sets the odds, rolls the dice (with a computer program), and narrates what happens.
 2. **Your side.** You are either **REDFOR** or **BLUEFOR**. Your team's documents give you your forces, your intel, and **three secret objectives**. Don't show the other team your objectives.
 3. **One COA per turn.** A COA is *one* main action with a *measurable effect*, e.g. "[FIGHTER JET]s and an [EW AIRCRAFT] strike the [AIR DEFENSE] site near [CHOKEPOINT] **so that** [AIR DEFENSE UNIT] is destroyed and our ISR aircraft can operate over [STRAIT AREA]." You can use several assets in one COA (a strike package counts as one action), but you can't do two unrelated things. Everything else your forces do is background activity.
-4. **Format of your COA (2 minutes):**
+4. **Format of your COA ({{ mins(steps.bcoa.min) }}):**
 
    > "Our COA: **[action]** in order to **[measurable effect]**. It will work because: **(1)** … **(2)** … **(3)** …"
 
-5. **Format of your Cons (1 minute):**
+5. **Format of your Cons ({{ mins(steps.rcons.min) }}):**
 
    > "Their COA will fail or fall short because: **(1)** … **(2)** … **(3)** …"
 
 6. **Good reasons** are specific and grounded in facts. They point to your assets' capabilities, the map, things that happened earlier in the game ("established facts"), and doctrine (tenets of airpower, principles of joint operations). Repeating a reason in new words earns nothing.
 7. **Odds.** With no strong reasons either way, a COA succeeds on 7+ on two dice (58%). Each strong reason for it adds +1, and each strong reason against it subtracts 1. If a COA is obviously sound and unopposed, it succeeds without a roll. If a call is too contentious to count, the white cell may take a quick **estimative vote** on how likely it is instead (§2.7).
-8. **RFIs and RFFs.** Each turn you may post **up to 3 requests in total** in your team's secret Slack channel, any mix of:
+8. **RFIs and RFFs.** Each turn you may post **up to {{ requests }} requests in total** in your team's secret Slack channel, any mix of:
    a. **RFI (Request for Information):** a question about the situation.
    b. **RFF (Request for Forces):** a request for more assets or authorities from your national command. Reinforcements take time to arrive.
 
    Requests don't count as your COA, and there is no debate on them. **Diplomacy needs no RFF:** your team speaks for its government, so you can negotiate or make a diplomatic COA without anyone's permission (§2.6).
-9. **Turn clock (15 minutes, run by a timer program).** See §1.2. **BLUEFOR always goes first.**
+9. **Turn clock ({{ mins(turn_min) }}, run by a timer program).** See §1.2. **BLUEFOR always goes first.**
 10. **Slack, not paper.** Slack is the written record, and you still brief out loud. Post your COA and Cons in your group's public channel, and your requests and any secret COA in your team's secret channel, where the white cell answers (§2.11).
 11. **No interrupting.** It's a courtroom, not a debate. You speak in your slot and are silent in theirs. Raise only points of fact or procedure. **If you miss your slot, the point is lost.** There are no do-overs.
 12. **Arguing about the other side is allowed.** You can argue *their* troops are tired or *their* radar has a gap. You cannot argue that a player-controlled actor *agrees* to something. Ask them in person instead.
@@ -48,32 +48,23 @@ short: "Player Rules Handbook"
 
 ### 1.2 The turn clock
 
-Each turn is **15 minutes** of real time and about **3 days** of game time. **Both teams' COAs take place simultaneously across the 3-day window.**
+Each turn is **{{ mins(turn_min) }}** of real time and about **{{ days(game_days) }}** of game time. **Both teams' COAs take place simultaneously across the {{ days(game_days, adj=True) }} window.**
 
-| Step | Clock | Time | Who | What happens |
-| --- | --- | --- | --- | --- |
-| **Prepare** | 0:00–5:00 | 5:00 | Both teams | Pick this turn's COA. Post up to 3 RFIs/RFFs in your team channel. Negotiate if you want (§2.6, ≤ 2:00). Last turn's RFI answers are in your team channel at the start. |
-| Requests close | 5:00 | — | Both teams | The white cell counts your first 3 request posts. Later or extra posts aren't answered (§2.9). No debate. |
-| **BLUEFOR COA + Pros** | 5:00–7:00 | 2:00 | BLUEFOR briefer | Brief aloud: action, measurable effect, up to 3 reasons. Post the same COA in the group channel by 7:00. |
-| **REDFOR COA + Pros** | 7:00–9:00 | 2:00 | REDFOR briefer | Brief aloud: action, measurable effect, up to 3 reasons. Post the same COA in the group channel by 9:00. |
-| Prepare Cons | 9:00–11:00 | 2:00 | Both teams | Huddle to pick up to 3 Cons against the enemy's COA |
-| **REDFOR Cons** on BLUEFOR's COA | 11:00–12:00 | 1:00 | REDFOR | Up to 3 reasons BLUEFOR's COA fails or has costs. Post them in the group channel by 12:00. |
-| **BLUEFOR Cons** on REDFOR's COA | 12:00–13:00 | 1:00 | BLUEFOR | Up to 3 reasons REDFOR's COA fails or has costs. Post them in the group channel by 13:00. |
-| **White cell resolves** | 13:00–15:00 | 2:00 | White cell | Rolls, narrates, rules on RFFs, moves counters and tracks, maybe an inject |
+{{ turn_clock_table() }}
 
 ### 1.3 Example turn
 
 *Scenario details are replaced with bracketed placeholders such as [FIGHTER JET].*
 
-**BLUEFOR COA (2:00):** "[NAVY] [PATROL BOAT]s and the [MILITIA GROUP] maritime militia, covered by our [COASTAL MISSILE BATTERY], establish an armed maritime exclusion and inspection zone across [CHOKEPOINT], **in order to** move [SHIPPING TRACK] from Restricted to **Closed**. It works because: (1) [CHOKEPOINT] is only ~[XX] miles wide and sits inside our ~[XX]-mile [ANTI-SHIP MISSILE] umbrella, so REDFOR surface ships can't escort freighters through safely; (2) the militia's [NUMBER] armed boats blend in with coastal traffic and swarm any ship that tries to run [CHOKEPOINT], which gives us *surprise* and *mass*; (3) closing [CHOKEPOINT] pressures [REDFOR NATION]'s economy and its [MORALE TRACK] without us firing first on [REDFOR NATION] warships."
+**BLUEFOR COA ({{ clock(steps.bcoa.min) }}):** "[NAVY] [PATROL BOAT]s and the [MILITIA GROUP] maritime militia, covered by our [COASTAL MISSILE BATTERY], establish an armed maritime exclusion and inspection zone across [CHOKEPOINT], **in order to** move [SHIPPING TRACK] from Restricted to **Closed**. It works because: (1) [CHOKEPOINT] is only ~[XX] miles wide and sits inside our ~[XX]-mile [ANTI-SHIP MISSILE] umbrella, so REDFOR surface ships can't escort freighters through safely; (2) the militia's [NUMBER] armed boats blend in with coastal traffic and swarm any ship that tries to run [CHOKEPOINT], which gives us *surprise* and *mass*; (3) closing [CHOKEPOINT] pressures [REDFOR NATION]'s economy and its [MORALE TRACK] without us firing first on [REDFOR NATION] warships."
 
-**REDFOR COA (2:00):** "A strike package of [FIGHTER JET]s and an [EW AIRCRAFT], refueled by [TANKER]s, strikes [AIR DEFENSE UNIT] covering [CHOKEPOINT], **in order to** destroy [AIR DEFENSE UNIT] and open the air over [STRAIT AREA] for our ISR. It works because: (1) the [FIGHTER JET] is a stealth aircraft built to penetrate integrated air defenses; (2) [EW AIRCRAFT] jamming cuts [AIR DEFENSE UNIT] off from its early-warning radar network, which is *synergistic effects*; (3) the war just started, which gives us *surprise*, because [AIR DEFENSE UNIT] hasn't had time to relocate."
+**REDFOR COA ({{ clock(steps.rcoa.min) }}):** "A strike package of [FIGHTER JET]s and an [EW AIRCRAFT], refueled by [TANKER]s, strikes [AIR DEFENSE UNIT] covering [CHOKEPOINT], **in order to** destroy [AIR DEFENSE UNIT] and open the air over [STRAIT AREA] for our ISR. It works because: (1) the [FIGHTER JET] is a stealth aircraft built to penetrate integrated air defenses; (2) [EW AIRCRAFT] jamming cuts [AIR DEFENSE UNIT] off from its early-warning radar network, which is *synergistic effects*; (3) the war just started, which gives us *surprise*, because [AIR DEFENSE UNIT] hasn't had time to relocate."
 
-**REDFOR Cons on BLUEFOR (1:00):** "(1) Our [SIGINT AIRCRAFT], [MARITIME PATROL AIRCRAFT], and [RECON DRONE]s have been watching [CHOKEPOINT] since Phase I and will track patrol boat formations and holds. (2) Shutting down [CHOKEPOINT] by threatening merchant shipping will turn [OPINION TRACK] against [BLUEFOR NATION]."
+**REDFOR Cons on BLUEFOR ({{ clock(steps.rcons.min) }}):** "(1) Our [SIGINT AIRCRAFT], [MARITIME PATROL AIRCRAFT], and [RECON DRONE]s have been watching [CHOKEPOINT] since Phase I and will track patrol boat formations and holds. (2) Shutting down [CHOKEPOINT] by threatening merchant shipping will turn [OPINION TRACK] against [BLUEFOR NATION]."
 
-**BLUEFOR Cons on REDFOR (1:00):** "(1) [AIR DEFENSE SYSTEM] is a mobile system, and our Phase I brief said we'd relocate [AIR DEFENSE UNIT] at the outbreak of war. (2) [REDFOR AIR BASE]-based fighters have to fly ~[XXX] miles each way, so they depend on tankers."
+**BLUEFOR Cons on REDFOR ({{ clock(steps.bcons.min) }}):** "(1) [AIR DEFENSE SYSTEM] is a mobile system, and our Phase I brief said we'd relocate [AIR DEFENSE UNIT] at the outbreak of war. (2) [REDFOR AIR BASE]-based fighters have to fly ~[XXX] miles each way, so they depend on tankers."
 
-**White cell resolution (2:00):**
+**White cell resolution ({{ clock(steps.res.min) }}):**
 
 - **BLUEFOR exclusion zone.** Pros 1 and 2 are strong (+2). Pro 3 is about the *effect*, not about success, so it counts 0 here. REDFOR Con 1 is strong (−1), because the maritime ISR presence is an established fact. REDFOR Con 2 is about *consequences*, so it doesn't change the odds but will shape the outcome. Closing [CHOKEPOINT] with patrol boats and coastal missiles was a planned COA in BLUEFOR's Phase I brief and is still valid (+1). The COA needs [NAVY] and [MILITIA GROUP] forces to work together, so starting condition [DISUNITY CONDITION] applies (−1). **Net +1.** The program rolls 6, and 6 + 1 = **7, a Partial success.** The exclusion zone is declared and shipping halts, moving [SHIPPING TRACK] to **Closed**, but REDFOR [MARITIME PATROL AIRCRAFT]s and SIGINT tracked the patrol boats' patrol sectors and radar handoffs (now an established fact). [OPINION TRACK] moves 1 toward [REDFOR NATION].
 - **REDFOR strike.** Pros 1 and 2 are strong (+2). BLUEFOR Con 1 is strong (−1), because the relocation was briefed before the war, and it cancels REDFOR Pro 3 (surprise counts 0). BLUEFOR Con 2 is true, but the [TANKER]s are part of the package, so it counts 0. **Net +1.** The program rolls 9, and 9 + 1 = **10, a Success.** [AIR DEFENSE UNIT] is caught relocating and is **Destroyed**.
@@ -89,8 +80,8 @@ Each turn is **15 minutes** of real time and about **3 days** of game time. **Bo
 
 - The steps and times are in §1.2. One turn is "a turn in the chess sense": each side acts once.
 - **Fixed order.** BLUEFOR always briefs first and REDFOR second, every turn. The order never switches.
-- **Simultaneous execution.** Both COAs happen at the same time across the 3-day turn window, because both are briefed before either is resolved. REDFOR, briefing second, **may react** to BLUEFOR's COA, which is realistic. It **may not** simply negate it ("their strike doesn't happen") or prevent BLUEFOR's COA from being rolled. Negating is what Cons are for; a counter-move is resolved as an interacting or opposed COA (§2.7).
-- **Running behind.** If the game falls behind schedule, the white cell shortens **Prepare** (to 4:00, then 3:00). It never cuts the Cons.
+- **Simultaneous execution.** Both COAs happen at the same time across the {{ days(game_days, adj=True) }} turn window, because both are briefed before either is resolved. REDFOR, briefing second, **may react** to BLUEFOR's COA, which is realistic. It **may not** simply negate it ("their strike doesn't happen") or prevent BLUEFOR's COA from being rolled. Negating is what Cons are for; a counter-move is resolved as an interacting or opposed COA (§2.7).
+- **Running behind.** If the game falls behind schedule, the white cell shortens **Prepare** (to {{ flex }}). It never cuts the Cons.
 
 ### 2.2 Courses of action
 
@@ -109,7 +100,7 @@ Each turn is **15 minutes** of real time and about **3 days** of game time. **Bo
 | --- | --- |
 | **Big projects** | Take **at most 3 successful COAs**, e.g. building a coalition or standing up a dispersed ACE network. The white cell states the number up front. |
 | **Protected and hidden things** | Need successful COAs to find or get through them, **no more than 3 layers**. Example: a hidden mobile SAM must first be **found** (ISR COA), then **struck**. |
-| **Long-term COAs** | If the effect can't finish within one turn's 3 days, success means it **has started and continues** until someone stops it. |
+| **Long-term COAs** | If the effect can't finish within one turn's {{ days(game_days) }}, success means it **has started and continues** until someone stops it. |
 | **Announcements** | Press statements and declarations are free. Your briefer can add a one-sentence public statement in the COA slot. A statement with a measurable effect ("…in order to raise [OPINION TRACK] by 1") *is* a COA. |
 
 ### 2.3 Pros and Cons
@@ -173,11 +164,11 @@ Four yeses make a strong reason (±1). One that is decisive on its own can be ±
 
 **Parleys**
 
-A **parley** is a short face-to-face talk with the other team during **Prepare**. In the game world it stands for talks between the two governments over the turn's 3 days, whether direct, through a back channel, or through a mediator. It is the **only** way to get a decision out of the other team (§2.5).
+A **parley** is a short face-to-face talk with the other team during **Prepare**. In the game world it stands for talks between the two governments over the turn's {{ days(game_days) }}, whether direct, through a back channel, or through a mediator. It is the **only** way to get a decision out of the other team (§2.5).
 
 - **Asking.** Your flight commander (or a delegate) asks the lead adjudicator. The other team may decline.
-- **Who and how long.** One person from each team, the flight commander or a delegate, meets at the white cell end of the table while the lead adjudicator listens. The rest of your team keeps working on the COA. It lasts **up to 2 minutes**, taken out of Prepare.
-- **Not a COA or a request.** A parley has no roll and no Pros or Cons, and it doesn't count against your 3 requests.
+- **Who and how long.** One person from each team, the flight commander or a delegate, meets at the white cell end of the table while the lead adjudicator listens. The rest of your team keeps working on the COA. It lasts **up to {{ mins(parley) }}**, taken out of Prepare.
+- **Not a COA or a request.** A parley has no roll and no Pros or Cons, and it doesn't count against your {{ requests }} requests.
 - **Only with the other team.** To win over a white-cell actor (another nation, the press, a population), make a COA instead.
 - **Closing.** At the end, each side says aloud what it agreed to, and the lead adjudicator repeats the deal back. You don't need to write it down; the white cell notes it.
 - Whatever the players agree in person **happens**, with no roll. Examples: prisoner exchanges, a local ceasefire, an agreement to open talks, a deal to let shipping through.
@@ -188,13 +179,13 @@ A **parley** is a short face-to-face talk with the other team during **Prepare**
 - **Your team speaks for its whole government:** the head of state, the foreign ministry, and the commanders at once. You don't need an RFF, or permission from your head of state or national command, to negotiate or to make a diplomatic COA.
 - That covers parleys and the deals made in them, and diplomatic COAs aimed at white-cell actors: basing or overflight talks, recognition, mediation, pressure on a third country, an offer of talks.
 - **RFFs for authorities are for military limits only:** the rules of engagement that say "without national authority" or "without approval." A deal that commits your forces to one of those acts still needs the authority before they act.
-- If you post an RFF asking permission to negotiate, the white cell answers "No RFF needed," and it doesn't count against your 3 requests.
+- If you post an RFF asking permission to negotiate, the white cell answers "No RFF needed," and it doesn't count against your {{ requests }} requests.
 
 ### 2.7 How the white cell decides
 
 The white cell makes the final decision. It works through each COA like this:
 
-1. **Screen.** Is the COA feasible within 3 days, the map, and the assets you actually have? If not, it is ruled **impossible** (no roll) or **scoped down**.
+1. **Screen.** Is the COA feasible within {{ days(game_days) }}, the map, and the assets you actually have? If not, it is ruled **impossible** (no roll) or **scoped down**.
 2. **Automatic success.** If there were no credible Cons, or the case is overwhelming, it **succeeds without a roll**.
 3. **Count modifiers** (net total capped at **±4**):
 
@@ -228,7 +219,7 @@ The white cell makes the final decision. It works through each COA like this:
 
 **When COAs interact or collide**
 
-Both COAs happen simultaneously across the 3-day turn window, so the white cell first decides how they relate:
+Both COAs happen simultaneously across the {{ days(game_days, adj=True) }} turn window, so the white cell first decides how they relate:
 
 | The two COAs are… | How they are resolved |
 | --- | --- |
@@ -266,11 +257,11 @@ An objection raised late (after its slot, or after the roll) **is not considered
 | | RFI – Request for Information | RFF – Request for Forces |
 | --- | --- | --- |
 | Purpose | Ask what your side knows: enemy disposition, weather, a third party's stance, the civilian situation | Ask your national command for more assets, or for authorities beyond your rules of engagement. Diplomacy needs no RFF (§2.6). |
-| Limit | **Up to 3 per turn, RFIs and RFFs combined** | Shared with RFIs |
+| Limit | **Up to {{ requests }} per turn, RFIs and RFFs combined** | Shared with RFIs |
 | Format | One Slack message per request: one question, one sentence | Asset (from your RFF pool, or a free-text request), destination, and purpose |
 | Answer | A short written answer in a thread under your post, by the start of the next Prepare | Approved, partly approved, or denied, with the **arrival turn** |
 
-- **Deadline:** the end of **Prepare** (Phase I: minute 12). The white cell counts your first 3 posts (Phase I: 4). A request posted after the deadline, or beyond the limit, **isn't answered**. Post it again next turn.
+- **Deadline:** the end of **Prepare** (Phase I: minute {{ request_deadline }}). The white cell counts your first {{ requests }} posts (Phase I: {{ planning_requests }}). A request posted after the deadline, or beyond the limit, **isn't answered**. Post it again next turn.
 - **Arrival turns.** **N** is the turn you submit the RFF (Phase I RFFs count as Turn 1). The white cell rules on it in that turn's resolve step. N+1 means the next turn, N+2 the turn after that.
 - **Usable on arrival.** An arriving force goes on the map at the end of the turn before it arrives, and you can use it in the arrival turn's COA. Example: you submit an RFF on Turn 3 for an N+1 asset and it is approved. It arrives on Turn 4 and can be part of your Turn 4 COA.
 - An N+0 grant (such as new authorities) takes effect when approved, so it applies from your next COA.
@@ -304,7 +295,7 @@ You **may use computers** during play: every player may bring a laptop, for Slac
 
 ### 2.12 End of game
 
-After Turn 7 the white cell states the final map and tracks, then scores each team's three secret objectives as **Achieved**, **Partial**, or **Not achieved**. The two sides' objectives aren't always opposed, so it is possible for both teams to achieve something. Talking to the other team can pay off.
+After Turn {{ turns }} the white cell states the final map and tracks, then scores each team's three secret objectives as **Achieved**, **Partial**, or **Not achieved**. The two sides' objectives aren't always opposed, so it is possible for both teams to achieve something. Talking to the other team can pay off.
 
 <!-- pagebreak -->
 
@@ -334,7 +325,7 @@ Cite these by name in your Pros and Cons, and say *how* they apply.
 
 | Test | Ask yourself |
 | --- | --- |
-| **Feasible** | Can we do it in 3 days with what we actually have, where it actually is? |
+| **Feasible** | Can we do it in {{ days(game_days) }} with what we actually have, where it actually is? |
 | **Acceptable** | Is the gain worth the risk and the cost? |
 | **Suitable** | Does it move us toward our objectives? |
 | **Distinguishable** | Is it really different from what we did last turn? |

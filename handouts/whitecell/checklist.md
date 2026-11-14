@@ -4,13 +4,13 @@ subtitle: "Everything the white cell does, in order, from a week out to cleanup 
 short: "White Cell Checklist"
 ---
 
-**WHITE CELL ONLY.** The lead adjudicator keeps this checklist at the table and ticks it off. The *how* is in the White Cell Handbook; each line names the section. Clock times assume the [1345] start (Handbook §3). If the start moves, the timer program keeps the durations.
+**WHITE CELL ONLY.** The lead adjudicator keeps this checklist at the table and ticks it off. The *how* is in the White Cell Handbook; each line names the section. Clock times assume the {{ blocks.P1.start }} start (Handbook §3). If the start moves, the timer program keeps the durations.
 
 ## 1. Before the event
 
 ### One week out
 
-- [ ] The ASAP release has gone to every player: Player Rules Handbook and Player Forms (Handbook §2.1).
+- [ ] The ASAP release has gone to every player: {% if rules == "full" %}Player Rules Handbook{% else %}Basic Rules{% endif %} and Player Forms (Handbook §2.1).
 - [ ] Release the scenario to every player: Scenario Brief, Scenario Schedule, Starting Conditions, and the map.
 - [ ] Each table has a lead adjudicator, a REDFOR logger, and a BLUEFOR logger (Handbook §1). Each team has an evaluator.
 - [ ] A white cell run-through is on the calendar.
@@ -38,10 +38,10 @@ The Table Setup Guide has the devices, the table layout, every counter by name a
 - [ ] **Visible** counters placed by zone: [*n*] REDFOR, [*n*] BLUEFOR (Table Setup Guide §4). The **[*n*] hidden** counters stay in the envelope.
 - [ ] Each logger has its side's placement form face down (White Cell Forms §4). The objective status card is face down with a logger (White Cell Forms §3).
 - [ ] Each team has Slack open on at least one laptop and can post in its group and team channels. Every player may have a laptop, for Slack or to search online. Each logger has the white cell site and Slack (the group channel and its side's team channel) open on a laptop turned away from the teams.
-- [ ] Each team has its stack of player forms: OPORD format, COA and Cons worksheets, and the request and secret COA slips (backup if Slack fails).
+- [ ] Each team has its stack of player forms: OPORD format, COA and Cons worksheets, and the request {% if rules == "full" %}and secret COA {% endif %}slips (backup if Slack fails).
 - [ ] Timer and dice program up on the TV or projector, on the Phase I block. Phase I opening script ready (Handbook §3.1).
 
-## 3. Phase I: Planning ([1345–1403])
+## 3. Phase I: Planning ({{ blocks.P1.span }})
 
 - [ ] **Minute 0** Read the Phase I opening script. Start the 18-minute timer.
 - [ ] **Minute 12** Read the minute-12 call. Close requests: count up to **4** request posts in each team channel. Don't answer extras.
@@ -49,7 +49,7 @@ The Table Setup Guide has the devices, the table layout, every counter by name a
 - [ ] **Minutes 15–18** Each logger hears its team's oral OPORD brief and writes its **planned COAs** (up to 3, Turns 1–3) on the placement form.
 - [ ] [If a team chooses the starting zones of any hidden counters in Phase I, its logger writes them on the placement form.]
 
-## 4. Kickoff inject ([1403–1405])
+## 4. Kickoff inject ({{ blocks.KO.span }})
 
 - [ ] Read the kickoff inject aloud (Intelligence and Injects §4.1):
 
@@ -58,52 +58,51 @@ The Table Setup Guide has the devices, the table layout, every counter by name a
 - [ ] Set any tracks the kickoff inject moves.
 - [ ] Loggers post the Phase I RFI answers and RFF rulings, with arrival turns, in threads in each team channel.
 
-## 5. Every turn (Turns 1–7)
+## 5. Every turn (Turns 1–{{ turns }})
 
-Tick each box as you go. Turns 1–4 are Phase II; Turns 5–7 are Phase IV. Running behind? Shorten **Prepare**, never the Cons (Handbook §4.2).
+Tick each box as you go. Turns {{ blocks.P2.turns }} are Phase II; Turns {{ blocks.P4.turns }} are Phase IV. Running behind? Shorten **Prepare**, never the Cons (Handbook §4.2).
 
 <!-- mw:checkgrid -->
 
-| Turn clock | Step | T1 | T2 | T3 | T4 | T5 | T6 | T7 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 0:00 | Read the turn-start script. Start the timer. Last turn's RFI answers posted in the team channels? | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
-| 0:00–5:00 | **Prepare.** Authorize parleys (≤ 2 min) on request; listen, repeat the deal back, logger notes it. | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
-| 5:00 | Close requests: count up to **3** request posts per team. Don't answer extras. | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
-| 5:00–7:00 | **BLUEFOR COA.** No interruptions. | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
-| 7:00–9:00 | **REDFOR COA.** It may react to BLUEFOR but not negate it. | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
-| 9:00–11:00 | **Prepare Cons.** Note the Pros you'll accept. | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
-| 11:00–12:00 | **REDFOR Cons** on BLUEFOR's COA | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
-| 12:00–13:00 | **BLUEFOR Cons** on REDFOR's COA | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
-| 13:00 | Check each COA: feasible? auto-success? Planned COA still valid (placement form)? (§5.1) | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
-| 13:00 | Count modifiers (cap ±4), roll 2d6, read the band, narrate. Interacting or opposed? (§5.3) Too contentious? Estimative vote (§5.5). | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
-| 13:00 | Hidden asset used or found? Reveal it and place the counter. | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
-| 13:00 | Rule on RFFs; give each one its arrival turn (§7). | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
-| 13:00 | State ongoing effects; write them on the ongoing-effects sheet (§6.3). | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
-| 13:00 | Inject? At most one (Intelligence and Injects §4.2). | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
-| 15:00 | Per-turn track effects applied? Any track at a trigger value? (§6.2) | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
-| 15:00 | [A starting condition that switches on at a set turn, e.g. "forward base not resupplied → S-R1's −1 applies from Turn 4."] | — | — | — | ☐ | ☐ | ☐ | ☐ |
-| 15:00 | RFF arriving next turn (including N+1 approvals just made)? Announce it and place its counter (a blank counter if it has none); it can be used in next turn's COA. | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
-| 15:00 | Secret COA trigger met? Resolve it now. | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
-| 15:00 | Loggers: counters, tracks, placement forms, objective status card updated. | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ | ☐ |
+| Turn clock | Step | {{ turn_columns() }} |
+| --- | --- | {{ turn_rule() }} |
+| {{ clock(steps.prep.start) }} | Read the turn-start script. Start the timer. Last turn's RFI answers posted in the team channels? | {{ ticks() }} |
+| {{ steps.prep.span }} | **Prepare.** Authorize parleys (≤ {{ parley }} min) on request; listen, repeat the deal back, logger notes it. | {{ ticks() }} |
+| {{ clock(steps.prep.end) }} | Close requests: count up to **{{ requests }}** request posts per team. Don't answer extras. | {{ ticks() }} |
+| {{ steps.bcoa.span }} | **BLUEFOR COA.** No interruptions. | {{ ticks() }} |
+| {{ steps.rcoa.span }} | **REDFOR COA.** It may react to BLUEFOR but not negate it. | {{ ticks() }} |
+| {{ steps.pcons.span }} | **Prepare Cons.** Note the Pros you'll accept. | {{ ticks() }} |
+| {{ steps.rcons.span }} | **REDFOR Cons** on BLUEFOR's COA | {{ ticks() }} |
+| {{ steps.bcons.span }} | **BLUEFOR Cons** on REDFOR's COA | {{ ticks() }} |
+| {{ clock(steps.res.start) }} | Check each COA: feasible? auto-success? Planned COA still valid (placement form)? (§5.1) | {{ ticks() }} |
+| {{ clock(steps.res.start) }} | Count modifiers (cap ±4), roll 2d6, read the band, narrate. Interacting or opposed? (§5.3) Too contentious? {% if rules == "full" %}Estimative vote{% else %}Make the call{% endif %} (§5.5). | {{ ticks() }} |
+| {{ clock(steps.res.start) }} | Hidden asset used or found? Reveal it and place the counter.{% if rules == "full" %} Secret COA trigger met? Resolve it now.{% endif %} | {{ ticks() }} |
+| {{ clock(steps.res.start) }} | Rule on RFFs; give each one its arrival turn (§7). | {{ ticks() }} |
+| {{ clock(steps.res.start) }} | State ongoing effects; write them on the ongoing-effects sheet (§6.3). | {{ ticks() }} |
+| {{ clock(steps.res.start) }} | Inject? At most one (Intelligence and Injects §4.2). | {{ ticks() }} |
+| {{ clock(steps.res.end) }} | Per-turn track effects applied? Any track at a trigger value? (§6.2) | {{ ticks() }} |
+| {{ clock(steps.res.end) }} | [A starting condition that switches on at a set turn, e.g. "forward base not resupplied → S-R1's −1 applies from Turn 4."] | {{ ticks(first=4) }} |
+| {{ clock(steps.res.end) }} | RFF arriving next turn (including N+1 approvals just made)? Announce it and place its counter (a blank counter if it has none); it can be used in next turn's COA. | {{ ticks() }} |
+| {{ clock(steps.res.end) }} | Loggers: counters, tracks, placement forms, objective status card updated. | {{ ticks() }} |
 
 <!-- pagebreak -->
 
-## 6. Debrief 1 and handover ([1505–1512])
+## 6. Debrief 1 and handover ({{ blocks.D1.span }})
 
 - [ ] Phase I–II flight commanders lead Debrief 1.
 - [ ] Command passes to the **Phase III–IV flight commanders**.
 
-## 7. Phase III: Planning and FRAGO ([1512–1520])
+## 7. Phase III: Planning and FRAGO ({{ blocks.P3.span }})
 
 - [ ] **Minute 0** Start the Phase III timer. Teams plan Phase IV under the new flight commander.
 - [ ] **Minute 7** Read the Phase III call (Handbook §3.1).
 - [ ] **Minutes 7–8** Each logger hears the 1-minute oral FRAGO and writes **up to 2** new planned COAs for Turns 5–7 on the placement form.
 
-## 8. Phase IV: Turns 5–7 ([1520–1605])
+## 8. Phase IV: Turns {{ blocks.P4.turns }} ({{ blocks.P4.span }})
 
-- [ ] Run Turns 5–7 with the grid in §5.
+- [ ] Run Turns {{ blocks.P4.turns }} with the grid in §5.
 
-## 9. End of game and Debrief 2 ([1605–1612])
+## 9. End of game and Debrief 2 ({{ blocks.D2.span }})
 
 - [ ] Read the end-of-game script (Handbook §3.1).
 - [ ] State the end state: every track, [the map facts the objectives check], any agreements (Handbook §8).

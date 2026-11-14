@@ -10,7 +10,7 @@
   Timer, dice, and track program for the lead adjudicator of a matrix wargame.
   One self-contained file, no network needed. Open it in any browser.
   Dice follow RULES.md §4 and App. C (BANDS and VOTES below; change them only if RULES.md §4 changes).
-  Everything else (the game's name, the run of show, the turn steps, the parley and Prepare
+  Everything else (the game's name, the rule set, the run of show, the turn steps, the parley and Prepare
   options, and the tracks) is read from the mw-config block at the end of the page:
     - tools/schedule.py --write (run by tools/build_handouts.sh and tools/build_site.sh) fills
       it in from game.toml, so a scenario changes game.toml, not this file.
@@ -439,6 +439,7 @@
 <script type="application/json" id="mw-config">
 {
  "name": "Operation Example",
+ "rules": "full",
  "start": "1345",
  "parley": 2,
  "flex": {
@@ -461,7 +462,8 @@
      "min": 12,
      "who": "Both teams",
      "say": "“You have 18 minutes to organize your team, synthesize your intelligence, and build a plan. You may submit up to four requests, RFIs or RFFs, due at minute 12. In the last three minutes you will brief your plan to your logger. There are no COAs in Phase I. Your time starts now.”",
-     "brief": "Plan and post up to **4 requests** (RFIs/RFFs) in your team's secret Slack channel. **Due at the end of this step.**"
+     "brief": "Plan and post up to **4 requests** (RFIs/RFFs) in your team's secret Slack channel. **Due at the end of this step.**",
+     "requests_due": true
     },
     {
      "name": "Brief rehearsal",
@@ -561,7 +563,8 @@
    "name": "Prepare",
    "min": 5,
    "who": "Both teams",
-   "say": "“Turn {turn}. Prepare, {min} minutes. Your RFI answers are in your team channel. Requests are due there when the timer ends.” Check last turn's RFI answers are posted. At the end, close requests: count the first 3 request posts per team."
+   "say": "“Turn {turn}. Prepare, {min} minutes. Your RFI answers are in your team channel. Requests are due there when the timer ends.” Check last turn's RFI answers are posted. Authorize parleys (up to 2 minutes) on request and listen in. At the end, close requests: count the first 3 request posts per team and don't answer extras or late posts.",
+   "brief": "Pick this turn's COA. Post up to 3 RFIs/RFFs in your team channel. When this step ends, requests close: the white cell counts your first 3 posts, and later or extra posts aren't answered. Negotiate if you want (a parley, up to 2 minutes). Last turn's RFI answers are in your team channel at the start."
   },
   {
    "id": "bcoa",
@@ -569,7 +572,8 @@
    "min": 2,
    "who": "BLUEFOR",
    "side": "blue",
-   "say": "“BLUEFOR, your COA.” No interruptions."
+   "say": "“BLUEFOR, your COA.” No interruptions.",
+   "brief": "Brief aloud: action, measurable effect, up to 3 reasons. Post the same COA in the group channel before the step ends."
   },
   {
    "id": "rcoa",
@@ -577,14 +581,16 @@
    "min": 2,
    "who": "REDFOR",
    "side": "red",
-   "say": "“REDFOR, your COA.” No interruptions."
+   "say": "“REDFOR, your COA.” No interruptions. REDFOR may react to BLUEFOR's COA but not negate it.",
+   "brief": "Brief aloud: action, measurable effect, up to 3 reasons. Post the same COA in the group channel before the step ends."
   },
   {
    "id": "pcons",
    "name": "Prepare Cons",
    "min": 2,
    "who": "Both teams",
-   "say": "“Two minutes to prepare Cons.” Note the Pros you'll accept while they huddle."
+   "say": "“Two minutes to prepare Cons.” Note the Pros you'll accept while they huddle.",
+   "brief": "Huddle to pick up to 3 Cons against the other team's COA."
   },
   {
    "id": "rcons",
@@ -592,7 +598,8 @@
    "min": 1,
    "who": "REDFOR",
    "side": "red",
-   "say": "“REDFOR, your Cons on BLUEFOR's COA.”"
+   "say": "“REDFOR, your Cons on BLUEFOR's COA.”",
+   "brief": "Up to 3 reasons BLUEFOR's COA fails or has costs. Post them in the group channel before the step ends."
   },
   {
    "id": "bcons",
@@ -600,14 +607,16 @@
    "min": 1,
    "who": "BLUEFOR",
    "side": "blue",
-   "say": "“BLUEFOR, your Cons on REDFOR's COA.”"
+   "say": "“BLUEFOR, your Cons on REDFOR's COA.”",
+   "brief": "Up to 3 reasons REDFOR's COA fails or has costs. Post them in the group channel before the step ends."
   },
   {
    "id": "res",
    "name": "White cell resolves",
    "min": 2,
    "who": "White cell",
-   "say": "Resolve both COAs (BLUEFOR's first). Rule on RFFs and give arrival turns (N = this turn). Place counters for forces arriving next turn; they can be used in next turn's COA. Track checks: per-turn track effects and trigger values; starting conditions that switch on at a set turn; RFF arrivals; secret COA triggers. At most one inject."
+   "say": "Resolve both COAs (BLUEFOR's first). Rule on RFFs and give arrival turns (N = this turn). Place counters for forces arriving next turn; they can be used in next turn's COA. Track checks: per-turn track effects and trigger values; starting conditions that switch on at a set turn; RFF arrivals; secret COA triggers. At most one inject. Loggers move counters and tracks and update the placement forms.",
+   "brief": "Rolls, narrates, rules on RFFs, moves counters and tracks, maybe an inject."
   }
  ],
  "tracks": [
@@ -1060,6 +1069,8 @@
     $$("[data-panel]").forEach(p => p.hidden = p.dataset.panel !== rollType);
     $("#result").innerHTML = "";
   }));
+  // The basic rules (game.toml [rules] set = "basic") have no estimative vote.
+  $('#diceTabs [data-roll="vote"]').hidden = (CFG.rules || BUILT_IN.rules) === "basic";
 
   // dice faces
   const PIPS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
@@ -1389,16 +1400,16 @@
   function toToml(c) {
     const val = v => Array.isArray(v) ? `[${v.map(val).join(", ")}]`
       : v && typeof v === "object" ? `{ ${Object.entries(v).map(([k, x]) => `${k} = ${val(x)}`).join(", ")} }`
-      : typeof v === "number" ? String(v) : JSON.stringify(String(v));
+      : typeof v === "number" || typeof v === "boolean" ? String(v) : JSON.stringify(String(v));
     const kv = (o, keys, ind = "") => keys.filter(k => o[k] != null && o[k] !== "").map(k => `${ind}${k} = ${val(o[k])}`);
     const L = ["[schedule]", ...kv({ start: c.start || "", parley: c.parley ?? 0, flex_step: c.flex ? c.flex.step : "", flex_options: c.flex ? c.flex.options || [] : [] }, ["start", "parley", "flex_step", "flex_options"])];
     if (!c.start) L.splice(1, 0, `start = ""`);
     if (!c.flex) L.push(`flex_step = ""`);
     c.blocks.forEach(b => {
       L.push("", "[[block]]", ...kv(b, ["tag", "short", "name", "brief", "turns"]));
-      (b.steps || []).forEach(s => L.push("  [[block.step]]", ...kv(s, ["name", "min", "who", "side", "say", "brief"], "  ")));
+      (b.steps || []).forEach(s => L.push("  [[block.step]]", ...kv(s, ["name", "min", "who", "side", "requests_due", "say", "brief"], "  ")));
     });
-    c.turn.forEach(s => L.push("", "[[turn_step]]", ...kv(s, ["id", "name", "min", "who", "side", "say"])));
+    c.turn.forEach(s => L.push("", "[[turn_step]]", ...kv(s, ["id", "name", "min", "who", "side", "say", "brief"])));
     (c.tracks || []).forEach(t => {
       L.push("", "[[track]]", ...kv(t, ["id", "name", "values", "range", "start", "ends"]));
       if (t.triggers && t.triggers.length) L.push("triggers = [", ...t.triggers.map(g => `  ${val(g)},`), "]");

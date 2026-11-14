@@ -25,7 +25,7 @@ Edit `game.toml`: name, designer, event, date, tables, requests, and the run of 
 
 To try timings out, open the timer program (`tools/whitecell-clock.html`), choose **Setup**, change the blocks and minutes, and watch the totals. **Copy as game.toml** gives the text to paste back into `game.toml`.
 
-Then confirm or change each tag in `RULES.md` and record what you changed in `RULES.md` §11. If you rename or reshape the phases, update the handouts that name them (the Scenario Schedule's §1.2–1.4, the White Cell Checklist, the forms' planned-COA rows, and the Rules Handbook) by hand.
+Choose the rule set in `game.toml` `[rules]`: `"full"`, or `"basic"` if most players are new to matrix games (no secret COAs and no estimative vote; `RULES.md` §0). Then confirm or change each tag in `RULES.md` and record what you changed in `RULES.md` §11. The turn clock tables, the step and turn lengths, the request limits and deadline, the parley length, the turn counts, the phase times, and the number of forms in the documents all follow `game.toml` on the next build (`python3 tools/schedule.py values` lists them). Only the phases' names and shape are written out by hand: if you rename or reshape the phases, update the handouts that name them (the Scenario Schedule's §1.2–1.4, the White Cell Checklist, the forms' planned-COA rows, the Rules Handbook, and the Basic Rules), and give each block the `tag` the documents quote (`P2.turns`, `P1.span`).
 
 ### 2.2 Write the premise
 
@@ -114,7 +114,7 @@ Play the game at least once, all the way through, before the POC run-through. Tw
 - **Balance.** Does each side have at least three strong non-kinetic COAs? Can any one COA settle an objective? Is a win by the larger side costly?
 - **Dead turns.** If a side has nothing useful to do for two turns, give it a lever: an RFF, an inject, or a track it can move.
 - **Leaks.** Can a team learn the other side's hidden assets or objectives from a public file? Check the scenario brief, the map, the starting conditions, and the rules handbook's examples.
-- **Time.** The white cell has 2 minutes to resolve both COAs. If rulings keep needing the ground truth, add a line to the likely plans.
+- **Time.** The white cell has {{ mins(steps.res.min) }} to resolve both COAs. If rulings keep needing the ground truth, add a line to the likely plans.
 
 Record what changed, and update the open decisions in `scenario/README.md`.
 

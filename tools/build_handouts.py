@@ -23,7 +23,7 @@ What it does:
   product starting on a new page.
 - Copies the counters, the map (game.toml [map]), and the white cell clock into place
   (tools/build_handouts.sh first runs tools/schedule.py --write, which sets up the clock
-  and the schedule tables from game.toml's run of show).
+  from game.toml's run of show).
 - Assembles the white cell's Print Packet (PACKET): everything one table
   prints to run the game, with the right number of copies, behind a cover
   sheet that lists it. A second version (REF_PACKET_NAME) holds one copy of
@@ -34,7 +34,9 @@ What it does:
 
 Names, dates, turn counts, and the map come from game.toml (tools/game.py).
 
-The markdown is the source. Audience lines and FORMAT NOTE blocks stay out of
+The markdown is the source, and a Jinja2 template: values from game.toml
+({{ requests }}), the rule set ({% if rules == "full" %}), and generated tables are
+filled in first (tools/game.py render()). Audience lines and FORMAT NOTE blocks stay out of
 the PDFs (the running header carries the audience). `render_markdown()` is
 shared with tools/build_site.py.
 
@@ -60,7 +62,7 @@ import sys
 import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from game import GAME, map_pdf  # noqa: E402
+from game import GAME, map_pdf, render, values  # noqa: E402
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 H = os.path.join(ROOT, "handouts")
@@ -105,8 +107,12 @@ REF_PACKET_NAME = "Print Packet - One Table, Reference Forms.pdf"
 # ("word", name) for a PDF from handouts/word/, or ("copy", path).
 # "packet" builds the Print Packet from the files above it, so it comes last;
 # "packet:reference" builds the version with one copy of each player form.
+# The basic rule set (game.toml [rules] set = "basic") gives players the Basic Rules
+# in place of the Player Rules Handbook.
+BASIC = GAME["rules"]["set"] == "basic"
 RELEASES = [
-    (ASAP, "Player Rules Handbook.pdf", MATRIX, ["common/rules-handbook.md"]),
+    *([] if BASIC else [(ASAP, "Player Rules Handbook.pdf", MATRIX, ["common/rules-handbook.md"])]),
+    (ASAP, "Basic Rules.pdf", MATRIX, ["common/basic-rules.md"]),
     (ASAP, "Player Forms and Templates.pdf", MATRIX, ["common/player-forms.md"]),
     (WEEK, "Scenario Brief.pdf", PUBLIC, ["common/scenario-brief.md"]),
     (WEEK, "Scenario Schedule.pdf", PUBLIC, ["common/scenario-schedule.md"]),
@@ -139,12 +145,12 @@ RELEASES = [
 ]
 
 # Paper the players need per side, from game.toml [turns]: one worksheet a turn,
-# request slips for every request (3 slips to a page), one secret COA slip a phase.
+# request slips for every request (3 slips to a page), one secret COA slip a phase
+# (none with the basic rules).
 T = GAME["turns"]
 TURNS = T["total"]
-SLIPS = T["planning_requests"] + TURNS * T["requests_per_turn"]
-SLIP_PAGES = -(-SLIPS // 3)
-SECRET = T["secret_coas"]
+SLIPS, SLIP_PAGES = values()["slips"], values()["slip_pages"]  # the Player Forms quote the same numbers
+SECRET = 0 if BASIC else T["secret_coas"]  # the basic rules have no secret COAs
 
 # What one table prints to run the game. (label, release file, section heading
 # (its start, as printed) or None for the whole file, copies, note). Copies are per table; the packet
@@ -165,13 +171,13 @@ for _side in ("REDFOR", "BLUEFOR"):
         (f"{_side}: Cons worksheets", (ASAP, "Player Forms and Templates.pdf"), "3. Cons Worksheet", TURNS, "One per turn"),
         (f"{_side}: request slips (3 per page)", (ASAP, "Player Forms and Templates.pdf"), "4. Request Slips", SLIP_PAGES,
          f"{SLIP_PAGES * 3} slips: {T['planning_requests']} in Phase I, {T['requests_per_turn']} a turn after"),
-        (f"{_side}: secret COA slips", (ASAP, "Player Forms and Templates.pdf"), "5. Secret COA Slip", SECRET, "One per phase"),
+        (f"{_side}: secret COA slips", (ASAP, "Player Forms and Templates.pdf"), "6. Secret COA Slip", SECRET, "One per phase"),
     ]
 PACKET += [
     ("Spare: request slips (3 per page)", (ASAP, "Player Forms and Templates.pdf"), "4. Request Slips", 3, "9 slips, either side"),
     ("Spare: COA worksheets", (ASAP, "Player Forms and Templates.pdf"), "2. COA Worksheet", 2, "Either side"),
     ("Spare: Cons worksheets", (ASAP, "Player Forms and Templates.pdf"), "3. Cons Worksheet", 2, "Either side"),
-    ("Spare: secret COA slips", (ASAP, "Player Forms and Templates.pdf"), "5. Secret COA Slip", 2, "Either side"),
+    ("Spare: secret COA slips", (ASAP, "Player Forms and Templates.pdf"), "6. Secret COA Slip", 2 if SECRET else 0, "Either side"),
     ("Spare: REDFOR placement form", (WC, "White Cell Forms.pdf"), "4.1 REDFOR placement form", 1, "If the first fills up with crossings-out"),
     ("Spare: BLUEFOR placement form", (WC, "White Cell Forms.pdf"), "4.2 BLUEFOR placement form", 1, "If the first fills up with crossings-out"),
 ]
@@ -191,11 +197,13 @@ def sheets(pages, f):
 
 
 def packet_items(variant="full"):
-    """PACKET as printed. "reference" keeps one copy of each player form per side and drops the spares."""
+    """PACKET as printed. "reference" keeps one copy of each player form per side and drops the spares.
+    An item with no copies (secret COA slips under the basic rules) is left out."""
+    items = [item for item in PACKET if item[3] > 0]
     if variant == "full":
-        return PACKET
+        return items
     return [(label, f, h, 1, "Reference copy" if f == PLAYER_FORMS else note)
-            for label, f, h, _copies, note in PACKET if not label.startswith("Spare: ")]
+            for label, f, h, _copies, note in items if not label.startswith("Spare: ")]
 
 
 def word_name(md_path):
@@ -231,8 +239,10 @@ def front_matter(text):
     return meta, text
 
 
-def clean(text, is_intel=False):
-    """Drop what stays in the markdown only: audience lines and FORMAT NOTEs."""
+def clean(text, is_intel=False, where="markdown"):
+    """The markdown filled in for this game (a Jinja2 template, tools/game.py render()),
+    without what stays in the markdown only: audience lines and FORMAT NOTEs."""
+    text = render(text, where=where)
     paras = re.split(r"(\n\s*\n)", text)
     out = []
     for p in paras:
@@ -241,7 +251,8 @@ def clean(text, is_intel=False):
             continue
         if s.startswith("**Audience:**"):
             continue
-        m = re.match(r"^\*\*(REDFOR|BLUEFOR|WHITE CELL)[^*]*\*\*\s*(\*\*Never show[^*]*\*\*\s*)?", s)
+        # the audience marking ("**REDFOR EYES ONLY.**", "**WHITE CELL ONLY.**"), not any bold REDFOR text
+        m = re.match(r"^\*\*(?:(?:REDFOR|BLUEFOR) EYES ONLY|WHITE CELL ONLY)\.\*\*\s*(\*\*Never show[^*]*\*\*\s*)?", s)
         if m:
             rest = s[m.end():].strip()
             if is_intel or not rest.startswith("*") or rest.startswith("**"):
@@ -458,7 +469,7 @@ def page_html(md_paths, header=WC_ONLY, doc_title=""):
         path = rel if os.path.isabs(rel) else os.path.join(H, rel)
         meta, text = front_matter(open(path, encoding="utf-8").read())
         is_product = bool(re.match(r"^[RB]I-\d\d", os.path.basename(path)))
-        text = clean(text, is_intel=is_product)
+        text = clean(text, is_intel=is_product, where=os.path.relpath(path, ROOT))
         body = render_markdown(text, os.path.dirname(path))
         if meta.get("title"):
             body = title_block(meta) + body
@@ -697,6 +708,19 @@ def main():
             print("wrote", os.path.relpath(dst, ROOT))
         browser.close()
     shutil.rmtree(work, ignore_errors=True)
+    if not a.only:
+        remove_stale()
+
+
+def remove_stale():
+    """Delete release files that RELEASES no longer makes (the Player Rules Handbook after a
+    switch to the basic rules), so an old file never goes out with a release folder."""
+    made = {(folder, name) for folder, name, _h, _s in RELEASES}
+    for folder in {f for f, _n in made}:
+        for name in os.listdir(os.path.join(FIN, folder)):
+            if (folder, name) not in made and os.path.isfile(os.path.join(FIN, folder, name)):
+                os.remove(os.path.join(FIN, folder, name))
+                print("removed", os.path.relpath(os.path.join(FIN, folder, name), ROOT))
 
 
 if __name__ == "__main__":

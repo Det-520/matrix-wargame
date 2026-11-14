@@ -43,6 +43,13 @@ A rule with no tag inherits the tag of its section heading.
 | §11 Open decisions | Designer |
 | Appendices | Phase I brief format, placement form, probability table, doctrine crosswalk, glossary |
 
+**Rule sets [PROPOSED].** A game is played with one of two rule sets, chosen in `game.toml` `[rules]` `set`:
+
+- **Full** (the default): everything in this document. Players get the Player Rules Handbook, and the Basic Rules (`handouts/common/basic-rules.md`) as a short first read for new players.
+- **Basic**, for groups new to matrix games: no secret COAs (§3.4) and no estimative vote (§4.3). Everything else stands. The Basic Rules replace the Player Rules Handbook in the players' release; they explain the special cases (big projects, layers, long-term COAs) and interacting and opposed COAs (§4.2) in a sentence or two each, and leave out announcements and the finer points of parleys and RFFs. The build drops the secret COA slips and templates, the timer hides its estimative vote button, and the white cell documents print without those rules.
+
+Text that applies to only one rule set sits inside `{% if rules == "full" %}` … `{% endif %}` in the handouts (`README.md`, Documents are templates). Time cost of the basic set: none; it saves the time secret COAs and votes take.
+
 ---
 
 ## 1. Player Quick-Start (read this if you read nothing else)
@@ -50,13 +57,13 @@ A rule with no tag inherits the tag of its section heading.
 1. **What this is.** A *matrix wargame*: there is no rulebook of unit stats. You win arguments, not dice-math puzzles. Each turn your team proposes **one course of action (COA)** and gives **up to three reasons it will work**. The other team gives **up to three reasons it won't**. The **white cell** weighs the reasons, sets the odds, rolls the dice (with a computer program), and narrates what happens.
 2. **Your side.** You are either **REDFOR** or **BLUEFOR**. Your team packet gives you your forces, your intel, and **three secret objectives**. Don't show the other team your objectives.
 3. **One COA per turn.** A COA is *one* main action with a *measurable effect*, e.g. "F-35As and an EC-37B strike the enemy's Patriot battery at the port **so that** the battery is destroyed and our ISR aircraft can operate over the coast." You can use several assets in one COA (a strike package counts as one action), but you can't do two unrelated things. Everything else your forces do is background activity.
-4. **Format of your COA (2 minutes):**
+4. **Format of your COA ({{ mins(steps.bcoa.min) }}):**
    > "Our COA: **[action]** in order to **[measurable effect]**. It will work because: **(1)** … **(2)** … **(3)** …"
 5. **Format of your Cons (1 minute):**
    > "Their COA will fail or fall short because: **(1)** … **(2)** … **(3)** …"
 6. **Good reasons** are specific and grounded in facts. They point to your assets' capabilities, the map, things that happened earlier in the game ("established facts"), and doctrine (tenets of airpower, principles of joint operations). Repeating a reason in new words earns nothing.
 7. **Odds.** With no strong reasons either way, a COA succeeds on 7+ on two dice (58%). Each strong reason for it adds +1, and each strong reason against it subtracts 1. If a COA is obviously sound and unopposed, it succeeds without a roll. If a call is too contentious to count, the white cell may take a quick **estimative vote** on how likely it is instead (§4.3).
-8. **RFIs and RFFs.** Each turn you may post **up to 3 requests in total** in your team's private Slack channel (§2.5), any mix of:
+8. **RFIs and RFFs.** Each turn you may post **up to {{ requests }} requests in total** in your team's private Slack channel (§2.5), any mix of:
    - **RFI (Request for Information):** a question about the situation.
    - **RFF (Request for Forces):** a request for more assets or authorities from your national command. Reinforcements take time to arrive.
    Requests don't count as your COA, and there is no debate on them. **Diplomacy needs no RFF:** your team speaks for its government, so you can negotiate or make a diplomatic COA without anyone's permission (§6.2).
@@ -82,7 +89,7 @@ The designer sets the blocks, their order, their steps, every duration, and the 
 
 | Phase | Turns | What happens |
 | --- | --- | --- |
-| **Phase I – Planning** | none | Teams study intel, plan, and file up to 4 RFIs and RFFs (due at minute 12). They end by briefing their plan to their logger (§2.3). **No COAs.** |
+| **Phase I – Planning** | none | Teams study intel, plan, and file up to {{ planning_requests }} RFIs and RFFs (due at minute {{ request_deadline }}). They end by briefing their plan to their logger (§2.3). **No COAs.** |
 | **Kickoff inject** | — | The lead adjudicator announces the conflict has begun (`scenario/whitecell-injects.md` §1). |
 | **Phase II** | Turns 1–4 | Full turns (§2.2) |
 | **Phase III – Planning & FRAGO** | none | After Debrief 1, the Phase III–IV flight commander takes command. Teams plan and end with a 1-minute FRAGO brief to the logger (§2.4). **No COAs.** |
@@ -90,25 +97,25 @@ The designer sets the blocks, their order, their steps, every duration, and the 
 
 Other structures that fit the same rules: a single planning block and one block of turns, for a short event; three playing phases with two handovers, for a longer one (one secret COA per playing phase, `game.toml` `[turns]` `secret_coas`); or a longer Phase I in place of the pre-read.
 
-- **[CANON] Game time:** each turn represents **[about 3 days]** of in-game time, so 7 turns cover about 3 weeks of conflict. Phase I covers the final days of crisis before the shooting starts. The white cell keeps timelines realistic: moving forces across an ocean takes turns, not minutes (`scenario/00-overview.md` §6). The scenario sets the length of a turn; pick one that lets a single COA finish or visibly start.
+- **[CANON] Game time:** each turn represents **about {{ days(game_days) }}** of in-game time (`game.toml` `[turns]` `game_days`), so {{ turns }} turns cover about {{ days(game_days * turns) }} of conflict. Phase I covers the final days of crisis before the shooting starts. The white cell keeps timelines realistic: moving forces across an ocean takes turns, not minutes (`scenario/00-overview.md` §6). The scenario sets the length of a turn; pick one that lets a single COA finish or visibly start.
 - Real-world clock times and the debriefs between phases are in `EVENT-SETUP.md` §3. The default turn counts (4 in Phase II, 3 in Phase IV) fit a 3-hour block.
 
 ### 2.2 The turn [CANON]
 
-One turn is "a turn in the chess sense": each side acts once, and **both COAs take place simultaneously across the 3-day turn window**. **Target: 15 minutes**, kept by a **timer program** the lead adjudicator runs.
+One turn is "a turn in the chess sense": each side acts once, and **both COAs take place simultaneously across the {{ days(game_days, adj=True) }} turn window**. **Target: {{ mins(turn_min) }}**, kept by a **timer program** the lead adjudicator runs.
 
-The step lengths below are the default, set in `game.toml` `[[turn_step]]`. A designer may lengthen or shorten them to fit the event, but keeps the order, keeps the Cons, and keeps the white cell's resolve step: those are the rules, the minutes are the timing. Changing them changes the turn clock in the Rules Handbook too.
+The step lengths below are the default, set in `game.toml` `[[turn_step]]`. A designer may lengthen or shorten them to fit the event, but keeps the order, keeps the Cons, and keeps the white cell's resolve step: those are the rules, the minutes are the timing. The turn clock tables in the handouts, the times quoted in them, and the timer program follow `game.toml` on the next build (`tools/schedule.py`).
 
 | # | Step | Time | Who | Notes |
 | --- | --- | --- | --- | --- |
-| 1 | Prepare | 5 min | Both teams | Choose this turn's COA, write RFIs and RFFs, negotiate (§6). The white cell posts answers to last turn's RFIs in each team channel by the start of this step. |
+| 1 | Prepare | {{ steps.prep.min }} min | Both teams | Choose this turn's COA, write RFIs and RFFs, negotiate (§6). The white cell posts answers to last turn's RFIs in each team channel by the start of this step. |
 | 2 | Submit RFIs/RFFs | — | Both teams → white cell | Posted in the team channel (§2.5) by the end of Prepare. No debate. |
-| 3 | BLUEFOR COA + Pros | 2 min | BLUEFOR briefer | Format in §3.2 |
-| 4 | REDFOR COA + Pros | 2 min | REDFOR briefer | |
-| 5 | Prepare Cons | 2 min | Both teams | |
-| 6 | REDFOR Cons → BLUEFOR COA | 1 min | REDFOR | |
-| 7 | BLUEFOR Cons → REDFOR COA | 1 min | BLUEFOR | |
-| 8 | White cell resolves | 2 min | White cell | Adjudicate both COAs (§4). Rule on RFFs. Update the map and tracks. Possibly deliver an inject. |
+| 3 | BLUEFOR COA + Pros | {{ steps.bcoa.min }} min | BLUEFOR briefer | Format in §3.2 |
+| 4 | REDFOR COA + Pros | {{ steps.rcoa.min }} min | REDFOR briefer | |
+| 5 | Prepare Cons | {{ steps.pcons.min }} min | Both teams | |
+| 6 | REDFOR Cons → BLUEFOR COA | {{ steps.rcons.min }} min | REDFOR | |
+| 7 | BLUEFOR Cons → REDFOR COA | {{ steps.bcons.min }} min | BLUEFOR | |
+| 8 | White cell resolves | {{ steps.res.min }} min | White cell | Adjudicate both COAs (§4). Rule on RFFs. Update the map and tracks. Possibly deliver an inject. |
 
 - **[CANON] Fixed order.** BLUEFOR always briefs first and REDFOR second, every turn. The order never switches.
 - **[CANON] Simultaneous execution.** Although BLUEFOR briefs first, both teams' COAs happen at the same time in game terms. REDFOR, briefing second, **may** react to BLUEFOR's COA, which is realistic. It **may not** simply negate it ("their strike doesn't happen") or preempt BLUEFOR's roll. Negating is what Cons are for; a counter-move is resolved as an interacting or opposed COA (§4.2).
@@ -116,7 +123,7 @@ The step lengths below are the default, set in `game.toml` `[[turn_step]]`. A de
 ### 2.3 Phase I – Planning [CANON]
 
 - Teams arrive having read the rules, scenario brief, and their team's intelligence products (distributed ≥ 24 hours prior). During Phase I (18 minutes), they organize their team, build a plan, and file RFIs and RFFs to posture forces before the war starts.
-- **[CANON] Phase I request limit:** up to **4 requests in total** (RFIs and RFFs combined), **posted in the team channel by minute 12** (6 minutes before Phase I ends) so the white cell can adjudicate them while loggers hear the OPORD briefs. The white cell posts answers and rulings in each team's channel after the kickoff inject, before Turn 1 begins. Phase I RFFs follow normal arrival timing (`scenario/00-overview.md` §6), with N = Turn 1 (§5).
+- **[CANON] Phase I request limit:** up to **{{ planning_requests }} requests in total** (RFIs and RFFs combined), **posted in the team channel by minute {{ request_deadline }}** (6 minutes before Phase I ends) so the white cell can adjudicate them while loggers hear the OPORD briefs. The white cell posts answers and rulings in each team's channel after the kickoff inject, before Turn 1 begins. Phase I RFFs follow normal arrival timing (`scenario/00-overview.md` §6), with N = Turn 1 (§5).
 - In the last 3 minutes (minutes 15–18) each team gives an **oral brief** of its plan to its own logger, **organized like a five-paragraph OPORD**: Situation, Mission, Execution, Sustainment, Command & Signal (AFDP 5-0 App. E; see App. A). No written OPORD is expected.
 - **Planned COAs.** The brief may name **up to 3 planned COAs** in intended sequence for Phase II, e.g. "Turn 1: X; Turn 2: Y; Turn 3: Z". The logger writes them down. When a team later executes a planned COA *substantially as briefed, and the situation still supports it*, the white cell adds **+1 (Planned)**. If events make a planned COA invalid (the target is gone, the resources were lost, or the enemy forced a reaction), the bonus is lost. Recognizing that and adapting is the point.
 - Phase I has **no COAs**. The first COAs come in Turn 1, after the kickoff inject. A team may post its Phase II secret COA during Phase I (§3.4).
@@ -139,7 +146,7 @@ The step lengths below are the default, set in `game.toml` `[[turn_step]]`. A de
 
 Use a short prefix for the scenario (for example, `opx-` for Operation Example) and one row per group in `EVENT-SETUP.md` §5.
 
-- **One request per message.** The white cell counts the first 3 request messages after the previous turn's resolve step (4 in Phase I). The deadline is the **end of Prepare** (Phase I: minute 12). A request posted after the deadline, or beyond the limit, isn't answered; post it again next turn.
+- **One request per message.** The white cell counts the first {{ requests }} request messages after the previous turn's resolve step ({{ planning_requests }} in Phase I). The deadline is the **end of Prepare** (Phase I: minute {{ request_deadline }}). A request posted after the deadline, or beyond the limit, isn't answered; post it again next turn.
 - **[PROPOSED]** The logger answers in a **thread under each request** (RFI answers and RFF rulings) and posts nothing else in a team channel except procedure. Templates for each post are in the Player Forms.
 - **[PROPOSED]** **Backup:** if Slack or the network fails, teams write the same thing on paper (backup slips in the Print Packet) and hand it to the white cell.
 - Time cost: none. Posting happens inside steps that already exist, and the white cell no longer collects or returns slips.
@@ -158,7 +165,7 @@ Use a short prefix for the scenario (for example, `opx-` for Operation Example) 
 - Not every COA has to be kinetic. Diplomatic, information, cyber, space, economic, logistics, and deception COAs are all valid and are often stronger. Think **DIME** (Diplomatic, Informational, Military, Economic) and **PMESII** (Political, Military, Economic, Social, Information, Infrastructure).
 - **Big projects** take **at most 3 successful COAs**, e.g. building a coalition or standing up a dispersed ACE network. The white cell states the number up front.
 - **Protected and hidden things** need successful COAs to find or get through them, with **no more than 3 layers**. Example: a hidden mobile SAM must first be **found** (ISR COA), then **struck**.
-- **Long-term COAs** are allowed. If an argued effect can't finish within one turn's 3 days, success means it **has started and continues** until someone stops it.
+- **Long-term COAs** are allowed. If an argued effect can't finish within one turn's {{ days(game_days) }}, success means it **has started and continues** until someone stops it.
 - **Announcements** (press statements, declarations) are free. A briefer can add a one-sentence public statement to the COA slot. A statement with a measurable effect ("…in order to raise International Opinion by 1") *is* a COA.
 
 ### 3.2 Pros (reasons it will work) [PROPOSED]
@@ -232,7 +239,7 @@ Use a short prefix for the scenario (for example, `opx-` for Operation Example) 
 
 ### 4.2 Interacting COAs [CANON]
 
-Both COAs are briefed before either is resolved, so **they happen simultaneously across the 3-day turn window**. Because REDFOR briefs second, REDFOR's COA cannot prevent BLUEFOR's COA from being rolled; instead, a reactive move is resolved as an interacting or directly opposed COA.
+Both COAs are briefed before either is resolved, so **they happen simultaneously across the {{ days(game_days, adj=True) }} turn window**. Because REDFOR briefs second, REDFOR's COA cannot prevent BLUEFOR's COA from being rolled; instead, a reactive move is resolved as an interacting or directly opposed COA.
 
 - **Independent COAs** (different places or effects): resolve each normally, BLUEFOR's first.
 - **Interacting COAs** (one affects the other's odds, e.g. BLUEFOR disperses its SAMs while REDFOR strikes them): fold the interaction into the modifiers. A well-timed counter-move is a strong Pro or Con even if nobody said it out loud.
@@ -240,7 +247,7 @@ Both COAs are briefed before either is resolved, so **they happen simultaneously
 
 ### 4.3 Time pressure
 
-- **[PROPOSED]** If the 2 minutes run out, the lead adjudicator makes the call on the spot. Resolving fast matters more than resolving perfectly.
+- **[PROPOSED]** If the {{ mins(steps.res.min) }} run out, the lead adjudicator makes the call on the spot. Resolving fast matters more than resolving perfectly.
 - **[PROPOSED] Contentious calls** happen when both teams keep arguing. Don't debate. Either make the call, or take an estimative vote.
 - **[CANON] Estimative vote.** For a contentious call (both teams keep arguing, or the white cell can't settle the modifiers in time), the lead adjudicator may skip counting modifiers and call a **10-second estimative vote**. Each white cell member shows 1–5 fingers for how likely the COA is to work. The white cell takes the **median**, and the dice program rolls against it:
 
@@ -275,12 +282,12 @@ The scenario lists its split counters in the packet force tables and in `scenari
 
 ---
 
-## 5. Requests: RFIs and RFFs [CANON: limit of 3 combined per turn; Phase I: 4 due at minute 12]
+## 5. Requests: RFIs and RFFs [CANON: one limit per turn for RFIs and RFFs combined, and a larger one in Phase I, due before it ends; the numbers are in `game.toml` `[turns]`]
 
 | | RFI – Request for Information | RFF – Request for Forces |
 | --- | --- | --- |
 | Purpose | Ask what your side knows: enemy disposition, weather, a third party's stance, civilian situation | Ask your national command for more assets, or for authorities beyond the rules of engagement. Diplomacy needs no RFF (§6.2). |
-| Limit | **Up to 3 requests per turn in total, RFIs and RFFs combined** (Phase I: 4 due at minute 12, see §2.3) | (shared with RFIs) |
+| Limit | **Up to {{ requests }} requests per turn in total, RFIs and RFFs combined** (Phase I: {{ planning_requests }} due at minute {{ request_deadline }}, see §2.3) | (shared with RFIs) |
 | Format | One question per Slack message, ≤ 1 sentence | Asset (from the scenario's RFF pool or a free-text request), destination, and purpose |
 | Counts as COA? | No | No |
 | Debate? | No | No |
@@ -299,10 +306,10 @@ The scenario lists its split counters in the packet force tables and in `scenari
 
 ### 6.1 Parleys between teams
 
-- **What it is.** A parley is a short face-to-face talk between the two teams, held during **Prepare**. In the game world it stands for talks between the two governments during the turn's 3 days, whether direct, through a back channel, or through a mediator. It is the **only** way to get a decision from the other team, because no COA can argue that a player-controlled actor agrees (§3.5).
-- **What it is not.** It is not a COA and not a request. It has no roll and no Pros or Cons, doesn't count against the 3 requests, and needs no RFF (§6.2). It is not a way to talk to white-cell actors (third-party states, the press, populations). Those are persuaded with COAs.
+- **What it is.** A parley is a short face-to-face talk between the two teams, held during **Prepare**. In the game world it stands for talks between the two governments during the turn's {{ days(game_days) }}, whether direct, through a back channel, or through a mediator. It is the **only** way to get a decision from the other team, because no COA can argue that a player-controlled actor agrees (§3.5).
+- **What it is not.** It is not a COA and not a request. It has no roll and no Pros or Cons, doesn't count against the {{ requests }} requests, and needs no RFF (§6.2). It is not a way to talk to white-cell actors (third-party states, the press, populations). Those are persuaded with COAs.
 - **Asking for one.** Either team's flight commander (or a delegate) asks the lead adjudicator. The lead adjudicator authorizes it and runs the parley timer in the timer program. The other team may decline.
-- **Who and how long.** The flight commander (or a delegate) from each team meets at the white cell end of the table, and the lead adjudicator listens. The rest of each team keeps working on its COA. A parley lasts **≤ 2 min**, taken out of Prepare. Time cost: none, since Prepare doesn't get longer.
+- **Who and how long.** The flight commander (or a delegate) from each team meets at the white cell end of the table, and the lead adjudicator listens. The rest of each team keeps working on its COA. A parley lasts **≤ {{ parley }} min** (`game.toml` `[schedule]` `parley`), taken out of Prepare. Time cost: none, since Prepare doesn't get longer.
 - **Closing it.** At the end, each side states aloud what it agreed to, and the lead adjudicator repeats the deal back. The logger notes it, including what each side says it agreed, on the objective status card (White Cell Forms). Players don't write agreements down.
 - Whatever the players agree in person **happens** (no roll). The white cell applies its effects (counters, tracks, objective status card) in this turn's resolve step. Examples: prisoner exchanges, a local ceasefire, an agreement to open talks, a deal to let shipping through.
 - Agreements are not self-enforcing. Breaking one is allowed, but it is an **established fact** that others can use in Pros and Cons (credibility and legitimacy), and the white cell may move tracks.
@@ -330,10 +337,10 @@ The scenario lists its split counters in the packet force tables and in `scenari
 
 ### 8.1 Lead adjudicator checklist (per turn)
 
-1. Start the timer program for Prepare (5:00). Check that last turn's RFI answers are posted in each team channel.
-2. At the end of Prepare, close requests: count the first 3 request posts per team (§2.5).
-3. Call the BLUEFOR COA (2:00), then the REDFOR COA (2:00). Don't allow interruptions.
-4. Start the Cons prep (2:00). Call REDFOR Cons (1:00), then BLUEFOR Cons (1:00).
+1. Start the timer program for Prepare ({{ clock(steps.prep.min) }}). Check that last turn's RFI answers are posted in each team channel.
+2. At the end of Prepare, close requests: count the first {{ requests }} request posts per team (§2.5).
+3. Call the BLUEFOR COA ({{ clock(steps.bcoa.min) }}), then the REDFOR COA ({{ clock(steps.rcoa.min) }}). Don't allow interruptions.
+4. Start the Cons prep ({{ clock(steps.pcons.min) }}). Call REDFOR Cons ({{ clock(steps.rcons.min) }}), then BLUEFOR Cons ({{ clock(steps.bcons.min) }}).
 5. Resolve each COA: screen → auto-success? → modifiers → dice program → narrate.
 6. Rule on RFFs and announce arrivals. State ongoing effects. Deliver an inject (optional).
 7. Loggers move the map counters and tracks and update the placement forms. Start the next turn.
@@ -359,7 +366,7 @@ Four yeses make it strong (±1). An exceptional reason, one that is decisive by 
 
 ### 8.4 Keeping the game on the rails
 
-- **Over-reach** ("we invade and take their capital this turn"): scope it down to what is feasible in 3 days with the assets on hand, or rule it impossible.
+- **Over-reach** ("we invade and take their capital this turn"): scope it down to what is feasible in {{ days(game_days) }} with the assets on hand, or rule it impossible.
 - **Laundry lists:** hold teams to 3 reasons and one action.
 - **Off-the-rails behavior [CANON tool]:** use an inject that sets a national directive restricting it, or kill the COA outright.
 - **Dominant players and nit-picking:** courtroom rules. "You had your slot." Move on.
@@ -398,15 +405,15 @@ After the final turn's resolution, the white cell states the end state (map and 
 
 *This example uses a generic coastal scenario: Blueland (BLUEFOR) holds a strait coast, and Redland (REDFOR) is trying to reopen it. Replace it with a Turn 1 from your own scenario, using real asset IDs from the packets, once the forces are settled. These numbers are an illustration, not a prediction.*
 
-**BLUEFOR COA (2:00):** "Our Mark VI patrol boats (B-12) and maritime militia (B-18), covered by our Harpoon coastal-defense battery (B-08), establish an armed inspection zone across the Narrows, **in order to** move Sea Lane Access from Restricted to **Closed**. It works because: (1) the Narrows are only ~25 miles wide and sit completely inside the battery's ~75-mile anti-ship missile umbrella, so Redland surface ships can't escort freighters through safely; (2) the militia's armed boats blend in with coastal traffic and swarm any ship that tries to run the Narrows, giving us *surprise* and *mass*; (3) closing the strait pressures Redland's economy without us firing first on Redland warships."
+**BLUEFOR COA ({{ clock(steps.bcoa.min) }}):** "Our Mark VI patrol boats (B-12) and maritime militia (B-18), covered by our Harpoon coastal-defense battery (B-08), establish an armed inspection zone across the Narrows, **in order to** move Sea Lane Access from Restricted to **Closed**. It works because: (1) the Narrows are only ~25 miles wide and sit completely inside the battery's ~75-mile anti-ship missile umbrella, so Redland surface ships can't escort freighters through safely; (2) the militia's armed boats blend in with coastal traffic and swarm any ship that tries to run the Narrows, giving us *surprise* and *mass*; (3) closing the strait pressures Redland's economy without us firing first on Redland warships."
 
-**REDFOR COA (2:00):** "A strike package of F-35As (R-01) and an EC-37B Compass Call (R-10), refueled by KC-46s (R-05), strikes Blueland's Patriot battery (B-04) covering the Narrows, **in order to** destroy it and open the air over the strait for our ISR. It works because: (1) the F-35A is a stealth aircraft built to penetrate integrated air defenses; (2) Compass Call jamming cuts the battery off from its early-warning radar network (B-07), which is *synergistic effects*; (3) the kickoff inject gives us *surprise*, because the battery hasn't had time to relocate."
+**REDFOR COA ({{ clock(steps.rcoa.min) }}):** "A strike package of F-35As (R-01) and an EC-37B Compass Call (R-10), refueled by KC-46s (R-05), strikes Blueland's Patriot battery (B-04) covering the Narrows, **in order to** destroy it and open the air over the strait for our ISR. It works because: (1) the F-35A is a stealth aircraft built to penetrate integrated air defenses; (2) Compass Call jamming cuts the battery off from its early-warning radar network (B-07), which is *synergistic effects*; (3) the kickoff inject gives us *surprise*, because the battery hasn't had time to relocate."
 
-**REDFOR Cons → BLUEFOR (1:00):** "(1) Our RC-135 (R-07) and P-8A (R-14) have been watching the Narrows since Phase I and will track the patrol boats' formations and holds. (2) Shutting down an international strait by threatening merchant shipping will turn International Opinion against Blueland."
+**REDFOR Cons → BLUEFOR ({{ clock(steps.rcons.min) }}):** "(1) Our RC-135 (R-07) and P-8A (R-14) have been watching the Narrows since Phase I and will track the patrol boats' formations and holds. (2) Shutting down an international strait by threatening merchant shipping will turn International Opinion against Blueland."
 
-**BLUEFOR Cons → REDFOR (1:00):** "(1) Patriot is a mobile system, and our Phase I brief said we'd relocate the battery at the outbreak of war. (2) Redland's fighters have to fly ~600 miles each way, so they depend on tankers."
+**BLUEFOR Cons → REDFOR ({{ clock(steps.bcons.min) }}):** "(1) Patriot is a mobile system, and our Phase I brief said we'd relocate the battery at the outbreak of war. (2) Redland's fighters have to fly ~600 miles each way, so they depend on tankers."
 
-**White cell resolution (2:00):**
+**White cell resolution ({{ clock(steps.res.min) }}):**
 
 - **BLUEFOR inspection zone:**
   - Pros 1 and 2 are strong (+2). Pro 3 is about effect, not success, so it counts 0 here.
@@ -433,7 +440,7 @@ Open for every new scenario:
 | ID | Decision | Draft assumes |
 | --- | --- | --- |
 | O1 | Adjudication details: the five result bands and the ±4 modifier cap (§4.1) | As written |
-| O2 | Length of a turn in game time (§2.1) | About 3 days |
+| O2 | Length of a turn in game time (§2.1) | About {{ days(game_days) }} (`game.toml` `game_days`) |
 | O3 | The run of show (§2.1): the phases, their order and lengths, and the number of turns in each, which follow from the time the event has (`EVENT-SETUP.md` §3). Set in `game.toml` `[[block]]`. | The default four phases, with 4 and 3 turns |
 | O4 | Slack channel prefix and group names (§2.5) | `[prefix]-group1-[room]` |
 | O5 | Replace the generic worked example (§10) with one from the scenario | Generic example |

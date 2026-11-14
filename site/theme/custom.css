@@ -47,3 +47,39 @@
 
 /* A table whose header row is empty (the key-value tables in intelligence products) shows no header. */
 .content table thead:not(:has(th:not(:empty))) { display: none; }
+
+/* Task lists: an empty box in the text colour where the bullet would be, as in the PDFs,
+   instead of a bullet beside a greyed-out disabled checkbox. */
+.content li:has(> input[type="checkbox"]) { list-style: none; position: relative; }
+.content ul:has(> li > input[type="checkbox"]) { padding-left: 1.6em; }
+.content li > input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  position: absolute;
+  left: -1.4em;
+  top: 0.3em;
+  width: 0.85em;
+  height: 0.85em;
+  margin: 0;
+  border: 1.5px solid var(--fg);
+  border-radius: 2px;
+  background: transparent;
+  opacity: 0.85;
+  cursor: default;
+}
+
+/* A form's ☐ (tools/build_site.py draws it as this box). */
+.mw-box {
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  margin: 0 0.3em 0 0.35em;
+  border: 1.5px solid var(--fg);
+  border-radius: 2px;
+  color: transparent;
+  overflow: hidden;
+  line-height: 0.8em;
+  vertical-align: -0.08em;
+  opacity: 0.85;
+}
+.mw-box:first-child { margin-left: 0; }

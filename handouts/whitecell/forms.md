@@ -8,7 +8,7 @@ short: "White Cell Forms"
 
 ## 1. End-of-game scores
 
-Fill this in after Turn 7 (Handbook §8). Score each objective **A** (Achieved), **P** (Partial), or **N** (Not achieved).
+Fill this in after Turn {{ turns }} (Handbook §8). Score each objective **A** (Achieved), **P** (Partial), or **N** (Not achieved).
 
 <!-- mw:form -->
 

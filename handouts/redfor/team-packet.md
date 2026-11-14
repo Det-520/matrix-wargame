@@ -8,7 +8,7 @@ short: "REDFOR Team Packet"
 
 *Fictional training scenario. All military systems are real U.S. systems, described with unclassified, approximate capabilities.*
 
-**Your REDFOR read-ahead** is four documents: the **Commander's Read-Ahead** (your orders), this **Team Packet**, the **REDFOR Order of Battle** (your forces, your RFF pool, and the enemy forces you can see), and the **REDFOR Intelligence Products**. You also have the common documents: the Player Rules Handbook, the Scenario Brief, the Scenario Schedule, and the Player Forms.
+**Your REDFOR read-ahead** is four documents: the **Commander's Read-Ahead** (your orders), this **Team Packet**, the **REDFOR Order of Battle** (your forces, your RFF pool, and the enemy forces you can see), and the **REDFOR Intelligence Products**. You also have the common documents: the {% if rules == "full" %}Player Rules Handbook{% else %}Basic Rules{% endif %}, the Scenario Brief, the Scenario Schedule, and the Player Forms.
 
 > **FORMAT NOTE (delete before printing):** TEMPLATE. Fill each section from `scenario/redfor-packet.md` and `scenario/00-overview.md`. This is the player-facing version of the packet: same objectives and estimate, plus the constraints and planning questions that point the team at good COAs, including non-kinetic ones.
 
