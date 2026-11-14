@@ -22,7 +22,7 @@ short: "Player Rules Handbook"
 
 ### 1.1 The full game, briefly
 
-1. **What this is.** A *matrix wargame*: there is no rulebook of unit stats. You win via arguments. Each turn your team proposes **one course of action (COA)** and gives **up to three reasons it will work**. The other team gives **up to three reasons it won't**. The **white cell** weighs the reasons, sets the odds, rolls the dice (with a computer program), and narrates what happens.
+1. **What this is.** A *matrix wargame*: there is no rulebook of unit stats. You win via arguments. Each turn your team proposes **one course of action (COA)** and gives **up to three reasons it will work**. {{ "The other team gives" if n_teams == 2 else "The other teams give" }} **up to three reasons it won't**. The **white cell** weighs the reasons, sets the odds, rolls the dice (with a computer program), and narrates what happens.
 2. **Your side.** You are on one team: {{ teams_or }}. Your team's documents give you your forces, your intel, and **three secret objectives**. Don't show {{ "the other team" if sides|length == 2 else "the other teams" }} your objectives.{% if cells %} Some teams work in cells under their flight commander (§2.10).{% endif %}
 3. **One COA per turn.** A COA is *one* main action with a *measurable effect*, e.g. "[FIGHTER JET]s and an [EW AIRCRAFT] strike the [AIR DEFENSE] site near [CHOKEPOINT] **so that** [AIR DEFENSE UNIT] is destroyed and our ISR aircraft can operate over [STRAIT AREA]." You can use several assets in one COA (a strike package counts as one action), but you can't do two unrelated things. Everything else your forces do is background activity.
 4. **Format of your COA ({{ mins(sides[0].coa.min) }}):**
@@ -48,7 +48,7 @@ short: "Player Rules Handbook"
 
 ### 1.2 The turn clock
 
-Each turn is **{{ mins(turn_min) }}** of real time and about **{{ days(game_days) }}** of game time. **Both teams' COAs take place simultaneously across the {{ days(game_days, adj=True) }} window.**
+Each turn is **{{ mins(turn_min) }}** of real time and about **{{ days(game_days) }}** of game time. **{{ "Both teams' COAs take" if n_teams == 2 else "All the teams' COAs take" }} place simultaneously across the {{ days(game_days, adj=True) }} window.**
 
 {{ turn_clock_table() }}
 
@@ -84,6 +84,7 @@ Each turn is **{{ mins(turn_min) }}** of real time and about **{{ days(game_days
 - **Simultaneous execution.** {{ "Both COAs" if sides|length == 2 else "All the COAs" }} happen at the same time across the {{ days(game_days, adj=True) }} turn window, because all are briefed before any is resolved. A team that briefs later **may react** to an earlier team's COA, which is realistic. It **may not** simply negate it ("their strike doesn't happen") or prevent that COA from being rolled. Negating is what Cons are for; a counter-move is resolved as an interacting or opposed COA (§2.7).
 {% if sides|length > 2 %}
 - **{{ Word(sides|length) }} teams.** Each team has its own COA slot and its own Cons slot. In your Cons slot you give **up to 3 Cons in total**, against any of the other teams' COAs: say which COA each Con is against. You may spend them all on one COA or spread them out.
+- **Playing in a game of {{ word(n_teams) }} teams.** No team is anyone's ally by default, and every team's objectives pull against at least one other team's. A team you oppose on one issue may be the partner you need on the next, so keep talking to all of them: a parley may include any two or more teams (§2.6). Expect COAs and deals aimed at you, and watch for two teams working together against a third. Your Cons are scarce, so spend them on the COA that hurts you most.
 {% endif %}
 - **Running behind.** If the game falls behind schedule, the white cell shortens **Prepare** (to {{ flex }}). It never cuts the Cons.
 
@@ -282,9 +283,21 @@ An objection raised late (after its slot, or after the roll) **is not considered
 | **Loggers** | White cell (one per team) | Hear briefs and move counters |
 
 {% if cells %}
-**Cells.** In this scenario some teams are split into cells, each with a lead and a job. Your team packet lists them, and each cell may have its own brief. {% for s in sides if s.cells %}**{{ s.label }}:** {% for c in s.cells %}{{ c.name }}{% if c.lead %} ({{ c.lead }}){% endif %}{% if not loop.last %}, {% endif %}{% endfor %}. {% endfor %}
+**Cells.** In this scenario some teams are split into cells, each with a lead and a job. Your team packet lists your team's cells, and each cell has its own brief with its counters and its part in each step.
 
-Cells don't make their own COAs. Each cell proposes the COA it thinks matters most; the flight commander picks **one** for the team, and anyone the commander names briefs it. A COA may use assets from several cells. Requests are the team's: the {{ requests }} a turn are shared by all its cells.
+| Team | Cell | Lead | Job |
+| --- | --- | --- | --- |
+| {{ cell_rows("{team} | **{name}** ({short}) | {lead} | {job}") }} |
+
+**Working in a cell.** The rules don't change. Cells change how your team decides.
+
+- **One COA per team.** Cells don't make their own COAs. In Prepare, each cell lead pitches the COA the cell thinks matters most in about a minute (action, measurable effect, three reasons). The flight commander picks **one** for the team and names the briefer. A COA may use counters from several cells.
+- **One voice in the slot.** Disagree in Prepare, not in your COA slot. Once the commander decides, every cell argues for that COA, including the cells whose idea lost.
+- **Cons.** In Prepare Cons, each cell offers its strongest Con from what it knows best; the briefer picks the three to give.
+- **Requests are the team's.** The {{ requests }} a turn ({{ planning_requests }} in Phase I) are shared by all the cells, so agree which go first. The logger counts the team's posts, not each cell's.
+- **Slack.** Your team may open a thread for each cell in its team channel. COAs, Cons, and requests are still posted as the team's.
+- **Counters.** A counter a cell owns shows the cell's short name after the owner. Any cell may ask to use another cell's counters; the commander settles it.
+- **Concerns.** Your cell brief may give your cell a concern that pulls against another cell's (logistics against tempo, legal against a bold strike). That is deliberate: argue it out, and let the commander decide.
 
 {% endif %}
 You **may use computers** during play: every player may bring a laptop, for Slack and to search online. The decisions and briefs must be your team's own.
@@ -292,8 +305,8 @@ You **may use computers** during play: every player may bring a laptop, for Slac
 ### 2.11 Slack channels
 
 - **Before the event:** accept the Slack invitation that comes with your team assignment and join both of your channels:
-  - your **group channel** (public), shared by both teams in your group and the white cell, for example `[prefix]-group1-[room]`;
-  - your **team channel** (secret), shared only by your team and your group's white cell, for example `[prefix]-alpha-redfor`. The other team is never in it.
+  - your **group channel** (public), shared by {{ both }} teams in your group and the white cell, for example `[prefix]-group1-[room]`;
+  - your **team channel** (secret), shared only by your team and your group's white cell, for example `[prefix]-alpha-redfor`. {{ "The other team is" if n_teams == 2 else "The other teams are" }} never in it.
 - **Bring a laptop.** Everyone may bring one. At least one teammate keeps Slack open at the table. Pick a team member to post.
 - **Group channel:** your COA and Pros (by the end of your COA slot) and your Cons (by the end of your Cons slot).
 - **Team channel:** each RFI or RFF as its own message (during Prepare), and any secret COA. Never post secrets in the group channel.

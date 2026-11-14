@@ -8,7 +8,8 @@ that quote it.
 
 The markdown in handouts/, scenario/, and the design documents is a Jinja2 template:
 {{ requests }}, {{ mins(turn_min) }}, {% if rules == "full" %} ... {% endif %}. context()
-lists every name a template can use. The run-of-show texts in game.toml (say, brief) are
+lists every name a template can use; a team's own files also get `team` and `others`, and a
+cell brief gets `cell` (own_team()). The run-of-show texts in game.toml (say, brief) are
 templates too. Reading game.toml needs only the standard library (tomllib, Python 3.11 or
 later); render() needs jinja2.
 """
@@ -38,7 +39,36 @@ DEFAULTS = {
 PALETTE = ["#0969da", "#cf222e", "#6e7781", "#1a7f37", "#bc4c00", "#8250df"]
 LEGACY_STEP_SIDE = {"blue": "bluefor", "red": "redfor"}
 RESERVED_IDS = {"common", "whitecell", "word", "assets", "intel", "design"}
-RESERVED_PREFIXES = {"X", "S"}   # X- third-party counters, S- starting conditions
+RESERVED_PREFIXES = {"X", "S", "I", "O", "Z"}   # X- third parties, S- starting conditions, I- injects, O open items, Z zones
+PRESETS = os.path.join(ROOT, "presets")
+
+
+def cell_presets():
+    """The cell catalog (presets/cells.toml) by key: name, short, lead, job, and the brief's text."""
+    path = os.path.join(PRESETS, "cells.toml")
+    if not os.path.exists(path):
+        return {}
+    with open(path, "rb") as f:
+        return {c["key"]: c for c in tomllib.load(f).get("cell", [])}
+
+
+def cells_from(s, sid):
+    """A team's cells: [[side.cell]] entries (each may name a `preset` from presets/cells.toml and
+    override any of its fields) and the shorthand `cells = ["intel", "air"]` (presets only)."""
+    raw = [{"preset": k} for k in s.get("cells", [])] + list(s.get("cell", []))
+    catalog = cell_presets() if any(c.get("preset") for c in raw) else {}
+    out = []
+    for c in raw:
+        key = c.get("preset")
+        if key and key not in catalog:
+            sys.exit(f"game.toml [[side]] {sid}: cell preset {key!r} is not in presets/cells.toml "
+                     f"({', '.join(catalog) or 'no presets found'}); `python3 tools/presets.py list cells` lists them")
+        base = catalog.get(key, {}) if key else {}
+        c = {**{k: base[k] for k in ("name", "short", "lead", "job") if k in base}, **c}
+        cid = str(c.get("id") or key or "").strip()
+        out.append({"id": cid, "name": c.get("name") or cid, "short": c.get("short") or cid.upper()[:4],
+                    "lead": c.get("lead", ""), "job": c.get("job", ""), "preset": key or ""})
+    return out
 
 
 def sides_from(data):
@@ -53,11 +83,7 @@ def sides_from(data):
     for i, s in enumerate(raw):
         sid = str(s.get("id", "")).strip()
         label = s.get("label") or sid.upper()
-        cells = []
-        for c in s.get("cell", []):
-            cid = str(c.get("id", "")).strip()
-            cells.append({"id": cid, "name": c.get("name") or cid, "short": c.get("short") or cid.upper()[:4],
-                          "lead": c.get("lead", ""), "job": c.get("job", "")})
+        cells = cells_from(s, sid)
         out.append({"id": sid, "label": label, "nation": s.get("nation") or label,
                     "prefix": s.get("prefix") or label[:1].upper(), "color": s.get("color") or PALETTE[i % len(PALETTE)],
                     "cells": cells, "folder": f"{label} - 24H RELEASE"})
@@ -130,7 +156,8 @@ def check_sides(g):
             errs.append(f"{at}: `id` must be lowercase letters, digits, or hyphens (it names a folder), "
                         f"and not one of {', '.join(sorted(RESERVED_IDS))}")
         if not re.fullmatch(r"[A-Z]", s["prefix"]) or s["prefix"] in RESERVED_PREFIXES:
-            errs.append(f"{at}: `prefix` must be one capital letter other than X (third parties) and S (starting conditions)")
+            errs.append(f"{at}: `prefix` must be one capital letter other than X (third parties), S (starting conditions), "
+                        "I (injects), O (open items), and Z (zones)")
         if not re.fullmatch(r"#[0-9a-fA-F]{6}", s["color"]):
             errs.append(f"{at}: `color` must be #rrggbb")
         for k in seen:
@@ -233,6 +260,16 @@ def team_rows(row, order=None, sides=None):
     return " |\n| ".join(out)
 
 
+def cell_rows(row, only=None, sides=None):
+    """One table row per cell, across the teams in briefing order (or only the team whose id or
+    label is `only`). `row` takes {team} (the team's label), {name}, {short}, {lead}, {job}, and {id}:
+    | {{ cell_rows("{team} | {name} | {lead} | {job}") }} |. A game with no cells gets one row of dashes."""
+    sides = sides if sides is not None else GAME["side"]
+    out = [row.format(team=x["label"], **c) for x in sides if not only or only in (x["id"], x["label"])
+           for c in x["cells"]]
+    return " |\n| ".join(out) if out else " | ".join("—" for _ in row.split("|"))
+
+
 NATO = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India", "Juliett", "Kilo",
         "Lima", "Mike", "November", "Oscar", "Papa", "Quebec", "Romeo", "Sierra", "Tango", "Uniform", "Victor",
         "Whiskey", "X-ray", "Yankee", "Zulu"]
@@ -306,6 +343,7 @@ def context(g=None, rule_set=None):
         "mins": mins, "clock": clock_len, "word": word, "Word": lambda n: word(n).capitalize(), "days": days,
         "ticks": ticks, "turn_columns": turn_columns, "turn_rule": turn_rule, "team_rows": lambda row, order=None: team_rows(row, order, c["sides"]),
         "team_cols": team_cols, "team_name": team_name,
+        "cell_rows": lambda row, only=None: cell_rows(row, only, c["sides"]),
     }
     n = len(g["side"])
     c.update({  # wording that follows the number of teams: "the other team" / "the other teams"
@@ -389,6 +427,7 @@ def render(text, where="markdown", rule_set=None, extra=None):
         _ENV = jinja2.Environment(undefined=jinja2.StrictUndefined, keep_trailing_newline=True,
                                   trim_blocks=True, lstrip_blocks=True, autoescape=False)
     ctx = context(rule_set=rule_set)
+    ctx.update(own_team(where, ctx))
     if extra is not None:
         ctx.update(extra)
     elif "_table(" in text:
@@ -407,6 +446,47 @@ def render(text, where="markdown", rule_set=None, extra=None):
             line = getattr(e, "lineno", None)
             sys.exit(f"{where}{':' + str(line) if line else ''}: {e.__class__.__name__}: {e.message}")
     return outside_code(one, text)
+
+
+OWN_FILE = re.compile(r"^(?:handouts/(?P<h>[a-z][a-z0-9-]*)/(?:cells/(?P<cell>[a-z][a-z0-9-]*)\.md$)?"
+                      r"|scenario/(?P<s>[a-z][a-z0-9-]*)-packet\.md$)")
+
+
+def own_team(where, ctx):
+    """`team` in a document in a team's own files (handouts/<id>/..., scenario/<id>-packet.md),
+    and `cell` in a cell brief (handouts/<id>/cells/<cell id>.md), so a team's documents can say
+    {{ team.label }} and {{ cell.name }} and survive a renamed team. cell.assets_table is the
+    cell's own counters as a markdown table."""
+    m = OWN_FILE.match(str(where).replace(os.sep, "/"))
+    team = m and ctx["side"].get(m.group("h") or m.group("s"))
+    if not team:
+        return {}
+    out = {"team": team, "others": join([x["label"] for x in ctx["sides"] if x["id"] != team["id"]])}
+    if m.group("cell"):
+        cell = next((c for c in team["cells"] if c["id"] == m.group("cell")), None)
+        if not cell:
+            sys.exit(f"{where}: no cell {m.group('cell')!r} in game.toml for {team['label']} "
+                     f"(add it with `python3 tools/presets.py add-cell {team['id']} ...`, or delete the brief)")
+        out["cell"] = dict(cell, assets_table=cell_assets_table(team, cell["id"]))
+    return out
+
+
+def cell_assets_table(team, cell_id):
+    """The team's assets whose `cell` column names this cell, as a markdown table."""
+    import csv
+    path = os.path.join(ROOT, "scenario", "data", "assets.csv")
+    rows = []
+    if os.path.exists(path):
+        with open(path, newline="", encoding="utf-8") as f:
+            rows = [r for r in csv.DictReader(f) if r["side"] == team["label"] and (r.get("cell") or "").strip() == cell_id]
+    if not rows:
+        return "*No counters are assigned to this cell yet (the `cell` column of `scenario/data/assets.csv`).*"
+    out = ["| ID | Asset | Zone | Hidden? | What it does | Key limitations |", "| --- | --- | --- | --- | --- | --- |"]
+    for r in rows:
+        when = {"home": " (home)", "rff": f" (RFF, {r.get('arrives') or 'N+?'})"}.get(r.get("availability", ""), "")
+        out.append(f"| {r['id']} | {r['asset']}{when} | {r['zone'].replace(';', ', ') or '—'} | "
+                   f"{'Hidden' if r.get('visibility') == 'hidden' else 'Visible'} | {r['role']} | {r['limitation']} |")
+    return "\n".join(out)
 
 
 def game_texts(g=None, rule_set=None):

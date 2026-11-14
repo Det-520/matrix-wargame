@@ -1,0 +1,147 @@
+# Track presets (scenario/00-overview.md §5.1, DESIGN-GUIDE.md §2.5, presets/README.md §4).
+# Same fields as game.toml [[track]], plus `key` (the preset's name), `fits` (when to use it),
+# and `moved_by` (the kinds of COA that move it; every track should be movable by more than one
+# team, and at least one track by words rather than weapons).
+#
+#   python3 tools/presets.py list tracks
+#   python3 tools/presets.py add-track escalation consent
+#
+# add-track copies the track into game.toml [[track]] (without key, fits, and moved_by). Then
+# rewrite its triggers for the scenario: [TEAM] and [NATION] are placeholders, and the timer shows
+# the trigger text on the room's screen, so keep it free of secrets. Use three to five tracks.
+
+[[track]]
+key = "opinion"
+id = "opinion"
+name = "International Opinion"
+range = [-3, 3]
+start = 0
+ends = ["Pro-[TEAM A]", "Pro-[TEAM B]"]
+fits = "Almost every scenario. The track the information and diplomatic cells live on."
+moved_by = "Press campaigns, evidence released through third parties, civilian harm, broken agreements, aid"
+triggers = [
+  { at = 3, text = "A wavering third party sides with [TEAM B]." },
+  { at = -3, text = "[TEAM A]'s backer escalates its support." },
+]
+
+[[track]]
+key = "will"
+id = "will"
+name = "[NATION] Domestic Will"
+range = [0, 5]
+start = 3
+fits = "A team fighting far from home, or a government that must keep its public behind it. Copy it for each team that needs one."
+moved_by = "Losses, visible wins, enemy information campaigns, casualties, a long war"
+triggers = [
+  { min = 4, text = "Big [TEAM] RFFs approved more readily." },
+  { at = 0, text = "[NATION]'s government orders a ceasefire and negotiations." },
+]
+
+[[track]]
+key = "stability"
+id = "stability"
+name = "[NATION] Regime Stability"
+range = [0, 5]
+start = 4
+fits = "A government under pressure: from protests, an insurgency, or an economy in crisis."
+moved_by = "Strikes on infrastructure, protests, aid, economic pressure, information campaigns"
+triggers = [{ at = 0, text = "[NATION]'s government collapses." }]
+
+[[track]]
+key = "access"
+id = "access"
+name = "Sea Lane Access"
+values = ["Open", "Restricted", "Closed"]
+start = "Open"
+fits = "A strait, canal, or shipping lane both sides depend on."
+moved_by = "Mines, blockades, escorts, mine clearance, inspection regimes, insurance markets"
+triggers = [{ at = "Closed", text = "[NATION] Domestic Will −1 at the end of each turn it stays Closed." }]
+
+[[track]]
+key = "escalation"
+id = "escalation"
+name = "Escalation"
+values = ["Crisis", "Gray zone", "Limited conflict", "Regional war"]
+start = "Crisis"
+fits = "Any scenario where the teams should fear going too far. Gives restraint a value."
+moved_by = "Strikes on home territory, new kinds of weapons, mobilization, ceasefires and talks (downward)"
+triggers = [
+  { at = "Limited conflict", text = "Third parties close their airspace to combat flights." },
+  { at = "Regional war", text = "Outside powers intervene: the white cell adds forces for every side's backer." },
+]
+
+[[track]]
+key = "consent"
+id = "consent"
+name = "Host Nation Consent"
+values = ["Full access", "Limited access", "Revoked"]
+start = "Limited access"
+fits = "A team that fights from another country's bases. Pairs well with a GRAYFOR team or a white-cell host nation."
+moved_by = "Diplomatic COAs, aid, civilian harm near the bases, enemy pressure on the host"
+triggers = [
+  { at = "Full access", text = "Combat operations from host-nation bases are allowed." },
+  { at = "Revoked", text = "Foreign forces must leave the host nation's bases within one turn." },
+]
+
+[[track]]
+key = "cohesion"
+id = "cohesion"
+name = "Coalition Cohesion"
+range = [0, 5]
+start = 3
+fits = "A team that leads a coalition, or a GREENFOR partner. The other side's best non-kinetic target."
+moved_by = "Burden sharing, consultation, losses among partners, enemy wedge campaigns, separate deals"
+triggers = [
+  { min = 5, text = "Partners offer forces: [TEAM] may make one free RFF." },
+  { at = 0, text = "The coalition splits: partner forces go home." },
+]
+
+[[track]]
+key = "humanitarian"
+id = "humanitarian"
+name = "Humanitarian Situation"
+values = ["Stable", "Strained", "Crisis", "Catastrophe"]
+start = "Strained"
+fits = "A population in the fighting: cities, islands, refugees. The civil affairs cell's track."
+moved_by = "Strikes near cities, blockades, aid, ceasefires, evacuations"
+triggers = [
+  { at = "Crisis", text = "Refugee flows: International Opinion moves 1 against whoever the press blames." },
+  { at = "Catastrophe", text = "Outside powers demand a ceasefire; aid convoys need protection." },
+]
+
+[[track]]
+key = "economy"
+id = "economy"
+name = "[NATION] Economic Pressure"
+range = [0, 5]
+start = 1
+fits = "Scenarios where sanctions, trade, or energy are weapons."
+moved_by = "Sanctions, blockades, strikes on energy or ports, trade deals, aid"
+triggers = [{ min = 4, text = "[NATION] Domestic Will −1 at the end of each turn." }]
+
+[[track]]
+key = "talks"
+id = "talks"
+name = "Negotiations"
+values = ["No contact", "Back channel", "Formal talks", "Agreement"]
+start = "No contact"
+fits = "A scenario with a negotiated objective. Makes progress at the table visible on the screen."
+moved_by = "Parleys, mediation offers, broken agreements (downward), strikes during talks (downward)"
+triggers = [
+  { at = "Formal talks", text = "A strike on home territory costs 1 International Opinion." },
+  { at = "Agreement", text = "The white cell records the agreement's terms on the objective status card." },
+]
+
+[[track]]
+key = "info"
+id = "info"
+name = "Information Advantage"
+range = [-3, 3]
+start = 0
+ends = ["[TEAM A]", "[TEAM B]"]
+fits = "Scenarios about narrative, deception, and the information environment."
+moved_by = "Press campaigns, exposed deception, cyber operations, leaks, imagery released to the press"
+triggers = [
+  { at = 3, text = "[TEAM B]'s next information COA succeeds without a roll." },
+  { at = -3, text = "[TEAM A]'s next information COA succeeds without a roll." },
+]

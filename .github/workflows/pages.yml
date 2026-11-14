@@ -66,6 +66,10 @@ jobs:
       - name: Check the run of show
         run: python3 -I tools/schedule.py --check
 
+      # The asset reference matches the asset catalog it is generated from.
+      - name: Check the presets
+        run: python3 -I tools/presets.py reference --check
+
       - name: Build map, handouts, and site
         run: SKIP_TQ=1 tools/build_all.sh
         env:

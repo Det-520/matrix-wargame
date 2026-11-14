@@ -13,7 +13,7 @@ It was generalized from *Operation Zugzwang* (AFROTC LLAB 12, November 2026). Th
 1. Copy this repository (GitHub **Use this template**, or clone it and change the remote).
 2. Fetch the third-party files and build the example once to check your setup (see [Building](#building)).
 3. Edit `game.toml`: the game's name, designer, event, date, number of tables, the player teams (`[[side]]`: two by default, more allowed, each optionally split into cells), the rule set (full, or basic for new players), the run of show (the phases, their order and timing, and the turns in each), the tracks, and the Tongue and Quill letterheads. The default run of show is the first game's: four phases and 7 turns in a 3-hour block (`RULES.md` §2.1).
-4. Follow `DESIGN-GUIDE.md`. It walks through the scenario files in the order that works best, from the public world to the injects.
+4. Follow `DESIGN-GUIDE.md`. It walks through the scenario files in the order that works best, from the public world to the injects. Start from the presets where they fit (`presets/README.md`): team archetypes for a third team, cells to split a team into, a catalog of real U.S. assets, tracks, and inject and objective patterns. `python3 tools/presets.py` lists them and copies them in.
 5. Draw the map (`map/README.md`) and fill in the handouts (`handouts/`).
 6. Rebuild, playtest, and repeat.
 
@@ -30,6 +30,7 @@ It was generalized from *Operation Zugzwang* (AFROTC LLAB 12, November 2026). Th
 | `map/` | The map's master SVG and the scripts that print it (`map/README.md`) |
 | `tools/` | Build scripts, the counters generator, the Tongue and Quill builder, and the white cell clock |
 | `site/` | The white cell site's settings and style (mdbook; `site/README.md`) |
+| `presets/` | Ready-made teams, cells, assets (with an asset reference), tracks, and scenario patterns, copied in by `tools/presets.py` (`presets/README.md`) |
 | `references/` | Training objective, writing and doctrine references |
 
 `AGENTS.md` is the full file map and the rules for editing (also read by AI agents through `CLAUDE.md`).
@@ -93,6 +94,7 @@ Audience: every player, {{ teams }}. Don't show {{ other_team }} your objectives
 
 - `python3 tools/schedule.py values` lists every name: the numbers, `steps.ID` (each `[[turn_step]]` by `id`) and `blocks.TAG` (each `[[block]]` by `tag`), and the functions `mins()`, `clock()` (`5:00`), `word()` and `Word()` (`four`), `days()` (`3 days`, `3 weeks`; `days(n, adj=True)` gives `3-day`), `ticks()`, `turn_columns()`, `turn_rule()`, `schedule_table()`, and `turn_clock_table()`.
 - **Teams.** Never type a team's name, prefix, or count either: a scenario may rename the teams or add one. `sides` lists the teams in briefing order, and `side.ID` gives one by its `id`; each has `label`, `nation`, `prefix`, `color`, `cells` (each with `name`, `short`, `lead`, `job`), `folder` (its release folder), and `coa` and `cons` (its two turn steps, with `min`, `span`, `start`, `end`). `teams` ("BLUEFOR and REDFOR"), `teams_or`, `team_slash`, `team_order` ("BLUEFOR, then REDFOR"), `first_team`, `n_teams`, `cells` (true if any team has cells), `other_team` ("the other team" or "the other teams"), and `both` / `Both` ("both" or "all") write the teams into a sentence. `turn_line` is the turn in one line.
+- **A team's own files.** In `handouts/<team id>/` and `scenario/<team id>-packet.md`, `team` is that team (`{{ team.label }}`, `{{ team.prefix }}1`) and `others` names the other teams ("BLUEFOR and GRAYFOR"); in a cell brief (`handouts/<team id>/cells/<cell id>.md`), `cell` is that cell (`name`, `short`, `lead`, `job`, and `assets_table`, its counters from the CSV). `cell_rows("{team} | {name} | {lead}")` repeats a table row for each cell (`cell_rows(row, team.id)` for one team's). Front matter (`title:`) is a template too.
 - **A row or a column per team.** `team_rows("cells")` repeats a table row for each team, filling in `{label}`, `{prefix}`, `{nation}`, `{id}`, `{coa}`, and `{cons}` (the step's clock span); `team_rows(row, "cons")` orders the rows by the teams' Cons steps. `team_cols("cell")` repeats a cell for each team in one row, so a header, its `---` row, and every body row get the same count; with a group number, `team_cols("[prefix]-{lname}-{id}", 1, code=True)` adds each team's call sign in that group (`team_name(group, i)`: Alpha, Bravo, ...). Write the whole row on one line, as above, so the raw markdown stays a valid table.
 - Use the function form, not Jinja filters (`{{ mins(turn_min) }}`, not `{{ turn_min | mins }}`): a `|` breaks a markdown table.
 - A `{% if %}` or `{% endif %}` alone on its line disappears with the line. Don't put one on its own line inside a table or a list; put it inside the cell or the item instead.

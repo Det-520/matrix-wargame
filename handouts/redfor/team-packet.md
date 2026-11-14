@@ -8,7 +8,7 @@ short: "REDFOR Team Packet"
 
 *Fictional training scenario. All military systems are real U.S. systems, described with unclassified, approximate capabilities.*
 
-**Your REDFOR read-ahead** is four documents: the **Commander's Read-Ahead** (your orders), this **Team Packet**, the **REDFOR Order of Battle** (your forces, your RFF pool, and the enemy forces you can see), and the **REDFOR Intelligence Products**. You also have the common documents: the {% if rules == "full" %}Player Rules Handbook{% else %}Basic Rules{% endif %}, the Scenario Brief, the Scenario Schedule, and the Player Forms.
+**Your REDFOR read-ahead** is four documents: the **Commander's Read-Ahead** (your orders), this **Team Packet**, the **REDFOR Order of Battle** (your forces, your RFF pool, and the enemy forces you can see), and the **REDFOR Intelligence Products**.{% if team.cells %} Each of your cells also has a **Cell Brief** (§5).{% endif %} You also have the common documents: the {% if rules == "full" %}Player Rules Handbook{% else %}Basic Rules{% endif %}, the Scenario Brief, the Scenario Schedule, and the Player Forms.
 
 > **FORMAT NOTE (delete before printing):** TEMPLATE. Fill each section from `scenario/redfor-packet.md` and `scenario/00-overview.md`. This is the player-facing version of the packet: same objectives and estimate, plus the constraints and planning questions that point the team at good COAs, including non-kinetic ones.
 
@@ -70,3 +70,14 @@ Keep these from BLUEFOR. The white cell scores them after the final turn.
 4. What are our **non-kinetic** COAs? Some ideas to test: [diplomatic, information, economic, cyber options from the scenario].
 5. What would we need national authority for, and when do we ask?
 6. Which hidden asset do we reveal first, and why?
+{% if team.cells %}
+
+## 5. Your cells
+
+{{ team.label }} works in cells under the flight commander ({% if rules == "full" %}Rules Handbook §2.10{% else %}Basic Rules §5.4{% endif %}). Each cell has its own brief, with its counters and its part in each step. In Prepare, each cell lead pitches a COA; the commander picks the team's one.
+
+| Cell | Lead | Job |
+| --- | --- | --- |
+| {{ cell_rows("**{name}** ({short}) | {lead} | {job}", team.id) }} |
+
+{% endif %}
