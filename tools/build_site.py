@@ -156,9 +156,9 @@ The lead adjudicator runs this program on the room's TV, where both teams can se
 
 **[Open the timer and dice program](../tools/whitecell-clock.html)**. Once it has loaded it works offline; save the page to keep a copy.
 
-- It holds durations only, with no clock times, so it runs at any start time.
-- Its run of show follows `EVENT-SETUP.md` §3, its turn steps `RULES.md` §2.2, its result bands and estimative vote `RULES.md` §4, and its tracks `scenario/00-overview.md` §5.1.
-- To set it up for a scenario, edit `GAME_NAME`, `BLOCKS`, `turnSteps`, `BANDS`, `VOTES`, and `TRACKS` near the top of the script in `tools/whitecell-clock.html` (Design Guide §2.5).
+- It holds durations only, so it runs at any start time. If `game.toml` sets a start time, each block shows its planned start.
+- Its run of show, turn steps, and tracks come from `game.toml` (`[schedule]`, `[[block]]`, `[[turn_step]]`, `[[track]]`), the same settings that make the schedule tables in the handouts. Its result bands and estimative vote follow `RULES.md` §4.
+- **Setup** (top right) changes the schedule, the turn steps, and the tracks in the browser. **Apply** saves the change in that browser only. **Download page** saves a copy of the program with the change built in, for the room's laptop. **Copy as game.toml** gives the text to paste into `game.toml`, so the next build carries it into the handouts and this site.
 """
 
 INTROS = {
@@ -168,6 +168,18 @@ INTROS = {
     "redfor": "# REDFOR\n\nReleased to REDFOR only, 24 hours before the event. Never show these pages to BLUEFOR.\n",
     "bluefor": "# BLUEFOR\n\nReleased to BLUEFOR only, 24 hours before the event. Never show these pages to REDFOR.\n",
 }
+
+
+def demo_note():
+    """With MW_DEMO=1 (the base's GitHub Pages build), say what the site is and where its source is."""
+    if not os.environ.get("MW_DEMO"):
+        return ""
+    repo = os.environ.get("GITHUB_REPOSITORY")
+    src = f" The source is at [{repo}]({os.environ.get('GITHUB_SERVER_URL', 'https://github.com')}/{repo})." if repo else ""
+    return ("> **Demo.** This is the matrix wargame base, built from its placeholder scenario (Redland and Blueland) "
+            "to show what the tools make: the handouts, the release PDFs, and the "
+            "[timer and dice program](tools/whitecell-clock.html). A real scenario's site shows both sides' secrets, "
+            f"so don't publish one where players can find it.{src}\n\n")
 
 
 def index_page(site):
@@ -181,7 +193,7 @@ def index_page(site):
 
 <p class="mw-subtitle">{html.escape(G['event'])} · {html.escape(G['date'])}</p>
 
-Every document in the game, for the designer, the lead adjudicators, and the loggers. This site shows **both sides' secrets**: hidden assets, secret objectives, intelligence ground truth, and injects. Keep it off every screen the players can see.
+{demo_note()}Every document in the game, for the designer, the lead adjudicators, and the loggers. This site shows **both sides' secrets**: hidden assets, secret objectives, intelligence ground truth, and injects. Keep it off every screen the players can see.
 
 ## During the game
 

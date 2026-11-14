@@ -4,13 +4,15 @@ A starting point for building a two-sided matrix wargame (REDFOR vs. BLUEFOR wit
 
 It was generalized from *Operation Zugzwang* (AFROTC LLAB 12, November 2026). The rules, forms, schedule, and build are the ones that ran there. The scenario files are templates with a small Redland vs. Blueland example, so the build works before you write anything.
 
+> **Demo.** The base's own example builds into a live site on GitHub Pages on every push to `main`: the white cell site, every release PDF, and the timer and dice program. See [Publishing the white cell site](#publishing-the-white-cell-site).
+>
 > **Secrecy.** Once you fill in a scenario, this repository holds both teams' secret packets, the white cell's ground truth, and the injects. Keep your scenario's repository private, and don't share it with players.
 
 ## Starting a new scenario
 
 1. Copy this repository (GitHub **Use this template**, or clone it and change the remote).
 2. Fetch the third-party files and build the example once to check your setup (see [Building](#building)).
-3. Edit `game.toml`: the game's name, designer, event, date, number of tables, turns, side names, and the Tongue and Quill letterheads.
+3. Edit `game.toml`: the game's name, designer, event, date, number of tables, side names, the run of show (the phases, their order and timing, and the turns in each), the tracks, and the Tongue and Quill letterheads. The default run of show is the first game's: four phases and 7 turns in a 3-hour block (`RULES.md` §2.1).
 4. Follow `DESIGN-GUIDE.md`. It walks through the scenario files in the order that works best, from the public world to the injects.
 5. Draw the map (`map/README.md`) and fill in the handouts (`handouts/`).
 6. Rebuild, playtest, and repeat.
@@ -19,7 +21,7 @@ It was generalized from *Operation Zugzwang* (AFROTC LLAB 12, November 2026). Th
 
 | Path | What it is |
 | --- | --- |
-| `game.toml` | The facts about this game that the tools read: name, dates, tables, turn counts, map, Tongue and Quill documents |
+| `game.toml` | The facts about this game that the tools read: name, dates, tables, run of show (phases, timing, turns), tracks, map, Tongue and Quill documents |
 | `RULES.md` | How to play: turns, COAs, adjudication, requests, injects. Scenario-free. |
 | `EVENT-SETUP.md` | Event logistics: schedule, rooms, groups, staffing, evaluation, risks |
 | `DESIGN-GUIDE.md` | How to build a scenario from these templates, with balance heuristics and lessons learned |
@@ -44,10 +46,11 @@ npx markdownlint-cli2                # after editing markdown: keep it at 0 issu
 
 | Step | Script | Output |
 | --- | --- | --- |
+| Schedule tables and timer settings | `python3 tools/schedule.py --write` (the next two steps run it) | generated tables in the handouts, `tools/whitecell-clock.html` |
 | Map | `tools/build_map.sh` | `map/maps/`, `handouts/assets/game-map.png` |
 | Release PDFs | `tools/build_handouts.sh` (`--only NAME` for one, `SKIP_TQ=1` to skip WordCraft) | `build/`, by release folder |
 | White cell site | `tools/build_site.sh` (`serve` to preview) | `site/book/` |
-| Publish (manual) | `.github/workflows/pages.yml` | GitHub Pages |
+| Publish | `.github/workflows/pages.yml` | GitHub Pages |
 
 Needs Python 3.11 or later, Chromium 131 or later, poppler-utils (`pdftotext`, `pdftoppm`), [mdbook](https://rust-lang.github.io/mdBook/) 0.5 or later, and `wordcraft-cli` for the Tongue and Quill documents. On NixOS the scripts pull the Python packages with `nix-shell`. Elsewhere, install `markdown-it-py`, `mdit-py-plugins`, `pypdf`, and `playwright`.
 
@@ -55,6 +58,19 @@ Without WordCraft (or with `SKIP_TQ=1`), the build uses the files committed in `
 
 Air Force sites often refuse scripted downloads. When one does, `fetch_third_party.py` prints the URL: open it in a browser, save the file to the path shown, and run the script again to check it and make its text copy.
 
+### Changing the schedule and timing
+
+The phase structure and timing live in `game.toml`: `[schedule]` (start time, parley length, which turn step can be shortened), `[[block]]` (each phase or break in order, with its steps or its number of turns), and `[[turn_step]]` (the steps of one turn). The timer program, the schedule tables in the Scenario Schedule and the White Cell Handbook, the turn count, and the number of forms printed all follow it.
+
+```bash
+python3 tools/schedule.py            # print the schedule with clock times (whitecell for the white cell's)
+python3 tools/schedule.py --write    # refresh the timer and the tables (the builds do this too)
+```
+
+To try a different schedule without editing files, open `tools/whitecell-clock.html` in a browser and choose **Setup**. **Apply** keeps the change in that browser, **Download page** saves a copy of the program with it built in, and **Copy as game.toml** gives the text to paste back into `game.toml`.
+
 ### Publishing the white cell site
 
-The workflow runs only when you start it by hand (**Actions → Publish site → Run workflow**). A GitHub Pages site is public even when the repository is private, and this site shows both sides' secrets, so publish it only if you accept that, or host it somewhere access-controlled. Set **Settings → Pages → Source** to **GitHub Actions**. The site uses relative links, so it works under any path, and also straight from `site/book/index.html` on a laptop.
+`.github/workflows/pages.yml` builds everything and publishes the site to GitHub Pages. In this base repository it runs on every push to `main`, so the example is always online as a demo. In any other copy it runs only when you start it by hand (**Actions → Publish site → Run workflow**), because a GitHub Pages site is public even when the repository is private, and a scenario's site shows both sides' secrets. Publish a scenario only if you accept that, or host it somewhere access-controlled. To publish a copy on every push anyway, set the repository variable `PUBLISH_ON_PUSH` to `true`.
+
+Once per repository, set **Settings → Pages → Build and deployment → Source** to **GitHub Actions**. The site uses relative links, so it works under any path (`https://<owner>.github.io/<repository>/`), and also straight from `site/book/index.html` on a laptop. The timer is at `tools/whitecell-clock.html` on the site.

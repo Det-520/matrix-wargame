@@ -1,15 +1,27 @@
 # Build the white cell site (tools/build_all.sh) and publish it to GitHub Pages.
-# WHITE CELL ONLY: the site shows both sides' secrets, and a Pages site is public.
-# It runs only when started by hand (Actions -> Publish site -> Run workflow), so a
-# fresh scenario is never published by accident. To publish on every push to main,
-# add `push: branches: [main]` under `on:`.
-# WordCraft doesn't run here, so the Tongue and Quill documents come from the
-# copies committed in handouts/word/: rebuild them locally (tools/tq/build_tq.py)
-# and commit them when their markdown changes.
+#
+# Two ways it runs:
+#   - By hand, in any copy (Actions -> Publish site -> Run workflow).
+#   - On every push to main, but only in the base repository itself (Det-520/matrix-wargame), which
+#     holds nothing but the placeholder example. That keeps a live demo of the base online.
+#     A copy made into a scenario has a different name, so a push there never publishes.
+#
+# WHITE CELL ONLY in a real scenario: the site shows both sides' secrets, and a Pages site
+# is public even when the repository is private. To publish a scenario on every push
+# anyway, set the repository variable PUBLISH_ON_PUSH to true (Settings -> Secrets and
+# variables -> Actions -> Variables), and only if you accept that.
+#
+# One-time setup: Settings -> Pages -> Build and deployment -> Source: GitHub Actions.
+#
+# WordCraft doesn't run here, so the Tongue and Quill documents come from the copies
+# committed in handouts/word/: rebuild them locally (tools/tq/build_tq.py) and commit
+# them when their markdown changes.
 name: Publish site
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
 
 permissions:
   contents: read
@@ -18,10 +30,14 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.repository == 'Det-520/matrix-wargame' ||
+      vars.PUBLISH_ON_PUSH == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -46,8 +62,15 @@ jobs:
       - name: Fetch fonts
         run: python3 -I tools/fetch_third_party.py || true
 
+      # The generated schedule tables and timer settings must match game.toml.
+      - name: Check the run of show
+        run: python3 -I tools/schedule.py --check
+
       - name: Build map, handouts, and site
         run: SKIP_TQ=1 tools/build_all.sh
+        env:
+          # The base's own demo says so on its front page.
+          MW_DEMO: ${{ github.repository == 'Det-520/matrix-wargame' && '1' || '' }}
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

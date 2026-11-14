@@ -21,7 +21,11 @@ The rules handbook goes out before the scenario is announced, so it must not nam
 
 ### 2.1 Set up the game
 
-Edit `game.toml`: name, designer, event, date, tables, and turns. If the event is shorter or longer than 3 hours, rework the schedule in `EVENT-SETUP.md` §3 and the timer program's `BLOCKS` in `tools/whitecell-clock.html` before anything else, because the turn count drives how many objectives can be reached and how many forms to print. Then confirm or change each tag in `RULES.md` and record what you changed in `RULES.md` §11.
+Edit `game.toml`: name, designer, event, date, tables, requests, and the run of show. The run of show (`[schedule]`, `[[block]]`, `[[turn_step]]`) is the game's phase structure and timing: which planning and turn blocks come in what order, how long each step is, and how many turns each phase has (`RULES.md` §2.1). The default is the first game's four phases in a 3-hour block. If the event is shorter or longer, or wants a different shape, set the run of show before anything else, because the turn count drives how many objectives can be reached and how many forms to print. `python3 tools/schedule.py` prints the result with clock times; copy it into `EVENT-SETUP.md` §3. The timer program, the schedule tables in the handouts, and the form counts follow on the next build.
+
+To try timings out, open the timer program (`tools/whitecell-clock.html`), choose **Setup**, change the blocks and minutes, and watch the totals. **Copy as game.toml** gives the text to paste back into `game.toml`.
+
+Then confirm or change each tag in `RULES.md` and record what you changed in `RULES.md` §11. If you rename or reshape the phases, update the handouts that name them (the Scenario Schedule's §1.2–1.4, the White Cell Checklist, the forms' planned-COA rows, and the Rules Handbook) by hand.
 
 ### 2.2 Write the premise
 
@@ -44,7 +48,7 @@ See `map/README.md`. Aim for 10–15 zones, including an off-map home box for ea
 
 ### 2.5 Set the tracks and starting conditions
 
-Tracks (`00-overview.md` §5.1) record what the map can't: opinion, will, stability, access. Use three to five, each with a short scale (−3 to +3, or 0 to 5) and stated triggers at the ends. Every track should be movable by both sides, and at least one should be easier to move with words than with weapons. Put the same tracks in the clock's `TRACKS`.
+Tracks (`00-overview.md` §5.1) record what the map can't: opinion, will, stability, access. Use three to five, each with a short scale (−3 to +3, or 0 to 5) and stated triggers at the ends. Every track should be movable by both sides, and at least one should be easier to move with words than with weapons. Put the same tracks in `game.toml` `[[track]]`, which the timer program shows.
 
 Starting conditions (§5.2, and `handouts/common/starting-conditions.md`, which repeats them as cue cards) are standing ±1 modifiers with a stated way to remove them. Two or three for each side is enough. Each one should give the other side an obvious target for a COA.
 
@@ -137,4 +141,4 @@ Record what changed, and update the open decisions in `scenario/README.md`.
 - [ ] No `[placeholder]` text is left in the release's files: `grep -rn "\[[A-Z][a-z]" handouts/common` (and the side folders for the 24-hour release).
 - [ ] Nothing in a public file names a hidden asset, objective, or inject.
 - [ ] Each side's files hold nothing of the other side's.
-- [ ] `game.toml` and the clock's `BLOCKS`, `TRACKS`, and `GAME_NAME` match the scenario.
+- [ ] `game.toml` matches the scenario: name, run of show, and tracks. `python3 tools/schedule.py --check` passes, and the timer program in `build/White Cell/` shows the right blocks and tracks.

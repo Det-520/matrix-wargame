@@ -132,21 +132,24 @@ Nothing is handed over on paper (Rules §2.5). Slack is the **record**: teams st
 
 ## 3. Master schedule of phases
 
-Clock times are the example schedule in `EVENT-SETUP.md` §3. Change them with it.
+> **FORMAT NOTE (delete before printing):** The table is generated from the run of show in `game.toml` (`[[block]]` and `[[turn_step]]`), the same settings the timer program runs. Change it there and run `python3 tools/schedule.py --write`; the handout build does this too.
 
-| Clock | Min | Phase / Block | White cell actions |
+<!-- mw:begin schedule-whitecell -->
+| Clock | Min | Block / step | White cell actions |
 | --- | --- | --- | --- |
 | **1345–1403** | **18** | **Phase I – Planning** | |
-| 1345–1357 | 12 | • Team planning & requests | Read the Phase I opening script. Start the 18-minute timer. Teams organize and plan using their pre-read intelligence products. |
-| **1357** | — | • **Phase I request cutoff (min 12)** | **Close requests: count up to 4 request posts (RFIs/RFFs combined) in each team channel.** Lead adjudicator writes answers and rulings during the next 6 minutes while teams rehearse and brief. |
-| 1357–1400 | 3 | • Brief rehearsal | Teams finalize their brief. Lead adjudicator finishes answering Phase I requests. |
-| 1400–1403 | 3 | • Phase I OPORD briefs (last 3 min) | Each logger hears its own team's oral brief and writes its **planned COAs** (up to 3, Turns 1–3), and the zones of any hidden counters the team places itself, on the placement form (White Cell Forms §4). |
-| **1403–1405** | **2** | **Kickoff inject** | Read the kickoff inject (Intelligence and Injects §4.1). Set any tracks it moves. Loggers post Phase I RFI answers and RFF rulings in each team channel. |
-| **1405–1505** | **60** | **Phase II: Turns 1–4** | Run four 15-minute turns (§4): · **Turn 1:** 1405–1420 · **Turn 2:** 1420–1435 · **Turn 3:** 1435–1450 · **Turn 4:** 1450–1505 |
-| **1505–1512** | **7** | **Debrief 1** | Phase I–II flight commanders lead it. Hand command to the **Phase III–IV flight commanders** afterward. |
-| **1512–1520** | **8** | **Phase III: Planning and FRAGO** | **1512–1519 (7 min):** Phase IV planning under the new flight commander. · **1519–1520 (last 1 min):** Each logger hears the new flight commander's **1-minute oral FRAGO** and writes **up to 2 new planned COAs for Phase IV (Turns 5–7)** on the placement form. |
-| **1520–1605** | **45** | **Phase IV: Turns 5–7** | Run three 15-minute turns (§4): · **Turn 5:** 1520–1535 · **Turn 6:** 1535–1550 · **Turn 7:** 1550–1605 |
-| **1605–1612** | **7** | **End of game & Debrief 2** | State the end state and score objectives (§8). Phase III–IV flight commanders lead Debrief 2. |
+| 1345–1357 | 12 | • Team planning & requests | “You have 18 minutes to organize your team, synthesize your intelligence, and build a plan. You may submit up to four requests, RFIs or RFFs, due at minute 12. In the last three minutes you will brief your plan to your logger. There are no COAs in Phase I. Your time starts now.” |
+| 1357–1400 | 3 | • Brief rehearsal | “Six minutes left in Phase I. Requests close now. We'll answer the first four posted in your team channel. You have three minutes to rehearse before you brief your logger.” Answer the requests during this step and the next. |
+| 1400–1403 | 3 | • OPORD briefs | Each logger hears its team's oral brief and writes its planned COAs (up to 3, Turns 1–3) and the starting zones of any hidden counters the team places itself on the placement form (White Cell Forms §4). |
+| **1403–1405** | **2** | **Kickoff inject** | Read the kickoff inject and set any tracks it moves. Loggers post Phase I RFI answers and RFF rulings in each team channel. |
+| **1405–1505** | **60** | **Phase II – Turns 1–4** | Run four 15-minute turns: **Turn 1:** 1405–1420 · **Turn 2:** 1420–1435 · **Turn 3:** 1435–1450 · **Turn 4:** 1450–1505 |
+| **1505–1512** | **7** | **Debrief 1** | Phase I–II flight commanders lead the debrief. Afterward, hand command to the Phase III–IV flight commanders. |
+| **1512–1520** | **8** | **Phase III – Planning and FRAGO** | |
+| 1512–1519 | 7 | • Phase III planning | Teams plan under the new flight commanders. |
+| 1519–1520 | 1 | • FRAGO to loggers | “One minute left in Phase III. Phase III–IV flight commanders, brief your one-minute FRAGO and up to two Phase IV planned COAs to your logger now.” |
+| **1520–1605** | **45** | **Phase IV – Turns 5–7** | Run three 15-minute turns: **Turn 5:** 1520–1535 · **Turn 6:** 1535–1550 · **Turn 7:** 1550–1605 |
+| **1605–1612** | **7** | **End of game & Debrief 2** | “That was the final turn. Here is where things stand.” Read the tracks and key map facts, and score (handbook §8). Phase III–IV flight commanders lead Debrief 2. |
+<!-- mw:end -->
 
 ### 3.1 Scripts
 

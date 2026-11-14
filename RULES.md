@@ -60,7 +60,7 @@ A rule with no tag inherits the tag of its section heading.
    - **RFI (Request for Information):** a question about the situation.
    - **RFF (Request for Forces):** a request for more assets or authorities from your national command. Reinforcements take time to arrive.
    Requests don't count as your COA, and there is no debate on them. **Diplomacy needs no RFF:** your team speaks for its government, so you can negotiate or make a diplomatic COA without anyone's permission (§6.2).
-9. **Turn clock (15 min, run by a timer program):** prepare 5 → BLUEFOR COA 2 → REDFOR COA 2 → prepare Cons 2 → REDFOR Cons 1 → BLUEFOR Cons 1 → white cell resolves 2. BLUEFOR always goes first.
+9. **Turn clock (15 min by default, run by a timer program):** prepare 5 → BLUEFOR COA 2 → REDFOR COA 2 → prepare Cons 2 → REDFOR Cons 1 → BLUEFOR Cons 1 → white cell resolves 2. BLUEFOR always goes first.
 10. **No interrupting.** It's a courtroom, not a debate. You speak in your slot and are silent in theirs. Raise only points of fact or procedure. **If you miss your slot, the point is lost.** There are no do-overs.
 11. **Arguing about the other side is allowed.** You can argue *their* troops are tired or *their* radar has a gap. You cannot argue that a player-controlled actor *agrees* to something. Ask them in person instead.
 12. **The point** is good decisions and good reasoning under pressure: plan, communicate, brief, defend your choices, and adapt.
@@ -69,7 +69,16 @@ A rule with no tag inherits the tag of its section heading.
 
 ## 2. Game structure
 
-### 2.1 Phases [CANON]
+### 2.1 Phases [CANON: the default structure; the designer sets the structure and timing]
+
+A game is a **run of show**: blocks in a fixed order, each one of two kinds.
+
+- **Planning blocks** have steps but **no COAs**: planning, briefs, an inject, a debrief, a command handover.
+- **Turn blocks** are a number of full turns (§2.2).
+
+The designer sets the blocks, their order, their steps, every duration, and the number of turns in `game.toml` (`[[block]]` and `[[turn_step]]`). The timer program, the schedule tables in the Scenario Schedule and the White Cell Handbook, the turn count, and the number of forms printed all follow it (`python3 tools/schedule.py`), so the structure changes in one place. Fit it to the time the event has (`EVENT-SETUP.md` §3) and record the change in §11.
+
+**Default structure.** The first game used the four phases below, and the rest of these rules use their names. A scenario with a different structure keeps the same pattern: a planning block before the first turn with a brief to the logger (§2.3), and, where command changes hands, a planning block with a FRAGO (§2.4).
 
 | Phase | Turns | What happens |
 | --- | --- | --- |
@@ -79,12 +88,16 @@ A rule with no tag inherits the tag of its section heading.
 | **Phase III – Planning & FRAGO** | none | After Debrief 1, the Phase III–IV flight commander takes command. Teams plan and end with a 1-minute FRAGO brief to the logger (§2.4). **No COAs.** |
 | **Phase IV** | Turns 5–7 | Full turns (§2.2) |
 
+Other structures that fit the same rules: a single planning block and one block of turns, for a short event; three playing phases with two handovers, for a longer one (one secret COA per playing phase, `game.toml` `[turns]` `secret_coas`); or a longer Phase I in place of the pre-read.
+
 - **[CANON] Game time:** each turn represents **[about 3 days]** of in-game time, so 7 turns cover about 3 weeks of conflict. Phase I covers the final days of crisis before the shooting starts. The white cell keeps timelines realistic: moving forces across an ocean takes turns, not minutes (`scenario/00-overview.md` §6). The scenario sets the length of a turn; pick one that lets a single COA finish or visibly start.
-- Real-world clock times and the debriefs between phases are in `EVENT-SETUP.md`. The turn counts here (4 in Phase II, 3 in Phase IV) fit a 3-hour block; change them in `EVENT-SETUP.md` §3, `game.toml` `[turns]`, and the timer program together.
+- Real-world clock times and the debriefs between phases are in `EVENT-SETUP.md` §3. The default turn counts (4 in Phase II, 3 in Phase IV) fit a 3-hour block.
 
 ### 2.2 The turn [CANON]
 
 One turn is "a turn in the chess sense": each side acts once, and **both COAs take place simultaneously across the 3-day turn window**. **Target: 15 minutes**, kept by a **timer program** the lead adjudicator runs.
+
+The step lengths below are the default, set in `game.toml` `[[turn_step]]`. A designer may lengthen or shorten them to fit the event, but keeps the order, keeps the Cons, and keeps the white cell's resolve step: those are the rules, the minutes are the timing. Changing them changes the turn clock in the Rules Handbook too.
 
 | # | Step | Time | Who | Notes |
 | --- | --- | --- | --- | --- |
@@ -350,7 +363,7 @@ Four yeses make it strong (±1). An exceptional reason, one that is decisive by 
 - **Laundry lists:** hold teams to 3 reasons and one action.
 - **Off-the-rails behavior [CANON tool]:** use an inject that sets a national directive restricting it, or kill the COA outright.
 - **Dominant players and nit-picking:** courtroom rules. "You had your slot." Move on.
-- **[CANON] Behind schedule:** shorten **Prepare** (e.g. to 4 min). **Never cut the Cons**, which are where the learning happens.
+- **[CANON] Behind schedule:** shorten **Prepare** (e.g. to 4 min, with the timer's Prepare menu; `game.toml` `[schedule]` `flex_options`). **Never cut the Cons**, which are where the learning happens.
 - **[CANON] Late objections:** not recalculated (§4.3). Move on.
 
 ### 8.5 Several tables at once
@@ -421,7 +434,7 @@ Open for every new scenario:
 | --- | --- | --- |
 | O1 | Adjudication details: the five result bands and the ±4 modifier cap (§4.1) | As written |
 | O2 | Length of a turn in game time (§2.1) | About 3 days |
-| O3 | Number of turns in Phases II and IV (§2.1), which follows from the time the event has (`EVENT-SETUP.md` §3) | 4 and 3 |
+| O3 | The run of show (§2.1): the phases, their order and lengths, and the number of turns in each, which follow from the time the event has (`EVENT-SETUP.md` §3). Set in `game.toml` `[[block]]`. | The default four phases, with 4 and 3 turns |
 | O4 | Slack channel prefix and group names (§2.5) | `[prefix]-group1-[room]` |
 | O5 | Replace the generic worked example (§10) with one from the scenario | Generic example |
 

@@ -16,15 +16,19 @@ It is helpful to think of this document as an extension of the *Matrix Wargame �
 
 ### 1.1 Full Schedule
 
+> **FORMAT NOTE (delete before printing):** The table is generated from the run of show in `game.toml` (`[[block]]`, `[[turn_step]]`, and `[schedule]` `start`). Change it there and run `python3 tools/schedule.py --write`; the handout build does this too. Section 1.2 and the text below it are written by hand, so keep them in step.
+
+<!-- mw:begin schedule -->
 | Time | Min | Block | What you do |
 | --- | --- | --- | --- |
-| 1345–1403 | 18 | **Phase I – Planning** | Organize your team, synthesize your pre-read intel, and build a plan. · **1345–1357 (min 0–12):** Plan & post up to **4 requests** (RFIs/RFFs) in your team's secret Slack channel. **Due at 1357.** · **1357–1400 (min 12–15):** Finalize & rehearse your brief. · **1400–1403 (min 15–18):** Brief your plan and up to 3 planned COAs to your logger (§1.3). |
+| 1345–1403 | 18 | **Phase I – Planning** | Organize your team, synthesize your pre-read intel, and build a plan. No COAs (§1.3). · **1345–1357 (min 0–12):** Plan and post up to **4 requests** (RFIs/RFFs) in your team's secret Slack channel. **Due at the end of this step.** · **1357–1400 (min 12–15):** Finalize and rehearse your brief. · **1400–1403 (min 15–18):** Brief your plan and up to 3 planned COAs to your logger (§1.3). |
 | 1403–1405 | 2 | **Kickoff inject** | The white cell announces that the war has begun and posts Phase I RFI answers and RFF rulings in your team channel. |
-| 1405–1505 | 60 | **Phase II – Turns 1–4** | Four 15-minute turns: **Turn 1** (1405–1420) · **Turn 2** (1420–1435) · **Turn 3** (1435–1450) · **Turn 4** (1450–1505) |
+| 1405–1505 | 60 | **Phase II – Turns 1–4** | Four 15-minute turns: **Turn 1:** 1405–1420 · **Turn 2:** 1420–1435 · **Turn 3:** 1435–1450 · **Turn 4:** 1450–1505 |
 | 1505–1512 | 7 | **Debrief 1** | Led by your Phase I–II flight commander. **The Phase III–IV flight commander takes over afterward.** |
-| 1512–1520 | 8 | **Phase III – Planning and FRAGO** | Phase IV planning under the new flight commander. · **1519–1520 (last 1 min):** New flight commander gives a **1-minute oral FRAGO** (updated intent + up to 2 new planned COAs) to the logger (§1.4). |
-| 1520–1605 | 45 | **Phase IV – Turns 5–7** | Three 15-minute turns (**Turn 5** 1520–1535 · **Turn 6** 1535–1550 · **Turn 7** 1550–1605). |
-| 1605–1612 | 7 | **End of game & Debrief 2** | White cell scores objectives; Phase III–IV flight commander leads Debrief 2. |
+| 1512–1520 | 8 | **Phase III – Planning and FRAGO** | **1512–1519 (min 0–7):** Phase IV planning under the new flight commander. · **1519–1520 (min 7–8):** The new flight commander gives a **1-minute oral FRAGO** (updated intent and up to 2 new planned COAs) to the logger (§1.4). |
+| 1520–1605 | 45 | **Phase IV – Turns 5–7** | Three 15-minute turns: **Turn 5:** 1520–1535 · **Turn 6:** 1535–1550 · **Turn 7:** 1550–1605 |
+| 1605–1612 | 7 | **End of game & Debrief 2** | The white cell scores objectives; your Phase III–IV flight commander leads Debrief 2. |
+<!-- mw:end -->
 
 ### 1.2 Summary of Phases
 

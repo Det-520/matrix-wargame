@@ -120,7 +120,7 @@ The game map is built from `map/source/map.svg` (see `map/README.md`) into `map-
 
 ### 5.1 Tracks (shown on the white cell's screen, moved by COA results and consequence management)
 
-*Three to five tracks. Each one should tie to at least one objective and have a trigger at its ends. Copy the final set into `TRACKS` in `tools/whitecell-clock.html`.*
+*Three to five tracks. Each one should tie to at least one objective and have a trigger at its ends. Copy the final set into `game.toml` `[[track]]`, which the timer program shows.*
 
 | Track | Range | Start | Moves when… | Trigger effects |
 | --- | --- | --- | --- | --- |

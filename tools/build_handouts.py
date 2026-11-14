@@ -21,7 +21,9 @@ What it does:
   uses it in place of its markdown.
 - Splices each side's intelligence products into one "Full Intel" PDF, each
   product starting on a new page.
-- Copies the counters, the map (game.toml [map]), and the white cell clock into place.
+- Copies the counters, the map (game.toml [map]), and the white cell clock into place
+  (tools/build_handouts.sh first runs tools/schedule.py --write, which sets up the clock
+  and the schedule tables from game.toml's run of show).
 - Assembles the white cell's Print Packet (PACKET): everything one table
   prints to run the game, with the right number of copies, behind a cover
   sheet that lists it. A second version (REF_PACKET_NAME) holds one copy of

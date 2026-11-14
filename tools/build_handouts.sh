@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Build everything in build/ from the markdown (see tools/build_handouts.py).
-#   tools/build_handouts.sh              # counters, Tongue and Quill documents, then every release PDF
+#   tools/build_handouts.sh              # schedule tables and timer settings (game.toml), counters,
+#                                        # Tongue and Quill documents, then every release PDF
 #   tools/build_handouts.sh --only Brief # pass options through to build_handouts.py
 # On NixOS this pulls the Python packages with nix-shell. Elsewhere, install
 # markdown-it-py, mdit-py-plugins, pypdf, and playwright, then run the two scripts directly.
@@ -11,6 +12,7 @@ if [ -z "${CHROMIUM_PATH:-}" ]; then
   CHROMIUM_PATH=$(command -v chromium || ls -d /nix/store/*-chromium-*/bin/chromium 2>/dev/null | head -1 || true)
   export CHROMIUM_PATH
 fi
+python3 -I tools/schedule.py --write
 python3 -I tools/check_assets.py
 python3 -I tools/make_counters.py
 [ -n "${SKIP_TQ:-}" ] || python3 -I tools/tq/build_tq.py

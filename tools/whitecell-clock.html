@@ -4,16 +4,20 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
-<title>White Cell Clock</title>
+<title>Operation Example · White Cell Clock</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' rx='2' fill='%2322272d'/%3E%3Crect x='1' y='1' width='4' height='4' fill='%23f8f7f3'/%3E%3Crect x='6' y='1' width='4' height='4' fill='%23f8f7f3'/%3E%3Crect x='11' y='1' width='4' height='4' fill='%23cf222e'/%3E%3Crect x='1' y='6' width='4' height='4' fill='%23f8f7f3'/%3E%3Crect x='6' y='6' width='4' height='4' fill='%23f8f7f3'/%3E%3Crect x='11' y='6' width='4' height='4' fill='%23f8f7f3'/%3E%3Crect x='1' y='11' width='4' height='4' fill='%230969da'/%3E%3Crect x='6' y='11' width='4' height='4' fill='%23f8f7f3'/%3E%3Crect x='11' y='11' width='4' height='4' fill='%23f8f7f3'/%3E%3C/svg%3E">
 <!--
   Timer, dice, and track program for the lead adjudicator of a matrix wargame.
   One self-contained file, no network needed. Open it in any browser.
-  Block order and durations follow EVENT-SETUP.md §3 (no clock times, so it works at any start time); turn timings follow RULES.md §2.2; dice follow RULES.md §4 and App. C;
-  tracks follow scenario/00-overview.md §5.1.
-  TO SET UP A NEW SCENARIO, edit: GAME_NAME (below), BLOCKS and turnSteps (the run of show), and TRACKS
-  (the scenario's tracks and their triggers). BANDS and VOTES change only if RULES.md §4 changes.
-  Keep every text safe to show on the room's screen: hidden assets and injects stay in the handbook.
+  Dice follow RULES.md §4 and App. C (BANDS and VOTES below; change them only if RULES.md §4 changes).
+  Everything else (the game's name, the run of show, the turn steps, the parley and Prepare
+  options, and the tracks) is read from the mw-config block at the end of the page:
+    - tools/schedule.py --write (run by tools/build_handouts.sh and tools/build_site.sh) fills
+      it in from game.toml, so a scenario changes game.toml, not this file.
+    - The Setup button edits it in the browser: save it in this browser, download a copy of
+      this page with it built in, or copy it as game.toml text.
+  Durations only, no clock times, so it works at any start time. Keep every text safe to show
+  on the room's screen: hidden assets and injects stay in the handbook.
   Audience: white cell.
 -->
 <style>
@@ -213,6 +217,42 @@
   .stage #logCard.open { display: flex; flex-direction: column; }
   .stage #log { flex: 1; min-height: 0; max-height: none; }
 
+  /* Setup */
+  #customTag { display: none; font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--warn); border: 1px solid var(--warn); background: var(--warn-f); padding: 2px 6px; border-radius: 2px; }
+  #customTag.on { display: inline-block; }
+  dialog#setupDlg {
+    width: min(1180px, calc(100vw - 32px)); max-height: calc(100vh - 32px); padding: 0;
+    background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 2px;
+  }
+  dialog#setupDlg::backdrop { background: rgba(0, 0, 0, .45); }
+  .setup { display: flex; flex-direction: column; max-height: calc(100vh - 34px); }
+  .setup > header { margin: 0; padding: 12px 16px; position: sticky; top: 0; background: var(--panel); }
+  .setup .body { overflow: auto; padding: 4px 16px 16px; }
+  .setup .foot { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--line); background: var(--panel-2); }
+  .setup .foot .grow { flex: 1; }
+  .setup h3 { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .14em; color: var(--muted); margin: 18px 0 8px; }
+  .setup .grid { display: grid; gap: 8px 12px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+  .setup label.f { display: flex; flex-direction: column; gap: 2px; font-size: .8rem; color: var(--muted); }
+  .setup input[type=text], .setup input[type=number], .setup select, .setup textarea {
+    width: 100%; min-width: 0; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 2px; padding: 6px 8px; min-height: 36px; font-size: .9rem;
+  }
+  .setup textarea { font: 13px/1.4 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; min-height: 220px; }
+  .setup .blk { border: 1px solid var(--line); border-left: 4px solid var(--accent); background: var(--panel-2); padding: 8px; margin-bottom: 8px; }
+  .setup .blk.turns { border-left-color: var(--warn); }
+  .setup .r { display: grid; gap: 6px; align-items: end; }
+  .setup .r.b { grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr) 4.5em 7.5em 5em auto; }
+  .setup .r.s { grid-template-columns: minmax(0, 1.6fr) 5em minmax(0, 1fr) 6em minmax(0, 3fr) auto; margin: 6px 0 0 18px; }
+  .setup .r.t { grid-template-columns: 5.5em minmax(0, 1.6fr) 5em minmax(0, 1fr) 6em minmax(0, 3fr) auto; margin-bottom: 6px; }
+  .setup .acts { display: flex; gap: 4px; }
+  .setup .acts button, .setup .add { min-height: 36px; padding: 4px 8px; font-size: .85rem; }
+  .setup .add { margin: 6px 0 0 18px; }
+  .setup .sum { font-variant-numeric: tabular-nums; }
+  .setup .err { color: var(--bad); white-space: pre-line; }
+  @media (max-width: 860px) {
+    .setup .r.b, .setup .r.s, .setup .r.t { grid-template-columns: 1fr 1fr; margin-left: 0; }
+    .setup .r .wide { grid-column: 1 / -1; }
+  }
+
   @media (max-width: 520px) {
     .opp, .oppres { grid-template-columns: 1fr; }
     .die { width: 52px; height: 52px; padding: 6px; } .die i { width: 10px; height: 10px; }
@@ -224,10 +264,12 @@
 <header>
   <h1 id="gameTitle">White Cell</h1>
   <div class="row">
+    <span id="customTag" title="This browser runs a schedule saved with Setup, not the one built into the page">Custom setup</span>
     <span class="muted small">Local time</span> <span id="wall">----</span>
     <button id="logBtn" aria-expanded="false" aria-controls="logCard" title="Show or hide the log">Log</button>
     <button id="soundBtn" class="on" aria-pressed="true" title="Chime at the end of each step">Sound on</button>
     <button id="themeBtn" title="Switch light or dark">Theme</button>
+    <button id="setupBtn" title="Change the run of show, the turn steps, and the tracks">Setup</button>
   </div>
 </header>
 
@@ -239,11 +281,11 @@
     <div>
     <h2 id="timerH">Timer</h2>
     <div id="turnHead">
-      <span id="turnTitle">Phase I – Planning</span>
+      <span id="turnTitle"></span>
     </div>
 
-    <div id="stepName">Prepare</div>
-    <div id="clock" aria-live="off">5:00</div>
+    <div id="stepName"></div>
+    <div id="clock" aria-live="off">0:00</div>
     <div class="small muted" id="turnClock"></div>
     <div class="bar" id="bar"></div>
     <div id="script" class="small"></div>
@@ -258,12 +300,8 @@
     </div>
 
     <div class="opts small" id="turnOpts">
-      <label>Prepare
-        <select id="prepSel">
-          <option value="5">5:00</option>
-          <option value="4">4:00 (behind)</option>
-          <option value="3">3:00 (far behind)</option>
-        </select>
+      <label id="flexLbl"><span id="flexName">Prepare</span>
+        <select id="flexSel"></select>
       </label>
       <label><input type="checkbox" id="autoChk" checked> Auto-advance steps and turns</label>
     </div>
@@ -274,10 +312,10 @@
 
     <div id="parley">
       <div class="row">
-        <strong>Parley</strong> <span class="small muted">≤ 2:00, runs alongside Prepare</span>
+        <strong>Parley</strong> <span class="small muted" id="parleyNote"></span>
       </div>
       <div class="row" style="margin-top:6px">
-        <span id="parleyClock">2:00</span>
+        <span id="parleyClock">0:00</span>
         <button id="parleyBtn">Start</button>
         <button id="parleyReset">Reset</button>
       </div>
@@ -377,11 +415,285 @@
   </section>
 </main>
 
+<!-- ============ SETUP ============ -->
+<dialog id="setupDlg" aria-labelledby="setupH">
+  <div class="setup">
+    <header>
+      <h1 id="setupH">Setup</h1>
+      <span class="small muted" id="setupSum"></span>
+    </header>
+    <div class="body" id="setupBody"></div>
+    <div class="foot">
+      <button id="setupApply" class="primary" title="Save this setup in this browser and restart the timer with it">Apply</button>
+      <button id="setupDownload" title="Save a copy of this page with this setup built in, for the room's laptop">Download page</button>
+      <button id="setupToml" title="Copy this setup as game.toml text, to paste over its [schedule], [[block]], [[turn_step]], and [[track]] sections">Copy as game.toml</button>
+      <button id="setupRevert" title="Forget the setup saved in this browser and go back to the one built into the page">Use built-in</button>
+      <span class="grow"></span>
+      <button id="setupClose">Close</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- The game's settings: run of show, turn steps, and tracks. Generated from game.toml by
+     tools/schedule.py --write: edit game.toml, not this block. Minutes may be fractions. -->
+<script type="application/json" id="mw-config">
+{
+ "name": "Operation Example",
+ "start": "1345",
+ "parley": 2,
+ "flex": {
+  "step": "prep",
+  "options": [
+   5,
+   4,
+   3
+  ]
+ },
+ "blocks": [
+  {
+   "tag": "P1",
+   "short": "Phase I",
+   "name": "Phase I – Planning",
+   "brief": "Organize your team, synthesize your pre-read intel, and build a plan. No COAs (§1.3).",
+   "steps": [
+    {
+     "name": "Team planning & requests",
+     "min": 12,
+     "who": "Both teams",
+     "say": "“You have 18 minutes to organize your team, synthesize your intelligence, and build a plan. You may submit up to four requests, RFIs or RFFs, due at minute 12. In the last three minutes you will brief your plan to your logger. There are no COAs in Phase I. Your time starts now.”",
+     "brief": "Plan and post up to **4 requests** (RFIs/RFFs) in your team's secret Slack channel. **Due at the end of this step.**"
+    },
+    {
+     "name": "Brief rehearsal",
+     "min": 3,
+     "who": "Both teams",
+     "say": "“Six minutes left in Phase I. Requests close now. We'll answer the first four posted in your team channel. You have three minutes to rehearse before you brief your logger.” Answer the requests during this step and the next.",
+     "brief": "Finalize and rehearse your brief."
+    },
+    {
+     "name": "OPORD briefs",
+     "min": 3,
+     "who": "Teams → loggers",
+     "say": "Each logger hears its team's oral brief and writes its planned COAs (up to 3, Turns 1–3) and the starting zones of any hidden counters the team places itself on the placement form (White Cell Forms §4).",
+     "brief": "Brief your plan and up to 3 planned COAs to your logger (§1.3)."
+    }
+   ]
+  },
+  {
+   "tag": "KO",
+   "short": "Kickoff",
+   "name": "Kickoff inject",
+   "steps": [
+    {
+     "name": "Kickoff inject",
+     "min": 2,
+     "who": "White cell",
+     "say": "Read the kickoff inject and set any tracks it moves. Loggers post Phase I RFI answers and RFF rulings in each team channel.",
+     "brief": "The white cell announces that the war has begun and posts Phase I RFI answers and RFF rulings in your team channel."
+    }
+   ]
+  },
+  {
+   "tag": "P2",
+   "short": "Phase II",
+   "name": "Phase II",
+   "turns": 4
+  },
+  {
+   "tag": "D1",
+   "short": "Debrief 1",
+   "name": "Debrief 1",
+   "steps": [
+    {
+     "name": "Debrief 1",
+     "min": 7,
+     "who": "Phase I–II flight commanders",
+     "say": "Phase I–II flight commanders lead the debrief. Afterward, hand command to the Phase III–IV flight commanders.",
+     "brief": "Led by your Phase I–II flight commander. **The Phase III–IV flight commander takes over afterward.**"
+    }
+   ]
+  },
+  {
+   "tag": "P3",
+   "short": "Phase III",
+   "name": "Phase III – Planning and FRAGO",
+   "steps": [
+    {
+     "name": "Phase III planning",
+     "min": 7,
+     "who": "Both teams",
+     "say": "Teams plan under the new flight commanders.",
+     "brief": "Phase IV planning under the new flight commander."
+    },
+    {
+     "name": "FRAGO to loggers",
+     "min": 1,
+     "who": "Teams → loggers",
+     "say": "“One minute left in Phase III. Phase III–IV flight commanders, brief your one-minute FRAGO and up to two Phase IV planned COAs to your logger now.”",
+     "brief": "The new flight commander gives a **1-minute oral FRAGO** (updated intent and up to 2 new planned COAs) to the logger (§1.4)."
+    }
+   ]
+  },
+  {
+   "tag": "P4",
+   "short": "Phase IV",
+   "name": "Phase IV",
+   "turns": 3
+  },
+  {
+   "tag": "D2",
+   "short": "Debrief 2",
+   "name": "End of game & Debrief 2",
+   "steps": [
+    {
+     "name": "End of game & Debrief 2",
+     "min": 7,
+     "who": "Phase III–IV flight commanders",
+     "say": "“That was the final turn. Here is where things stand.” Read the tracks and key map facts, and score (handbook §8). Phase III–IV flight commanders lead Debrief 2.",
+     "brief": "The white cell scores objectives; your Phase III–IV flight commander leads Debrief 2."
+    }
+   ]
+  }
+ ],
+ "turn": [
+  {
+   "id": "prep",
+   "name": "Prepare",
+   "min": 5,
+   "who": "Both teams",
+   "say": "“Turn {turn}. Prepare, {min} minutes. Your RFI answers are in your team channel. Requests are due there when the timer ends.” Check last turn's RFI answers are posted. At the end, close requests: count the first 3 request posts per team."
+  },
+  {
+   "id": "bcoa",
+   "name": "BLUEFOR COA + Pros",
+   "min": 2,
+   "who": "BLUEFOR",
+   "side": "blue",
+   "say": "“BLUEFOR, your COA.” No interruptions."
+  },
+  {
+   "id": "rcoa",
+   "name": "REDFOR COA + Pros",
+   "min": 2,
+   "who": "REDFOR",
+   "side": "red",
+   "say": "“REDFOR, your COA.” No interruptions."
+  },
+  {
+   "id": "pcons",
+   "name": "Prepare Cons",
+   "min": 2,
+   "who": "Both teams",
+   "say": "“Two minutes to prepare Cons.” Note the Pros you'll accept while they huddle."
+  },
+  {
+   "id": "rcons",
+   "name": "REDFOR Cons → BLUEFOR COA",
+   "min": 1,
+   "who": "REDFOR",
+   "side": "red",
+   "say": "“REDFOR, your Cons on BLUEFOR's COA.”"
+  },
+  {
+   "id": "bcons",
+   "name": "BLUEFOR Cons → REDFOR COA",
+   "min": 1,
+   "who": "BLUEFOR",
+   "side": "blue",
+   "say": "“BLUEFOR, your Cons on REDFOR's COA.”"
+  },
+  {
+   "id": "res",
+   "name": "White cell resolves",
+   "min": 2,
+   "who": "White cell",
+   "say": "Resolve both COAs (BLUEFOR's first). Rule on RFFs and give arrival turns (N = this turn). Place counters for forces arriving next turn; they can be used in next turn's COA. Track checks: per-turn track effects and trigger values; starting conditions that switch on at a set turn; RFF arrivals; secret COA triggers. At most one inject."
+  }
+ ],
+ "tracks": [
+  {
+   "id": "access",
+   "name": "Sea Lane Access",
+   "values": [
+    "Open",
+    "Restricted",
+    "Closed"
+   ],
+   "start": "Open",
+   "triggers": [
+    {
+     "at": "Closed",
+     "text": "Red Will −1 at the end of each turn it stays Closed."
+    }
+   ]
+  },
+  {
+   "id": "opinion",
+   "name": "International Opinion",
+   "range": [
+    -3,
+    3
+   ],
+   "start": 0,
+   "ends": [
+    "Pro-Blue",
+    "Pro-Red"
+   ],
+   "triggers": [
+    {
+     "at": 3,
+     "text": "A wavering third party sides with REDFOR."
+    },
+    {
+     "at": -3,
+     "text": "BLUEFOR's backer escalates its support."
+    }
+   ]
+  },
+  {
+   "id": "will",
+   "name": "Red Domestic Will",
+   "range": [
+    0,
+    5
+   ],
+   "start": 3,
+   "triggers": [
+    {
+     "min": 4,
+     "text": "Big REDFOR RFFs approved more readily."
+    },
+    {
+     "at": 0,
+     "text": "REDFOR's government orders a ceasefire and negotiations."
+    }
+   ]
+  },
+  {
+   "id": "stability",
+   "name": "Blue Regime Stability",
+   "range": [
+    0,
+    5
+   ],
+   "start": 4,
+   "triggers": [
+    {
+     "at": 0,
+     "text": "BLUEFOR's government collapses."
+    }
+   ]
+  }
+ ]
+}
+</script>
+
 <script>
 (() => {
   "use strict";
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+  const esc = v => String(v).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
   // ---------- storage (optional; the page works without it) ----------
   const store = {
@@ -421,62 +733,90 @@
     else { tone(880, t, .25); tone(660, t + .3, .35); }
   }
 
-  // ---------- timer definitions (RULES.md §2.2–2.4, EVENT-SETUP.md) ----------
+  // ---------- settings: the mw-config block, or a setup saved in this browser ----------
+  const minSec = m => Math.round(m * 60);
+  const fill = (text, vals) => String(text || "").replace(/\{(turn|first|last|min)\}/g, (all, k) => vals[k] != null ? fmtMin(vals[k]) : all);
+  const fmtMin = m => String(Math.round(m * 100) / 100);
+  const trackValues = t => t.range ? Array.from({ length: t.range[1] - t.range[0] + 1 }, (_, i) => t.range[0] + i) : (t.values || []);
+  const PAGE = "<!doctype html>\n" + document.documentElement.outerHTML;  // before anything changes the page
+  const BUILT_IN = JSON.parse($("#mw-config").textContent);
+  const SAVED_CFG = store.get("mw-config", null);
+  let CFG = BUILT_IN, custom = false;
+  if (SAVED_CFG) {
+    if (validate(SAVED_CFG).length) store.set("mw-config", null);
+    else { CFG = SAVED_CFG; custom = true; }
+  }
+  $("#customTag").classList.toggle("on", custom);
+
+
+  // The problems that would stop a setup from running, as plain sentences (empty if none).
+  function validate(c) {
+    const e = [], num = v => typeof v === "number" && isFinite(v) && v > 0;
+    if (!c || !Array.isArray(c.blocks) || !c.blocks.length) return ["The run of show needs at least one block."];
+    c.blocks.forEach((b, i) => {
+      const at = `Block ${i + 1}${b && b.name ? ` (${b.name})` : ""}`;
+      if (!b || !b.name || !b.short) e.push(`${at}: needs a name and a short name.`);
+      if (b && b.turns != null) {
+        if (!Number.isInteger(b.turns) || b.turns < 1) e.push(`${at}: the number of turns must be a whole number above 0.`);
+      } else if (!b || !Array.isArray(b.steps) || !b.steps.length) e.push(`${at}: needs turns or at least one step.`);
+      else b.steps.forEach((s, j) => { if (!s.name || !num(s.min)) e.push(`${at}, step ${j + 1}: needs a name and minutes above 0.`); });
+    });
+    const turn = Array.isArray(c.turn) ? c.turn : [];
+    if (c.blocks.some(b => b && b.turns) && !turn.length) e.push("Blocks of turns need at least one turn step.");
+    turn.forEach((s, j) => { if (!s.name || !num(s.min)) e.push(`Turn step ${j + 1}: needs a name and minutes above 0.`); });
+    if (c.flex && c.flex.step && !turn.some(s => s.id === c.flex.step)) e.push(`The step to shorten (${c.flex.step}) is not a turn step id.`);
+    (c.tracks || []).forEach(t => { if (!t.name || !trackValues(t).includes(t.start)) e.push(`Track ${t.name || "?"}: its start must be one of its values.`); });
+    return e;
+  }
+
   // The scenario's name, shown in the heading and the browser tab.
-  const GAME_NAME = "Operation Example";
+  const GAME_NAME = CFG.name || "Matrix Wargame";
   document.title = `${GAME_NAME} · White Cell Clock`;
   $("#gameTitle").textContent = `${GAME_NAME} · White Cell`;
 
-  const SAY = {
-    prep: n => `“Turn ${n}. Prepare, five minutes. Your RFI answers are in your team channel. Requests are due there when the timer ends.” Check last turn's RFI answers are posted. At the end, close requests: count the first 3 request posts per team.`,
-  };
-  const turnBlock = (n, phase) => ({ id: `t${n}`, tag: `T${n}`, short: `Turn ${n}`, name: `${phase} · Turn ${n}`, turn: n });
-  // Run of show: block order and durations only (EVENT-SETUP.md §3). Keep the text safe to show: hidden assets and injects stay in the handbook.
-  const BLOCKS = [
-    { id: "p1", tag: "P1", short: "Phase I", name: "Phase I – Planning", steps: [
-      { id: "plan", name: "Team planning & requests", dur: 720, who: "Both teams", say: "“You have 18 minutes to organize your team, synthesize your intelligence, and build a plan. You may submit up to four requests, RFIs or RFFs, due at minute 12. In the last three minutes you will brief your plan to your logger. There are no COAs in Phase I. Your time starts now.”" },
-      { id: "reh", name: "Brief rehearsal", dur: 180, who: "Both teams", say: "“Six minutes left in Phase I. Requests close now. We'll answer the first four posted in your team channel. You have three minutes to rehearse before you brief your logger.” Answer the requests during this step and the next." },
-      { id: "opord", name: "OPORD briefs", dur: 180, who: "Teams → loggers", say: "Each logger hears its team's oral brief and writes its planned COAs (up to 3, Turns 1–3) and, the starting zones of any hidden counters the team places itself on the placement form (White Cell Forms §4)." },
-    ] },
-    { id: "ko", tag: "KO", short: "Kickoff", name: "Kickoff inject", steps: [
-      { id: "kick", name: "Kickoff inject", dur: 120, who: "White cell", say: "Read the kickoff inject and set any tracks it moves. Loggers post Phase I RFI answers and RFF rulings in each team channel." },
-    ] },
-    turnBlock(1, "Phase II"), turnBlock(2, "Phase II"), turnBlock(3, "Phase II"), turnBlock(4, "Phase II"),
-    { id: "d1", tag: "D1", short: "Debrief 1", name: "Debrief 1", steps: [
-      { id: "deb1", name: "Debrief 1", dur: 420, who: "Phase I–II flight commanders", say: "Phase I–II flight commanders lead the debrief. Afterward, hand command to the Phase III–IV flight commanders." },
-    ] },
-    { id: "p3", tag: "P3", short: "Phase III", name: "Phase III – Planning and FRAGO", steps: [
-      { id: "plan3", name: "Phase III planning", dur: 420, who: "Both teams", say: "Teams plan under the new flight commanders." },
-      { id: "frag", name: "FRAGO to loggers", dur: 60, who: "Teams → loggers", say: "“One minute left in Phase III. Phase III–IV flight commanders, brief your one-minute FRAGO and up to two Phase IV planned COAs to your logger now.”" },
-    ] },
-    turnBlock(5, "Phase IV"), turnBlock(6, "Phase IV"), turnBlock(7, "Phase IV"),
-    { id: "d2", tag: "D2", short: "Debrief 2", name: "End of game & Debrief 2", steps: [
-      { id: "deb2", name: "End of game & Debrief 2", dur: 420, who: "Phase III–IV flight commanders", say: "“That was the final turn. Here is where things stand.” Read the tracks and key map facts, and score (handbook §8). Phase III–IV flight commanders lead Debrief 2." },
-    ] },
-  ];
+  // Run of show: every block in order, with a turns block opened out into one block a turn.
+  const TURN = CFG.turn || [];
+  const FLEX = CFG.flex && CFG.flex.step ? TURN.find(s => s.id === CFG.flex.step) : null;
+  const FLEX_OPTS = FLEX ? [...new Set([FLEX.min, ...(CFG.flex.options || [])])].filter(m => m > 0).sort((x, y) => y - x) : [];
+  const BLOCKS = [];
+  let startMin = 0;
+  CFG.blocks.forEach(b => {
+    if (b.turns) {
+      const first = BLOCKS.filter(x => x.turn).length + 1, last = first + b.turns - 1;
+      for (let n = first; n <= last; n++) BLOCKS.push({ tag: `T${n}`, short: `Turn ${n}`, name: `${b.name} · Turn ${n}`, turn: n, first, last });
+    } else {
+      BLOCKS.push({ tag: b.tag || b.short.slice(0, 3), short: b.short, name: b.name,
+        steps: b.steps.map((s, i) => ({ id: `s${i}`, name: s.name, dur: minSec(s.min), who: s.who || "", side: s.side || "", say: fill(s.say, { min: s.min }) })) });
+    }
+  });
   const blk = () => BLOCKS[state.block];
-  const stepsOf = b => b.turn ? turnSteps(b.turn) : b.steps;
+  const stepsOf = b => b.turn ? turnSteps(b) : b.steps;
   const stepsNow = () => stepsOf(blk());
-  function turnSteps(turn) {
-    return [
-      { id: "prep", name: "Prepare", dur: state.prep * 60, who: "Both teams", say: SAY.prep(turn).replace("five", ["", "", "", "three", "four", "five"][state.prep]) },
-      { id: "bcoa", name: "BLUEFOR COA + Pros", dur: 120, who: "BLUEFOR", side: "blue", say: "“BLUEFOR, your COA.” No interruptions." },
-      { id: "rcoa", name: "REDFOR COA + Pros", dur: 120, who: "REDFOR", side: "red", say: "“REDFOR, your COA.” No interruptions." },
-      { id: "pcons", name: "Prepare Cons", dur: 120, who: "Both teams", say: "“Two minutes to prepare Cons.” Note the Pros you'll accept while they huddle." },
-      { id: "rcons", name: "REDFOR Cons → BLUEFOR COA", dur: 60, who: "REDFOR", side: "red", say: "“REDFOR, your Cons on BLUEFOR's COA.”" },
-      { id: "bcons", name: "BLUEFOR Cons → REDFOR COA", dur: 60, who: "BLUEFOR", side: "blue", say: "“BLUEFOR, your Cons on REDFOR's COA.”" },
-      { id: "res", name: "White cell resolves", dur: 120, who: "White cell", say: "Resolve both COAs (BLUEFOR's first). Rule on RFFs and give arrival turns (N = this turn). Place counters for forces arriving next turn; they can be used in next turn's COA. Track checks: per-turn track effects and trigger values; starting conditions that switch on at a set turn; RFF arrivals; secret COA triggers. At most one inject." },
-    ];
+  function turnSteps(b) {
+    return TURN.map((s, i) => {
+      const min = FLEX && s === FLEX ? state.flex : s.min;
+      return { id: s.id || `t${i}`, name: s.name, dur: minSec(min), who: s.who || "", side: s.side || "",
+        say: fill(s.say, { turn: b.turn, first: b.first, last: b.last, min }) };
+    });
+  }
+  // Planned start of each block, in minutes from the start of the game (for the 24-hour clock times).
+  const TURN_MIN = TURN.reduce((a, s) => a + s.min, 0);
+  const plannedStart = i => BLOCKS.slice(0, i).reduce((a, b) => a + (b.turn ? TURN_MIN : b.steps.reduce((x, s) => x + s.dur, 0) / 60), 0);
+  function clockAt(min) {
+    const st = String(CFG.start || "").replace(":", "");
+    if (!/^\d{3,4}$/.test(st)) return "";
+    const t = (Math.floor(+st / 100) * 60 + (+st % 100) + Math.round(min)) % 1440;
+    return String(Math.floor(t / 60)).padStart(2, "0") + String(t % 60).padStart(2, "0");
   }
 
   const saved = store.get("mw-timer", {});
   const state = {
     block: saved.block in BLOCKS ? saved.block : 0,
-    prep: saved.prep || 5,
+    flex: FLEX_OPTS.includes(saved.flex) ? saved.flex : (FLEX ? FLEX.min : 0),
     auto: saved.auto !== false,
     idx: 0, running: false, endAt: 0, remaining: 0, chimedIdx: -1,
   };
-  const persist = () => store.set("mw-timer", { block: state.block, prep: state.prep, auto: state.auto });
+  const persist = () => store.set("mw-timer", { block: state.block, flex: state.flex, auto: state.auto });
 
   let steps = stepsNow();
   state.remaining = steps[0].dur * 1000;
@@ -559,10 +899,13 @@
   function renderAll() { renderHead(); renderSteps(); renderControls(); renderClock(); }
   function renderHead() {
     $("#turnTitle").textContent = blk().name;
-    $("#phases").innerHTML = BLOCKS.map((b, i) =>
-      `<button data-block="${i}" class="${i < state.block ? "done" : i === state.block ? "cur" : ""}"${i === state.block ? ' aria-current="step"' : ""}>${b.short}<small>${stepsOf(b).reduce((a, s) => a + s.dur, 0) / 60} min</small></button>`).join("");
-    $("#parley").hidden = !blk().turn;
-    $("#prepSel").value = String(state.prep);
+    $("#phases").innerHTML = BLOCKS.map((b, i) => {
+      const at = clockAt(plannedStart(i));
+      return `<button data-block="${i}" class="${i < state.block ? "done" : i === state.block ? "cur" : ""}"${i === state.block ? ' aria-current="step"' : ""}${at ? ` title="Planned start ${at}"` : ""}>${esc(b.short)}<small>${fmtMin(stepsOf(b).reduce((a, s) => a + s.dur, 0) / 60)} min</small></button>`;
+    }).join("");
+    $("#parley").hidden = !blk().turn || !(CFG.parley > 0);
+    $("#flexLbl").hidden = !FLEX;
+    if (FLEX) $("#flexSel").value = String(state.flex);
     $("#autoChk").checked = state.auto;
   }
   function renderSteps() {
@@ -571,7 +914,7 @@
       const li = document.createElement("li");
       li.className = i < state.idx ? "done" : i === state.idx ? "cur" : "";
       const b = document.createElement("button");
-      b.innerHTML = `<span>${i + 1}</span><span>${s.name} <span class="muted small">· ${s.who}</span></span><span class="dur">${fmt(s.dur * 1000)}</span>`;
+      b.innerHTML = `<span>${i + 1}</span><span>${esc(s.name)}${s.who ? ` <span class="muted small">· ${esc(s.who)}</span>` : ""}</span><span class="dur">${fmt(s.dur * 1000)}</span>`;
       b.addEventListener("click", () => setStep(i));
       li.appendChild(b); ol.appendChild(li);
     });
@@ -598,19 +941,22 @@
     const before = steps.slice(0, state.idx).reduce((a, s) => a + s.dur, 0) * 1000;
     const total = steps.reduce((a, s) => a + s.dur, 0) * 1000;
     const elapsed = before + cur.dur * 1000 - rem;
-    $("#turnClock").textContent = `${blk().short} clock ${fmt(Math.max(0, elapsed)).replace("+", "")} of ${fmt(total)}` + (rem <= 0 ? ` · step over time by ${fmt(-rem).replace("+", "")}` : "") + (state.running ? "" : " · paused");
+    const at = clockAt(plannedStart(state.block));
+    $("#turnClock").textContent = `${blk().short} clock ${fmt(Math.max(0, elapsed)).replace("+", "")} of ${fmt(total)}` + (at ? ` · planned start ${at}` : "") + (rem <= 0 ? ` · step over time by ${fmt(-rem).replace("+", "")}` : "") + (state.running ? "" : " · paused");
     const fill = $("#bar .cur i");
     if (fill) fill.style.width = Math.min(100, Math.max(0, (1 - rem / (cur.dur * 1000)) * 100)) + "%";
   }
 
   // ---------- parley timer ----------
-  const parley = { running: false, endAt: 0, remaining: 120000, chimed: false };
+  const PARLEY_MS = Math.max(0, CFG.parley || 0) * 60000;
+  const parley = { running: false, endAt: 0, remaining: PARLEY_MS, chimed: false };
+  $("#parleyNote").textContent = `≤ ${fmt(PARLEY_MS)}, runs alongside ${TURN[0] ? TURN[0].name : "the turn"}`;
   const parleyRem = () => parley.running ? parley.endAt - Date.now() : parley.remaining;
   function renderParley() {
     const r = parleyRem();
     $("#parleyClock").textContent = fmt(r);
     $("#parleyClock").classList.toggle("over", r <= 0);
-    $("#parleyBtn").textContent = parley.running ? "Pause" : (r === 120000 ? "Start" : "Resume");
+    $("#parleyBtn").textContent = parley.running ? "Pause" : (r === PARLEY_MS ? "Start" : "Resume");
   }
   $("#parleyBtn").addEventListener("click", () => {
     ensureAudio();
@@ -619,7 +965,7 @@
     renderParley();
   });
   $("#parleyReset").addEventListener("click", () => {
-    Object.assign(parley, { running: false, remaining: 120000, chimed: false }); renderParley();
+    Object.assign(parley, { running: false, remaining: PARLEY_MS, chimed: false }); renderParley();
   });
 
   // ---------- timer wiring ----------
@@ -635,7 +981,11 @@
     if (i === state.block || (state.running && !confirm(`The timer is running. Jump to ${BLOCKS[i].short}?`))) return;
     setBlock(i);
   });
-  $("#prepSel").addEventListener("change", e => { state.prep = +e.target.value; persist(); rebuildSteps(true); });
+  if (FLEX) {
+    $("#flexName").textContent = FLEX.name;
+    $("#flexSel").innerHTML = FLEX_OPTS.map((m, i) => `<option value="${m}">${fmt(minSec(m) * 1000)}${i === 1 ? " (behind)" : i > 1 ? " (far behind)" : ""}</option>`).join("");
+  }
+  $("#flexSel").addEventListener("change", e => { state.flex = +e.target.value; persist(); rebuildSteps(true); });
   $("#autoChk").addEventListener("change", e => { state.auto = e.target.checked; persist(); });
 
   const soundBtn = $("#soundBtn");
@@ -819,25 +1169,13 @@
   });
 
   // ---------- tracks (scenario/00-overview.md §5.1) ----------
-  const nums = (lo, hi) => Array.from({ length: hi - lo + 1 }, (_, i) => lo + i);
-  // EXAMPLE TRACKS: replace with the scenario's (scenario/00-overview.md §5.1). Each track has an id, a name,
-  // a start value, its values in order, optional end labels, and triggers: [test, text shown when the test is true].
-  const TRACKS = [
-    { id: "access", name: "Sea Lane Access", start: "Open", values: ["Open", "Restricted", "Closed"], triggers: [
-      [v => v === "Closed", "Red Will −1 at the end of each turn it stays Closed."],
-    ] },
-    { id: "opinion", name: "International Opinion", start: 0, values: nums(-3, 3), ends: ["Pro-Blue", "Pro-Red"], triggers: [
-      [v => v === 3, "A wavering third party sides with REDFOR."],
-      [v => v === -3, "BLUEFOR's backer escalates its support."],
-    ] },
-    { id: "will", name: "Red Domestic Will", start: 3, values: nums(0, 5), triggers: [
-      [v => v >= 4, "Big REDFOR RFFs approved more readily."],
-      [v => v === 0, "REDFOR's government orders a ceasefire and negotiations."],
-    ] },
-    { id: "stability", name: "Blue Regime Stability", start: 4, values: nums(0, 5), triggers: [
-      [v => v === 0, "BLUEFOR's government collapses."],
-    ] },
-  ];
+  // From the settings (game.toml [[track]], scenario/00-overview.md §5.1). A trigger is
+  // { at | min | max, text }: shown, and dotted on the scale, when the track is at that value, or at least or at most it.
+  const TRACKS = (CFG.tracks || []).map((t, i) => ({
+    id: t.id || `track${i}`, name: t.name, start: t.start, values: trackValues(t), ends: t.ends,
+    triggers: (t.triggers || []).map(g => [v => "at" in g ? v === g.at : "min" in g ? v >= g.min : "max" in g ? v <= g.max : false, g.text || ""]),
+  }));
+  $("#tracksCard").hidden = !TRACKS.length;
   // A track with end labels is a two-sided scale: signed numbers, coloured toward each side's end.
   // A track of words colours its last value red and the ones in between amber.
   const trackLabel = (t, v) => t.ends && typeof v === "number" ? (v > 0 ? "+" + v : v < 0 ? "−" + -v : "0") : String(v);
@@ -853,11 +1191,11 @@
       const cur = tracks[t.id];
       const scale = t.values.map(v => {
         const key = t.triggers.some(([test]) => test(v));
-        return `<button data-track="${t.id}" data-i="${t.values.indexOf(v)}" aria-pressed="${v === cur}" aria-label="${t.name} ${trackLabel(t, v)}" class="${v === cur ? "on " + trackColor(t, v) : ""}${key ? " key" : ""}">${trackLabel(t, v)}</button>`;
+        return `<button data-track="${t.id}" data-i="${t.values.indexOf(v)}" aria-pressed="${v === cur}" aria-label="${esc(t.name)} ${esc(trackLabel(t, v))}" class="${v === cur ? "on " + trackColor(t, v) : ""}${key ? " key" : ""}">${esc(trackLabel(t, v))}</button>`;
       }).join("");
-      const ends = t.ends ? `<div class="ends small muted"><span>${t.ends[0]}</span><span>${t.ends[1]}</span></div>` : "";
-      const trigs = t.triggers.filter(([test]) => test(cur)).map(([, text]) => `<p class="trig small">${text}</p>`).join("");
-      return `<div class="track"><h3>${t.name}</h3><div class="scale" role="group" aria-label="${t.name}">${scale}</div>${ends}${trigs}</div>`;
+      const ends = t.ends ? `<div class="ends small muted"><span>${esc(t.ends[0])}</span><span>${esc(t.ends[1])}</span></div>` : "";
+      const trigs = t.triggers.filter(([test]) => test(cur)).map(([, text]) => `<p class="trig small">${esc(text)}</p>`).join("");
+      return `<div class="track"><h3>${esc(t.name)}</h3><div class="scale" role="group" aria-label="${esc(t.name)}">${scale}</div>${ends}${trigs}</div>`;
     }).join("");
   }
   $("#tracks").addEventListener("click", e => {
@@ -875,9 +1213,212 @@
     addLog("Tracks reset to starting values");
   });
 
+  // ---------- setup: edit the settings in the browser ----------
+  // Works on a copy (draft). Apply saves it in this browser and reloads; Download page saves a copy of this
+  // page with it built in; Copy as game.toml gives the text for game.toml, where the build reads it.
+  const dlg = $("#setupDlg");
+  let draft = null;
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const SIDES = [["", "—"], ["blue", "BLUEFOR"], ["red", "REDFOR"]];
+
+  function openSetup() {
+    draft = clone(CFG);
+    draft.turn = draft.turn || []; draft.tracks = draft.tracks || [];
+    renderSetup();
+    if (dlg.showModal) dlg.showModal(); else dlg.setAttribute("open", "");
+  }
+  function closeSetup() { if (dlg.close) dlg.close(); else dlg.removeAttribute("open"); }
+
+  const inp = (path, val, label, opts = {}) => {
+    const type = opts.num ? "number" : "text";
+    const extra = opts.num ? ` step="any" min="0" inputmode="decimal"` : "";
+    return `<label class="f${opts.wide ? " wide" : ""}">${label}<input type="${type}" data-path="${path}"${opts.num ? ' data-num="1"' : ""}${extra} value="${esc(val == null ? "" : val)}"${opts.ph ? ` placeholder="${esc(opts.ph)}"` : ""}></label>`;
+  };
+  const sel = (path, val, label, options) =>
+    `<label class="f">${label}<select data-path="${path}">${options.map(([v, t]) => `<option value="${esc(v)}"${v === (val || "") ? " selected" : ""}>${esc(t)}</option>`).join("")}</select></label>`;
+  const acts = (list, i) => `<span class="acts"><button data-act="up" data-list="${list}" data-i="${i}" title="Move up" aria-label="Move up">↑</button><button data-act="down" data-list="${list}" data-i="${i}" title="Move down" aria-label="Move down">↓</button><button data-act="del" data-list="${list}" data-i="${i}" title="Remove" aria-label="Remove">✕</button></span>`;
+
+  function stepRow(base, s, i, list, isTurn) {
+    return `<div class="r ${isTurn ? "t" : "s"}">` +
+      (isTurn ? inp(`${base}.id`, s.id, "Id", { ph: "prep" }) : "") +
+      inp(`${base}.name`, s.name, "Step") + inp(`${base}.min`, s.min, "Minutes", { num: true }) +
+      inp(`${base}.who`, s.who, "Who") + sel(`${base}.side`, s.side, "Side", SIDES) +
+      inp(`${base}.say`, s.say, "Script or action (on screen)", { wide: true }) + acts(list, i) + `</div>`;
+  }
+
+  function renderSetup() {
+    const d = draft, fl = d.flex || { step: "", options: [] };
+    let h = `<h3>Game</h3><div class="grid">` +
+      inp("name", d.name, "Game name") +
+      inp("start", d.start, "Start time (24-hour, for printed tables)", { ph: "1345" }) +
+      inp("parley", d.parley, "Parley minutes (0 hides it)", { num: true }) +
+      sel("flex.step", fl.step, "Turn step to shorten when behind", [["", "None"], ...d.turn.filter(s => s.id).map(s => [s.id, s.name])]) +
+      inp("flex.options", (fl.options || []).join(", "), "Its shorter lengths (minutes)", { ph: "4, 3" }) + `</div>`;
+
+    h += `<h3>Run of show</h3>`;
+    d.blocks.forEach((b, i) => {
+      const isTurns = b.turns != null;
+      h += `<div class="blk${isTurns ? " turns" : ""}"><div class="r b">` +
+        inp(`blocks.${i}.name`, b.name, "Block") + inp(`blocks.${i}.short`, b.short, "Short name") + inp(`blocks.${i}.tag`, b.tag, "Tag") +
+        `<label class="f">Kind<select data-kind="${i}"><option value="steps"${isTurns ? "" : " selected"}>Steps</option><option value="turns"${isTurns ? " selected" : ""}>Turns</option></select></label>` +
+        (isTurns ? inp(`blocks.${i}.turns`, b.turns, "Turns", { num: true }) : `<span></span>`) + acts("blocks", i) + `</div>`;
+      if (!isTurns) {
+        b.steps.forEach((s, j) => { h += stepRow(`blocks.${i}.steps.${j}`, s, j, `blocks.${i}.steps`, false); });
+        h += `<button class="add" data-act="add" data-list="blocks.${i}.steps">+ Step</button>`;
+      }
+      h += `</div>`;
+    });
+    h += `<div class="row"><button data-act="add" data-list="blocks" data-kind-new="steps">+ Block of steps</button><button data-act="add" data-list="blocks" data-kind-new="turns">+ Block of turns</button></div>`;
+
+    h += `<h3>One turn</h3><p class="small muted" style="margin:0 0 6px">Every turn runs these steps in order. In a script, {turn} is the turn number and {min} the step's minutes.</p>`;
+    d.turn.forEach((s, j) => { h += stepRow(`turn.${j}`, s, j, "turn", true); });
+    h += `<button class="add" style="margin-left:0" data-act="add" data-list="turn">+ Turn step</button>`;
+
+    h += `<h3>Everything as JSON</h3><details><summary class="small">Edit the tracks, or paste a whole setup</summary>
+      <p class="small muted">The tracks are edited here: each has a name, values (words) or a range [low, high], a start, optional ends, and triggers of { "at" | "min" | "max", "text" }.</p>
+      <textarea id="setupJson" spellcheck="false">${esc(JSON.stringify(d, null, 1))}</textarea>
+      <div class="row" style="margin-top:6px"><button id="setupJsonLoad">Use this JSON</button></div></details>
+      <p class="err small" id="setupErr"></p>`;
+    $("#setupBody").innerHTML = h;
+    renderSetupSum();
+  }
+
+  function renderSetupSum() {
+    const d = draft, turnMin = d.turn.reduce((a, s) => a + (+s.min || 0), 0);
+    let total = 0, turns = 0;
+    d.blocks.forEach(b => { if (b.turns != null) { turns += +b.turns || 0; total += (+b.turns || 0) * turnMin; } else total += (b.steps || []).reduce((a, s) => a + (+s.min || 0), 0); });
+    const end = clockAt(total), st = clockAt(0);
+    $("#setupSum").textContent = `${turns} turn${turns === 1 ? "" : "s"} of ${fmtMin(turnMin)} min · ${Math.floor(total / 60)} h ${fmtMin(Math.round((total % 60) * 100) / 100)} min in all` +
+      (st && String(draft.start || "") === String(CFG.start || "") ? ` · ${st}–${end}` : "");
+    const errs = validate(d);
+    if ($("#setupErr")) $("#setupErr").textContent = errs.join("\n");
+    $("#setupApply").disabled = errs.length > 0;
+    $("#setupDownload").disabled = errs.length > 0;
+  }
+
+  // a.b.0.c -> the object holding c, and "c"
+  function at(path) {
+    const parts = path.split("."), key = parts.pop();
+    let o = draft;
+    for (const p of parts) { if (o[p] == null) o[p] = /^\d+$/.test(p) ? [] : {}; o = o[p]; }
+    return [o, key];
+  }
+  $("#setupBody").addEventListener("input", e => {
+    const el = e.target, path = el.dataset.path;
+    if (!path) return;
+    let v = el.value;
+    if (path === "flex.options") v = v.split(/[ ,;]+/).map(Number).filter(n => n > 0);
+    else if (el.dataset.num) v = v === "" ? null : +v;
+    const [o, k] = at(path);
+    if (path.startsWith("flex.") && !draft.flex) draft.flex = { step: "", options: [] };
+    if (v === "" && !["name", "short"].includes(k) && !path.startsWith("flex.")) delete o[k]; else o[k] = v;
+    if (path === "flex.step" && !v) draft.flex = null;
+    if (/\.id$/.test(path)) { renderSetup(); const again = $(`[data-path="${path}"]`); if (again) { again.focus(); again.setSelectionRange(9999, 9999); } return; }
+    renderSetupSum();
+  });
+  $("#setupBody").addEventListener("change", e => {
+    const el = e.target;
+    if (el.dataset.kind != null) {
+      const b = draft.blocks[+el.dataset.kind];
+      if (el.value === "turns") { delete b.steps; b.turns = 1; } else { delete b.turns; b.steps = [{ name: b.name || "Step", min: 5, who: "" }]; }
+      renderSetup();
+    }
+  });
+  $("#setupBody").addEventListener("click", e => {
+    const b = e.target.closest("button[data-act]");
+    if (b) {
+      const [o, k] = at(b.dataset.list), list = o[k], i = +b.dataset.i;
+      if (b.dataset.act === "add") {
+        if (b.dataset.list === "blocks") list.push(b.dataset.kindNew === "turns" ? { tag: "", short: "Turns", name: "New phase", turns: 1 } : { tag: "", short: "Block", name: "New block", steps: [{ name: "Step", min: 5, who: "" }] });
+        else if (b.dataset.list === "turn") list.push({ id: `step${list.length + 1}`, name: "Step", min: 1, who: "" });
+        else list.push({ name: "Step", min: 1, who: "" });
+      } else if (b.dataset.act === "del") list.splice(i, 1);
+      else {
+        const j = b.dataset.act === "up" ? i - 1 : i + 1;
+        if (j >= 0 && j < list.length) [list[i], list[j]] = [list[j], list[i]];
+      }
+      renderSetup();
+      return;
+    }
+    if (e.target.id === "setupJsonLoad") {
+      try {
+        const c = JSON.parse($("#setupJson").value);
+        draft = c; draft.turn = draft.turn || []; draft.tracks = draft.tracks || []; draft.blocks = draft.blocks || [];
+        renderSetup();
+      } catch (err) { $("#setupErr").textContent = "That isn't valid JSON: " + err.message; }
+    }
+  });
+
+  // Drop empty fields so a saved or exported setup stays tidy.
+  function tidy(c) {
+    const out = clone(c);
+    const clean = o => Object.keys(o).forEach(k => { if (o[k] === "" || o[k] == null) delete o[k]; });
+    out.blocks.forEach(b => { clean(b); (b.steps || []).forEach(clean); });
+    out.turn.forEach(clean);
+    if (out.flex && !out.flex.step) out.flex = null;
+    return out;
+  }
+
+  $("#setupApply").addEventListener("click", () => {
+    if (validate(draft).length) return;
+    if (state.running && !confirm("Applying restarts the timer at the first block. Apply?")) return;
+    store.set("mw-config", tidy(draft));
+    store.set("mw-timer", { auto: state.auto });
+    location.reload();
+  });
+  $("#setupRevert").addEventListener("click", () => {
+    if (!confirm("Forget the setup saved in this browser and use the one built into the page?")) return;
+    store.set("mw-config", null); store.set("mw-timer", { auto: state.auto });
+    location.reload();
+  });
+  $("#setupClose").addEventListener("click", closeSetup);
+  $("#setupBtn").addEventListener("click", openSetup);
+
+  $("#setupDownload").addEventListener("click", () => {
+    const c = tidy(draft);
+    const json = JSON.stringify(c, null, 1).replace(/<\//g, "<\\/");
+    const page = PAGE.replace(/(<script type="application\/json" id="mw-config">)[\s\S]*?(<\/script>)/, (m, a, b) => `${a}\n${json}\n${b}`)
+      .replace(/<title>[^<]*<\/title>/, `<title>${esc(c.name || "Matrix Wargame")} · White Cell Clock</title>`);
+    const url = URL.createObjectURL(new Blob([page], { type: "text/html" }));
+    const a = document.createElement("a");
+    a.href = url; a.download = "whitecell-clock.html"; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
+
+  // game.toml text for [schedule], [[block]], [[turn_step]], and [[track]].
+  function toToml(c) {
+    const val = v => Array.isArray(v) ? `[${v.map(val).join(", ")}]`
+      : v && typeof v === "object" ? `{ ${Object.entries(v).map(([k, x]) => `${k} = ${val(x)}`).join(", ")} }`
+      : typeof v === "number" ? String(v) : JSON.stringify(String(v));
+    const kv = (o, keys, ind = "") => keys.filter(k => o[k] != null && o[k] !== "").map(k => `${ind}${k} = ${val(o[k])}`);
+    const L = ["[schedule]", ...kv({ start: c.start || "", parley: c.parley ?? 0, flex_step: c.flex ? c.flex.step : "", flex_options: c.flex ? c.flex.options || [] : [] }, ["start", "parley", "flex_step", "flex_options"])];
+    if (!c.start) L.splice(1, 0, `start = ""`);
+    if (!c.flex) L.push(`flex_step = ""`);
+    c.blocks.forEach(b => {
+      L.push("", "[[block]]", ...kv(b, ["tag", "short", "name", "brief", "turns"]));
+      (b.steps || []).forEach(s => L.push("  [[block.step]]", ...kv(s, ["name", "min", "who", "side", "say", "brief"], "  ")));
+    });
+    c.turn.forEach(s => L.push("", "[[turn_step]]", ...kv(s, ["id", "name", "min", "who", "side", "say"])));
+    (c.tracks || []).forEach(t => {
+      L.push("", "[[track]]", ...kv(t, ["id", "name", "values", "range", "start", "ends"]));
+      if (t.triggers && t.triggers.length) L.push("triggers = [", ...t.triggers.map(g => `  ${val(g)},`), "]");
+    });
+    return L.join("\n") + "\n";
+  }
+  $("#setupToml").addEventListener("click", async () => {
+    const txt = toToml(tidy(draft)), btn = $("#setupToml");
+    try { await navigator.clipboard.writeText(txt); btn.textContent = "Copied"; }
+    catch {
+      const ta = document.createElement("textarea"); ta.value = txt; dlg.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); btn.textContent = "Copied"; } catch { btn.textContent = "Copy failed"; }
+      ta.remove();
+    }
+    setTimeout(() => btn.textContent = "Copy as game.toml", 1500);
+  });
+
   // ---------- keyboard ----------
   document.addEventListener("keydown", e => {
-    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.ctrlKey || e.metaKey || e.altKey || dlg.open) return;
     const tag = e.target.tagName;
     if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") return;
     const k = e.key.toLowerCase();
@@ -888,7 +1429,7 @@
     else if (k === "l") toggleLog();
   });
   // Space is the timer key, so stop it from also pressing whichever button has focus.
-  document.addEventListener("keyup", e => { if (e.key === " " && e.target.tagName === "BUTTON") e.preventDefault(); });
+  document.addEventListener("keyup", e => { if (e.key === " " && e.target.tagName === "BUTTON" && !dlg.open) e.preventDefault(); });
 
   // ---------- one-screen layout: scale the 1600x900 canvas to any large window ----------
   function fit() {

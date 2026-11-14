@@ -55,6 +55,14 @@ The LLAB objective this base was built for, 1.3 *Apply wargaming principles to a
 
 Times below are the first game's, kept as an example of a 3-hour block that fits 7 turns. Replace them with your event's.
 
+The game blocks (Phase I through Debrief 2) come from the run of show in `game.toml` (`[schedule]` `start`, `[[block]]`, `[[turn_step]]`; `RULES.md` §2.1). Set the structure and the minutes there, then print the game's rows with clock times to copy into this table:
+
+```bash
+python3 tools/schedule.py            # the players' table; add `whitecell` for the white cell's
+```
+
+The timer program and the schedule tables in the Scenario Schedule and the White Cell Handbook follow `game.toml` on the next build. The rows around the game (door checks, formation, transit, closing) are the event's and stay here.
+
 | Start | End | Event (min) | Location | Intensity |
 | --- | --- | --- | --- | --- |
 | 1325 | 1335 | Door checks (10) | [place] | 3 |
@@ -158,7 +166,7 @@ Evaluators can tie their observations to the training objective's performance me
 | Risk | Mitigation |
 | --- | --- |
 | The POC have never run a game of this type | Prepare well in advance: good pre-event information, POC (especially the white cell) who know the capabilities, and **POC run-throughs** of the game. |
-| **Going over time** | Turns are cut to 15 minutes, with padding between phases. Shorten Prepare, never the Cons (`RULES.md` §8.4). |
+| **Going over time** | Turns are cut to 15 minutes (or the turn length set in `game.toml`), with padding between phases. Shorten Prepare, never the Cons (`RULES.md` §8.4). |
 | Players struggle with the rules at first | Rules go out early with a one-page quick-start. The worked example is in `RULES.md` §10. |
 | Slack or the network fails during play | Teams write the same posts on the backup paper slips in the Print Packet and hand them to the white cell (`RULES.md` §2.5). |
 | Tables drift apart in how generously they rule | The lead adjudicators agree on auto-success and COA size beforehand (`RULES.md` §8.5) and can check with each other by Slack during play. |
