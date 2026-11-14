@@ -2,7 +2,7 @@
 
 **Audience:** designer. Mentions where secrets go, but holds none.
 
-This guide takes you from an empty copy of the base to a game you can print. It follows the order that worked for the first game built this way: build the public world first, then each team's secrets, then the white cell's material, and the handouts last. Each step names the files it touches. `AGENTS.md` has the file map and the editing rules, and `RULES.md` has the mechanics, which a new scenario normally keeps as they are.
+This guide takes you from an empty copy of the base to a game you can print. Ready-made teams, cells, assets, tracks, injects, and run-of-show options are in `presets/` (`presets/README.md`): start from them where they fit. It follows the order that worked for the first game built this way: build the public world first, then each team's secrets, then the white cell's material, and the handouts last. Each step names the files it touches. `AGENTS.md` has the file map and the editing rules, and `RULES.md` has the mechanics, which a new scenario normally keeps as they are.
 
 ## 1. Plan backward from the releases
 
@@ -34,7 +34,9 @@ Choose the rule set in `game.toml` `[rules]`: `"full"`, or `"basic"` if most pla
 - An even number of actors plays best, because the insight comes from action and counteraction. With three teams, give each one a reason to talk to both of the others.
 - Each team costs about 4 minutes a turn (`RULES.md` §2.6), so a third team usually means a shorter Prepare or fewer turns. Keep at least 6 turns.
 
-To add one:
+**Presets.** `presets/teams.toml` has four archetypes for an extra team: a contested host nation (GRAYFOR), a coalition partner with its own agenda (GREENFOR), a non-state armed group (YELLOWFOR), and an outside power (PURPLEFOR) (`presets/README.md` §1). `python3 tools/presets.py add-team grayfor` does steps 1–3 below for you, writes the team's packet and handouts from templates (including a section for its players on playing one of three or more teams), and lists what step 4 leaves to you.
+
+To add one by hand:
 
 1. Add the `[[side]]`, and its COA step and Cons step to `[[turn_step]]` (with `side` set to its id: its first step is its COA slot, its second its Cons slot), and a minute to the resolve step. The COA step goes after the other COA steps and the Cons step after the other Cons steps.
 2. Copy `handouts/redfor/` to `handouts/<id>/` and `scenario/redfor-packet.md` to `scenario/<id>-packet.md`, and rewrite them. Its intelligence products are `<prefix>I-01` and up. Give it a `[[tq]]` entry for its commander's letter if it has one in Word.
@@ -43,7 +45,7 @@ To add one:
 
 The rest follows `game.toml` on the next build: the turn clock and the turn checklist, the release folder, the counters (and its blank counters), the intelligence files, the Print Packet (its player forms and spare placement form), the site pages, the timer's colours and opposed roll, and every place the rules and handouts name the teams, count them, or list their loggers, channels, and Slack names (`README.md`, Documents are templates). `python3 tools/check_assets.py` and `python3 tools/schedule.py --check` say what is missing; `game.toml` stops the build if a team lacks its two turn steps.
 
-**Cells.** A team can be split into cells under its flight commander, such as intelligence, communications, and an air component, with `[[side.cell]]` entries under its `[[side]]` (`RULES.md` §9.4). The team still makes one COA a turn: each cell proposes, the commander chooses. Give a cell its assets with the `cell` column in `scenario/data/assets.csv` (its short name prints on the counters), and its own one-page brief in `handouts/<id>/cells/<cell id>.md`, which builds into the team's release folder and the site. A brief can give a cell its own concern that pulls against another cell's, so the team has to agree before it acts. Cells suit a large team (more than about 8 players) or an exercise about coordination inside a staff.
+**Cells.** A team can be split into cells under its flight commander, such as intelligence, communications, and an air component, with `[[side.cell]]` entries under its `[[side]]` (`RULES.md` §9.4). `presets/cells.toml` has seventeen to choose from (`presets/README.md` §2): run `python3 tools/presets.py add-cell <team id>` for a checklist to tick, or name them (`add-cell redfor intel air`), or write `cells = ["intel", "air"]` under the `[[side]]`. The tool writes each cell's brief, which is its players' instructions: how a team with cells works, the cell's counters, its part in each step, its concern, and example RFIs and COAs. The team still makes one COA a turn: each cell proposes, the commander chooses. Give a cell its assets with the `cell` column in `scenario/data/assets.csv` (its short name prints on the counters), and its own one-page brief in `handouts/<id>/cells/<cell id>.md`, which builds into the team's release folder and the site. A brief can give a cell its own concern that pulls against another cell's, so the team has to agree before it acts. Cells suit a large team (more than about 8 players) or an exercise about coordination inside a staff.
 
 ### 2.2 Write the premise
 
@@ -66,13 +68,13 @@ See `map/README.md`. Aim for 10–15 zones, including an off-map home box for ea
 
 ### 2.5 Set the tracks and starting conditions
 
-Tracks (`00-overview.md` §5.1) record what the map can't: opinion, will, stability, access. Use three to five, each with a short scale (−3 to +3, or 0 to 5) and stated triggers at the ends. Every track should be movable by more than one team, and at least one should be easier to move with words than with weapons. Put the same tracks in `game.toml` `[[track]]`, which the timer program shows.
+Tracks (`00-overview.md` §5.1) record what the map can't: opinion, will, stability, access. Use three to five, each with a short scale (−3 to +3, or 0 to 5) and stated triggers at the ends. Every track should be movable by more than one team, and at least one should be easier to move with words than with weapons. Put the same tracks in `game.toml` `[[track]]`, which the timer program shows. `presets/tracks.toml` has eleven to start from (`python3 tools/presets.py add-track escalation`), and `presets/scenario-elements.md` §2 has starting-condition patterns.
 
 Starting conditions (§5.2, and `handouts/common/starting-conditions.md`, which repeats them as cue cards) are standing ±1 modifiers with a stated way to remove them. Two or three for each team is enough. Each one should give another team an obvious target for a COA.
 
 ### 2.6 Build the forces
 
-Fill in each packet's §1 (`scenario/<team id>-packet.md`) and mirror every row in `scenario/data/assets.csv`. Then run:
+Fill in each packet's §1 (`scenario/<team id>-packet.md`) and mirror every row in `scenario/data/assets.csv`. The asset catalog (`presets/assets.csv`, readable as `presets/asset-reference.md`) has 86 real U.S. systems, forces, and authorities, each with a role and a limitation; `python3 tools/presets.py add-asset redfor f22 kc46 --zone Z6` copies them into both places with the next free IDs (`presets/README.md` §3). Then run:
 
 ```bash
 python3 tools/check_assets.py && python3 tools/make_counters.py
@@ -99,7 +101,7 @@ Each side gets **three secret objectives** (packet §3), each with criteria the 
 - include one long-term objective, about the world after the crisis, so a team that plays only for the next turn has itself to blame (Mouat);
 - read well with an exclamation mark: "Keep the strait open!", not "Ensure the continued freedom of navigation through…". Put the scoring detail in the criteria, not the objective.
 
-Make the larger side's objectives aggressive and the other side's defensive, so a win by the larger side is possible but costly.
+Make the larger side's objectives aggressive and the other side's defensive, so a win by the larger side is possible but costly. `presets/scenario-elements.md` §3 has objective patterns.
 
 ### 2.8 Write the intelligence estimates and the ground truth
 
@@ -113,7 +115,7 @@ The commander's letter (`handouts/<side>/commanders-letter.md`) is the governmen
 
 ### 2.10 Write the injects
 
-`scenario/whitecell-injects.md`: one kickoff inject that starts the crisis at the end of Phase I, and a pool of 10–15 to choose from, at most one per turn. Write each one so it can be read aloud in 30 seconds. Give each a purpose (punish stalling, reward a good argument, bring in a third party, test a weak spot) and the turns where it fits. Include a few that help each side, and one that offers a way out (a mediation offer, a ceasefire proposal). Copy the pool into `handouts/whitecell/intel-and-injects.md`.
+`scenario/whitecell-injects.md`: one kickoff inject that starts the crisis at the end of Phase I, and a pool of 10–15 to choose from, at most one per turn. Write each one so it can be read aloud in 30 seconds. Give each a purpose (punish stalling, reward a good argument, bring in a third party, test a weak spot) and the turns where it fits. Include a few that help each side, and one that offers a way out (a mediation offer, a ceasefire proposal). Copy the pool into `handouts/whitecell/intel-and-injects.md`. `presets/scenario-elements.md` §1 has more inject patterns, including ones for teams with cells and for games of three or more teams.
 
 ### 2.11 Fill in the handouts
 

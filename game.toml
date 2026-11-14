@@ -268,15 +268,23 @@ triggers = [{ at = 0, text = "BLUEFOR's government collapses." }]
 #   label   what the documents call the team; its release folder is "<label> - 24H RELEASE"
 #   nation  who the team plays in the game world
 #   prefix  one capital letter for its IDs: assets B-01, intelligence products BI-01,
-#           starting conditions S-B1, objectives B1 (X and S are taken)
+#           starting conditions S-B1, objectives B1 (X, S, I, O, and Z are taken)
 #   color   its colour on counters, PDFs, the site, and the timer (#rrggbb)
 #
-# Cells (optional): [[side.cell]] splits a team into cells under its commander, such as
-# intelligence, communications, and an air component (RULES.md §9.1). The team still makes
-# one COA a turn. Fields: id, name, short (up to 4 letters, printed on its counters),
-# lead (the cell lead's title), job (one line). A cell owns the assets whose `cell` column
-# in scenario/data/assets.csv names it, and gets its own brief if
-# handouts/<side id>/cells/<cell id>.md exists.
+# A ready-made extra team: `python3 tools/presets.py add-team grayfor` (or greenfor,
+# yellowfor, purplefor; presets/teams.toml) writes the [[side]], its two turn steps, and its files.
+#
+# Cells (optional): split a team into cells under its commander, such as intelligence,
+# communications, and an air component (RULES.md §9.4). The team still makes one COA a turn.
+# Tick the cells you want from presets/cells.toml with `python3 tools/presets.py add-cell redfor`
+# (a checklist, and a brief for each cell's players), or list them under the [[side]]:
+#   cells = ["intel", "air"]
+# Presets: ops, plans, intel, air, maritime, land, amd, mobility, base, space, cyber, info,
+#          diplo, legal, sof, civil, comms   (`python3 tools/presets.py list cells`)
+# Or write [[side.cell]] entries: `preset` (a key above), or your own id, name, short (up to 4
+# letters, printed on its counters), lead (the cell lead's title), and job (one line); a field
+# you give overrides the preset's. A cell owns the assets whose `cell` column in
+# scenario/data/assets.csv names it, and gets its own brief if handouts/<side id>/cells/<cell id>.md exists.
 [[side]]
 id = "bluefor"
 label = "BLUEFOR"
@@ -291,17 +299,10 @@ nation = "Redland"
 prefix = "R"
 color = "#cf222e"
 #  [[side.cell]]
-#  id = "air"
-#  name = "Air Component"
-#  short = "AIR"
-#  lead = "Air component commander"
-#  job = "Plans and briefs the air COAs; owns the fighters, bombers, and tankers"
+#  preset = "air"
 #  [[side.cell]]
-#  id = "intel"
-#  name = "Intelligence Cell"
-#  short = "INT"
-#  lead = "Senior intelligence officer"
-#  job = "Owns the RFIs and the ISR assets; keeps the enemy picture"
+#  preset = "intel"
+#  name = "J2 Intelligence"           # overrides the preset's name
 
 # [[side]]
 # id = "grayfor"

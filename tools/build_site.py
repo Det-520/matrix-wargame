@@ -34,7 +34,7 @@ import sys
 import urllib.parse
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from build_handouts import (FIN, H, PACKET_NAME, REF_PACKET_NAME, ROOT, SIDES, WC, clean, front_matter,  # noqa: E402
+from build_handouts import (FIN, H, PACKET_NAME, REF_PACKET_NAME, ROOT, SIDES, WC, clean, filled_meta, front_matter,  # noqa: E402
                             packet_markdown, side_releases, tint)
 from game import GAME  # noqa: E402
 
@@ -140,6 +140,10 @@ def pages():
                   for s in SIDES],
                 dict(src="scenario/whitecell-injects.md", page="design/scenario/injects.md", title="Injects"),
                 dict(src="scenario/whitecell-ground-truth.md", page="design/scenario/ground-truth.md", title="Ground Truth"),
+            ]),
+            dict(src="presets/README.md", page="design/presets/index.md", title="Presets", children=[
+                dict(src="presets/asset-reference.md", page="design/presets/asset-reference.md", title="Asset Reference"),
+                dict(src="presets/scenario-elements.md", page="design/presets/scenario-elements.md", title="Scenario Elements"),
             ]),
             dict(src="map/README.md", page="design/map.md", title="Map"),
             dict(src="references/tongue-and-quill-summary.md", page="design/writing-guide.md", title="Writing Guide"),
@@ -432,6 +436,7 @@ def source_text(p):
     """A page's markdown, without front matter, audience lines, or FORMAT NOTEs: (meta, text)."""
     meta, text = front_matter(p.get("text") or read(p["src"]))
     if p["src"]:
+        meta = filled_meta(meta, p["src"])
         text = clean(text, is_intel=p.get("intel", False), where=p["src"])
     return meta, text
 

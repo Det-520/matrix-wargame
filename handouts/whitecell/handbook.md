@@ -185,6 +185,12 @@ Read these aloud, word for word or close to it.
 - **Behind schedule?** Shorten **Prepare** (to {{ flex }}). **Never cut the Cons.**
 - **Players out of bounds?** Kill the COA outright, or deliver I-13, a bounding directive.
 - **Simultaneous execution and reacting.** {{ Both }} COAs take place simultaneously across the {{ days(game_days, adj=True) }} turn window. A team that briefs later in the order ({{ team_order }}) may react to an earlier team's COA, which is realistic. However, it **may not simply negate** that COA ("their strike doesn't happen") or prevent its roll. Negating is what Cons are for; a counter-move is resolved as an **Interacting** or **Directly Opposed** COA (§5.3).
+{% if cells %}
+- **Teams with cells** ({% for s in sides if s.cells %}{{ s.label }}{% if not loop.last %}, {% endif %}{% endfor %}). Hear one COA from the team, briefed by whoever the commander names, never one per cell. Count the team's requests together, whichever cell posts them. A counter with a cell's short name after the owner belongs to that cell, but any of the team's COAs may use it. If cells argue in their slot, tell them to settle it in Prepare next time (Rules §9.4).
+{% endif %}
+{% if n_teams > 2 %}
+- **{{ Word(n_teams) }} teams.** Each team's Cons may be against any of the other teams' COAs: the briefer says which. Resolve the COAs in briefing order; directly opposed COAs among several teams use one roll with every team involved (§5.3). A parley may include any two or more teams.
+{% endif %}
 
 <!-- pagebreak -->
 

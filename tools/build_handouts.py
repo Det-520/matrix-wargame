@@ -271,6 +271,11 @@ def front_matter(text):
     return meta, text
 
 
+def filled_meta(meta, where):
+    """Front matter values are templates too: title: "{{ game.name }} — {{ team.label }} Team Packet"."""
+    return {k: render(v, where=where) if "{" in v else v for k, v in meta.items()}
+
+
 def clean(text, is_intel=False, where="markdown"):
     """The markdown filled in for this game (a Jinja2 template, tools/game.py render()),
     without what stays in the markdown only: audience lines and FORMAT NOTEs."""
@@ -504,6 +509,7 @@ def page_html(md_paths, header=WC_ONLY, doc_title=""):
         path = rel if os.path.isabs(rel) else os.path.join(H, rel)
         meta, text = front_matter(open(path, encoding="utf-8").read())
         is_product = bool(INTEL_ID.match(os.path.basename(path)))
+        meta = filled_meta(meta, os.path.relpath(path, ROOT))
         text = clean(text, is_intel=is_product, where=os.path.relpath(path, ROOT))
         body = render_markdown(text, os.path.dirname(path))
         if meta.get("title"):

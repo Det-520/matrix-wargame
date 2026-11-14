@@ -1,0 +1,78 @@
+# Team archetypes for a third (or fourth) player team (RULES.md §2.6, DESIGN-GUIDE.md §2.1,
+# presets/README.md §1). The colour names follow common wargaming use: BLUE and RED are the two
+# main teams, and the extra teams take other colours. None of them is a fixed meaning; the archetype
+# is what matters.
+#
+#   python3 tools/presets.py list teams
+#   python3 tools/presets.py add-team grayfor                    (the preset's label, prefix, colour)
+#   python3 tools/presets.py add-team greenfor --nation "[Green nation]" --cells diplo,info
+#
+# add-team writes the [[side]] and its two turn steps into game.toml, adds a minute to the resolve
+# step, and copies a set of team files (presets/templates/team/) with the starter assets below.
+#
+# Fields: key, label, prefix (one capital letter: not X, S, I, O, or Z), color, nation (a
+# placeholder), archetype (one line), summary, wants (what it typically wants), levers (what it
+# can do that the main teams can't), pulls (why it pulls against every other team, which Mouat
+# says a third team must), cells (suggested cell keys, presets/cells.toml), assets (starter asset
+# keys from presets/assets.csv, each "key" or "key@availability": start, home, or rff), and
+# caution (when to use a white-cell actor instead).
+
+[[team]]
+key = "grayfor"
+label = "GRAYFOR"
+prefix = "G"
+color = "#6e7781"
+nation = "[Gray nation]"
+archetype = "Contested host nation"
+summary = "The country where the crisis happens, or whose bases and airspace both sides need. It wants to survive the crisis with its sovereignty, economy, and government intact."
+wants = ["Keep foreign forces from fighting on its soil, or make them pay for the privilege", "Keep its government in power and its economy running", "Come out of the crisis with more independence, not less"]
+levers = ["Grants or refuses basing, overflight, and port access", "Its own police, coast guard, and air defenses", "Its voice with the international community and the press"]
+pulls = "It needs the stronger outside power's protection but fears its presence, and it trades with the other side. Every team needs something from it, and it can say no to all of them."
+cells = ["diplo", "land", "info"]
+assets = ["f16", "patriot", "stinger", "cutter", "sof-oda@rff"]
+caution = "If the host nation only ever agrees with one side, play it as a white-cell actor with X- counters (RULES.md §3.5)."
+
+[[team]]
+key = "greenfor"
+label = "GREENFOR"
+prefix = "C"
+color = "#1a7f37"
+nation = "[Green nation]"
+archetype = "Coalition partner with its own agenda"
+summary = "An ally of one of the main teams that fights alongside it, but has its own interests, red lines, and domestic politics. C is for coalition (G is GRAYFOR's)."
+wants = ["Gain something of its own from the crisis: territory, a seat at the table, a guarantee", "Limit its own losses; its public is less committed than its ally's", "Avoid being dragged into a war it didn't choose"]
+levers = ["Its forces and bases, which the ally needs", "Its veto: it can withhold forces, bases, or consent at the worst moment", "Its own channel to the other side"]
+pulls = "Its objectives overlap with its ally's on the main goal and conflict on the price and the end state. It can make a separate deal with the other side."
+cells = ["air", "diplo"]
+assets = ["f35a", "p8", "patriot", "ddg", "kc135@rff"]
+caution = "A partner that does whatever its ally says is not a team: give its forces to the ally, or play it as a white-cell actor."
+
+[[team]]
+key = "yellowfor"
+label = "YELLOWFOR"
+prefix = "Y"
+color = "#9a6700"
+nation = "[Yellow movement]"
+archetype = "Non-state armed group"
+summary = "An insurgency, separatist movement, or militia with its own cause and an outside sponsor. It can't win a battle, but it can deny the others a clean victory."
+wants = ["Recognition, autonomy, or control of its home region", "Survive: keep its leaders and its support among the population", "Keep its sponsor's support without becoming its tool"]
+levers = ["The population: recruits, hiding places, information", "Raids, sabotage, and drones against bases and supply lines", "The story: it is the underdog in the press"]
+pulls = "Both main teams want to use it or stamp it out. It bargains with each, and its own cause pulls against the host government and the sponsors alike."
+cells = ["sof", "info", "civil"]
+assets = ["javelin", "switchblade", "stinger", "small-uas"]
+caution = "All assets in this base are real U.S. systems (AGENTS.md rule 7): here they stand for what an armed group could have or be given. If the group only takes orders from its sponsor, fold it into the sponsor's team."
+
+[[team]]
+key = "purplefor"
+label = "PURPLEFOR"
+prefix = "P"
+color = "#8250df"
+nation = "[Purple nation]"
+archetype = "Outside power or opportunist"
+summary = "A major power outside the region that backs one side, both, or neither, and uses the crisis to advance its own position. Its forces are mostly far away; its levers are money, weapons, and votes."
+wants = ["Gain influence in the region at the main teams' expense", "Keep the crisis below a war it would be drawn into", "Secure a trade route, a resource, or a precedent"]
+levers = ["Arms transfers and economic aid to whoever it chooses", "Sanctions, trade, and finance", "A carrier or bomber deployment as a signal", "Its vote and veto in international bodies"]
+pulls = "It can arm either side, mediate between them, or wait for both to exhaust themselves. Each main team wants it as a backer; it wants neither to win outright."
+cells = ["diplo", "info", "intel"]
+assets = ["csg@rff", "rc135", "sanctions@rff", "arms-transfer@rff", "cyber-cmf"]
+caution = "A backer whose only role is to send forces when asked is an RFF pool, not a team."

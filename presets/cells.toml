@@ -1,0 +1,311 @@
+# The cell catalog: staff sections and components a designer can split a team into
+# (RULES.md §9.4, DESIGN-GUIDE.md §2.1, presets/README.md §2).
+#
+# Pick cells for a team in game.toml, either as a list of keys:
+#   [[side]]
+#   id = "redfor"
+#   cells = ["intel", "air", "info"]
+# or as [[side.cell]] entries that name a preset and change any field:
+#   [[side.cell]]
+#   preset = "air"
+#   name = "Air Operations Center"
+# or let the tool write them, with a checklist and a one-page brief for each cell:
+#   python3 tools/presets.py add-cell redfor            (asks which)
+#   python3 tools/presets.py add-cell redfor intel air  (no questions)
+#
+# Fields the game reads (tools/game.py): name, short (up to 4 letters, printed on the cell's
+# counters), lead (the cell lead's title), job (one line).
+# Fields the brief is written from (presets/templates/cell-brief.md.tmpl): fits (when to use the
+# cell, for the designer), concern (what the cell cares about that can pull against another cell),
+# owns (asset catalog categories, presets/assets.csv), works_with (other cell keys), phase1,
+# prepare, cons (what the cell does in those steps), rfis, coas, pros (examples).
+# Everything is unclassified and generic: no scenario names.
+
+[[cell]]
+key = "ops"
+name = "Operations Cell"
+short = "OPS"
+lead = "Director of operations (A3)"
+job = "Turns the commander's choice into this turn's COA, and keeps the team on the clock"
+fits = "Any team with more than about 8 players. The natural home of the briefer."
+concern = "Doing something every turn. Operations wants a COA that shows a result on the map now, and pushes back on plans that spend two turns setting up."
+owns = []
+works_with = ["intel", "plans", "air"]
+phase1 = "Draft the Turn 1–3 planned COAs with the plans cell, and write the brief the commander gives the logger."
+prepare = "Collect each cell's pitch, check every proposed COA against the FASDC test (feasible, acceptable, suitable, distinguishable, complete), and write the one the commander picks in COA format: action, measurable effect, three Pros."
+cons = "Run the Cons huddle: take one Con from each cell and help the briefer pick the strongest three."
+rfis = ["Which of our counters are still Ready after last turn?", "How long would it take to move [ASSET] from [ZONE] to [ZONE]?"]
+coas = ["Whatever the commander chooses: operations writes it, it doesn't pick it."]
+pros = ["Timing and sequence: why this COA works now and builds on last turn's established facts."]
+
+[[cell]]
+key = "plans"
+name = "Plans Cell"
+short = "PLN"
+lead = "Director of plans (A5)"
+job = "Looks two or three turns ahead, keeps the planned COAs, and tracks progress on every objective"
+fits = "Teams whose objectives take several COAs (big projects), or exercises about planning."
+concern = "The objectives at the end of the game. Plans resists a COA that wins this turn but spends a counter or a track the team will need in Turn 5."
+owns = []
+works_with = ["ops", "diplo", "info"]
+phase1 = "Lead the planning: write the commander's intent and the Turn 1–3 planned COAs (each one executed as briefed earns +1)."
+prepare = "Say whether this turn's COA follows the plan, and if events have broken a planned COA, propose the branch. Keep a running score of each objective."
+cons = "Offer a Con about consequences: what their COA costs them later (Rules Handbook §2.3)."
+rfis = ["What is the current value of [TRACK], and what moved it last turn?", "Has [THIRD PARTY] changed its stance since Turn [N]?"]
+coas = ["The second and third step of a big project (a coalition, a dispersed basing network).", "A long-term COA that sets up the end state an objective needs."]
+pros = ["+1 Planned: this is the COA we briefed in Phase I, and the situation still supports it."]
+
+[[cell]]
+key = "intel"
+name = "Intelligence Cell"
+short = "INT"
+lead = "Senior intelligence officer (A2)"
+job = "Owns the RFIs and the ISR assets, reads the intelligence products, and keeps the picture of the enemy"
+fits = "Almost any team, and any scenario with hidden assets. The cell that makes fog of war matter."
+concern = "Certainty. Intelligence wants to confirm before the team acts, and warns when a COA rests on a report it doesn't trust."
+owns = ["isr"]
+works_with = ["ops", "air", "space"]
+phase1 = "Read every intelligence product before the event, sort them into believed, doubted, and unknown, and brief the commander on the gaps. Draft the Phase I requests."
+prepare = "Decide which requests go this turn and post them. Tell the commander which enemy hidden assets you suspect and where."
+cons = "Give the Con that rests on what you know: a sensor gap, a hidden asset of ours that spoils their plan, a report that undercuts their reasoning."
+rfis = ["Where are [ENEMY ASSET TYPE] based, and how many are Ready?", "Is [INTELLIGENCE PRODUCT] confirmed by any other source?", "What is [THIRD PARTY]'s government saying in private?"]
+coas = ["An ISR COA to find a suspected hidden asset (it goes on the map if the COA succeeds).", "A deception COA: make the enemy believe something false about our forces."]
+pros = ["A report the white cell has already confirmed (an established fact beats an unconfirmed report)."]
+
+[[cell]]
+key = "air"
+name = "Air Component"
+short = "AIR"
+lead = "Air component commander (JFACC)"
+job = "Plans and briefs the air COAs, and owns the fighters, bombers, tankers, and electronic attack aircraft"
+fits = "Any team with more than a handful of aircraft. Pair it with a maritime or land component when a team has joint forces."
+concern = "Control of the air. The air component wants air superiority before anything else, and resists spending tankers or fighters on missions that leave the air picture contested."
+owns = ["fighter", "bomber", "tanker", "ew", "c2"]
+works_with = ["intel", "mobility", "space"]
+phase1 = "List what the air forces can do on Turn 1 and what they need first (tankers, basing, suppression of air defenses)."
+prepare = "Pitch the air COA you'd make this turn, with the package (which counters, from where) and the effect."
+cons = "Give the Con about air: their package lacks escort, their target is inside our air defense, their tanker is exposed."
+rfis = ["What air defenses cover [ZONE]?", "How many sorties can [BASE] support if the runway is damaged?"]
+coas = ["Offensive counter-air to win local air superiority over a zone.", "A strike package: fighters, electronic attack, and tankers against one target."]
+pros = ["Tenets of airpower (AFDP 1): centralized control and decentralized execution, flexibility and versatility, concentration, priority."]
+
+[[cell]]
+key = "maritime"
+name = "Maritime Component"
+short = "SEA"
+lead = "Maritime component commander (JFMCC)"
+job = "Plans the naval COAs, and owns the ships, submarines, maritime patrol aircraft, and mine forces"
+fits = "Scenarios with a strait, a sea lane, an island, or a blockade."
+concern = "The fleet. Ships are few and their losses are national news, so the maritime component resists sending them inside the enemy's anti-ship missile range without air cover."
+owns = ["naval"]
+works_with = ["air", "intel", "mobility"]
+phase1 = "Plot the sea lanes and chokepoints on the map, and where each ship can be on Turn 1."
+prepare = "Pitch the maritime COA: escort, blockade, mine clearance, strike, or a show of presence."
+cons = "Give the Con about the sea: their ships are inside our missile range, their mine clearance takes weeks, their sea lift has no escort."
+rfis = ["Which shipping is moving through [CHOKEPOINT]?", "Has anyone laid mines in [ZONE]?"]
+coas = ["Escort a convoy through a contested strait.", "Hold an area at risk with a submarine so the enemy fleet stays in port."]
+pros = ["Magazine depth and endurance: how many missiles are left, and how long the ship can stay on station."]
+
+[[cell]]
+key = "land"
+name = "Land Component"
+short = "LAND"
+lead = "Land component commander (JFLCC)"
+job = "Plans the ground COAs, and owns the ground forces, long-range fires, ground-based air defense, and helicopters"
+fits = "Scenarios with ground forces in contact, an island to hold, or a host nation's army."
+concern = "Holding ground. The land component wants to secure terrain and people, and resists COAs that leave a ground force exposed without air defense or resupply."
+owns = ["ground", "fires", "air-defense"]
+works_with = ["air", "mobility", "civil"]
+phase1 = "Mark the key terrain, and where the ground forces and air defenses stand at the start."
+prepare = "Pitch the ground COA: seize, defend, reinforce, or fire on a target in range."
+cons = "Give the Con about the ground: their force can't get there in one turn, their air defense leaves a gap, their landing site is covered by our fires."
+rfis = ["What is the terrain and weather in [ZONE]?", "How many days of supply does [UNIT] have?"]
+coas = ["Defend key terrain with layered air defense.", "Long-range precision fires against a target in range."]
+pros = ["Mass and objective (principles of joint operations): the force is concentrated where it matters."]
+
+[[cell]]
+key = "amd"
+name = "Air and Missile Defense Cell"
+short = "AMD"
+lead = "Area air defense commander"
+job = "Defends bases, cities, and forces against aircraft, missiles, and drones, and decides where the interceptors go"
+fits = "A defending team that will be struck, especially one with Patriot, THAAD, or ship-based defense."
+concern = "Interceptors and what they protect. The defense can't cover everything, so this cell argues every turn about which base or city goes uncovered."
+owns = ["air-defense"]
+works_with = ["air", "intel", "land"]
+phase1 = "Write the defended asset list: what must be covered first, second, and not at all."
+prepare = "Say what the enemy is most likely to strike next and whether the current coverage will hold."
+cons = "Give the defensive Con against an enemy strike: the target is covered, the attackers fly into an engagement zone, the radar has them early."
+rfis = ["How many interceptors does [BATTERY] have left?", "What missile launches has [SENSOR] detected?"]
+coas = ["Move a battery to cover a newly threatened base.", "Disperse and harden aircraft so a strike finds empty ramps."]
+pros = ["Defense in depth: overlapping layers, so one gap isn't fatal."]
+
+[[cell]]
+key = "mobility"
+name = "Logistics and Mobility Cell"
+short = "LOG"
+lead = "Director of logistics (A4)"
+job = "Owns airlift, sealift, fuel, munitions, and basing; works the RFFs and the arrival of forces"
+fits = "A team far from home, or any scenario where reinforcement and sustainment decide the outcome."
+concern = "Sustainment. Logistics knows how many munitions and how much fuel are left, and argues against a tempo the team can't sustain."
+owns = ["airlift", "logistics", "tanker"]
+works_with = ["ops", "air", "base"]
+phase1 = "List the RFF pool and what arrives when. Recommend the Phase I RFFs."
+prepare = "Track what is arriving and when, and say whether this turn's COA has the fuel, munitions, and lift it needs."
+cons = "Give the Con about sustainment: their force is at the end of a long supply line, their munitions stock is thin, their reinforcements are still at sea."
+rfis = ["When will [RFF] arrive, and where?", "How much fuel and munitions does [BASE] hold?"]
+coas = ["Open a new aerial port or forward base.", "Run an airlift surge to reinforce before the enemy expects it."]
+pros = ["Rapid global mobility: the lift is in place, and the force arrives before the enemy can react."]
+
+[[cell]]
+key = "base"
+name = "Basing and ACE Cell"
+short = "ACE"
+lead = "Mission support group commander"
+job = "Keeps the bases running: dispersal under Agile Combat Employment, base defense, runway repair, and host-nation access"
+fits = "A team whose air forces fight from bases the enemy can reach. Teaches Agile Combat Employment."
+concern = "Survival of the bases. This cell argues for dispersal and hardening even when it lowers the sortie rate."
+owns = ["base", "logistics"]
+works_with = ["mobility", "amd", "diplo"]
+phase1 = "Say which bases the team can use, which need host-nation consent, and which the enemy can reach."
+prepare = "Say whether the bases can launch this turn's COA and what a strike on them would cost."
+cons = "Give the Con about basing: they have one main base, their runway can be cut, their host nation can say no."
+rfis = ["Does [HOST NATION] allow combat operations from [BASE]?", "How long would runway repair at [BASE] take?"]
+coas = ["Disperse aircraft to several airfields (a big project of up to three COAs).", "Negotiate access to a new base (with the diplomatic cell)."]
+pros = ["Dispersal: the enemy has to find and strike several sites instead of one."]
+
+[[cell]]
+key = "space"
+name = "Space Cell"
+short = "SPC"
+lead = "Director of space forces"
+job = "Owns satellite warning, communications, navigation, and space ISR, and the counterspace options"
+fits = "Scenarios where satellite communications, navigation, or missile warning are contested."
+concern = "The space picture everyone else relies on, and escalation: an attack in space affects everyone's satellites."
+owns = ["space"]
+works_with = ["intel", "cyber", "air"]
+phase1 = "List what the team depends on from space, and what would happen if each one were jammed."
+prepare = "Say what space can add to this turn's COA (warning, communications, imagery) and whether it is under threat."
+cons = "Give the Con about space: their satellite communications can be jammed, our missile warning sees their launch."
+rfis = ["Is anyone jamming GPS or satellite communications in [ZONE]?", "Can commercial imagery of [SITE] be released to the press?"]
+coas = ["Jam the enemy's satellite communications over the area of operations for a turn.", "Release commercial imagery that exposes the enemy's buildup."]
+pros = ["Missile warning or imagery the team already has: what is seen can be answered."]
+
+[[cell]]
+key = "cyber"
+name = "Cyber Cell"
+short = "CYB"
+lead = "Cyber operations officer"
+job = "Plans offensive and defensive cyber operations, and protects the team's networks and the infrastructure it depends on"
+fits = "Scenarios with infrastructure, elections, or networks worth attacking. Cyber effects take time and authority."
+concern = "Access and authority. A cyber effect takes turns to prepare and is lost once used, so this cell resists spending it early, and needs national approval for offensive operations."
+owns = ["cyber"]
+works_with = ["intel", "space", "legal"]
+phase1 = "Say what the team could achieve in cyberspace, how many turns each option takes to prepare, and which need an RFF for authority."
+prepare = "Report on the preparation of any cyber COA, and on threats to the team's own networks."
+cons = "Give the Con about cyberspace: their networks are exposed, their command and control can be disrupted, their cyber effect will be attributed."
+rfis = ["Are there signs of intrusion in our [NETWORK OR INFRASTRUCTURE]?", "Do we have authority for offensive cyber operations against [TARGET]?"]
+coas = ["Disrupt the enemy's air defense network for one turn, timed with a strike.", "Harden the team's own logistics networks against intrusion."]
+pros = ["Surprise: the effect hasn't been used yet, and the access was prepared over earlier turns."]
+
+[[cell]]
+key = "info"
+name = "Information and Public Affairs Cell"
+short = "INFO"
+lead = "Public affairs officer"
+job = "Owns the team's story: press statements, the information environment, and the opinion and will tracks"
+fits = "Any scenario with opinion, will, or legitimacy tracks. Gives the team's quieter players a central job."
+concern = "Legitimacy. This cell argues against COAs that look bad on the news, and for telling the team's story first."
+owns = ["info"]
+works_with = ["diplo", "plans", "civil"]
+phase1 = "Write the team's message for the first day of the crisis, and list what each track's audience cares about."
+prepare = "Say how this turn's COA will play in the press and on each track, and propose an information COA when nothing kinetic will move an objective."
+cons = "Give the Con about consequences: their COA causes civilian harm, breaks a promise, or plays into our story (a cost, not a failure)."
+rfis = ["How is [THIRD PARTY]'s press reporting the crisis?", "What does the public in [NATION] believe about last turn's strike?"]
+coas = ["A press campaign that exposes the enemy's actions to move International Opinion.", "Release evidence of the enemy's buildup through a third party."]
+pros = ["An established fact the world has already seen (last turn's strike, a broken agreement)."]
+
+[[cell]]
+key = "diplo"
+name = "Diplomatic Cell"
+short = "POL"
+lead = "Political advisor (POLAD)"
+job = "Runs parleys and talks with the other teams, and works on the third-party states the white cell plays"
+fits = "Any scenario with a negotiated objective or a third party both sides can court. Good for players who like to talk."
+concern = "A deal. This cell wants to keep talks open and resists COAs that would end them."
+owns = ["authority"]
+works_with = ["info", "plans", "legal"]
+phase1 = "Decide what the team could accept in talks, what it must never accept, and which third parties to court first."
+prepare = "Ask the lead adjudicator for a parley when there is something to trade. Propose a diplomatic COA aimed at a third party."
+cons = "Give the Con about diplomacy: their COA breaks an agreement, alienates a third party, or makes the backer nervous."
+rfis = ["What would [THIRD PARTY] want in return for basing or overflight?", "Has [OTHER TEAM]'s government signaled any interest in talks?"]
+coas = ["Win basing or overflight rights from a third party (needs no RFF).", "Offer mediation through a neutral state."]
+pros = ["A deal or agreement already made in a parley (an established fact)."]
+
+[[cell]]
+key = "legal"
+name = "Legal Cell"
+short = "JAG"
+lead = "Staff judge advocate"
+job = "Checks every COA against the rules of engagement and the law of armed conflict, and asks for new authorities"
+fits = "Scenarios with tight rules of engagement or national directives. Small: one or two players."
+concern = "Staying inside the rules. This cell can stop a COA the team's government hasn't authorized, which pulls against operations every turn."
+owns = []
+works_with = ["diplo", "ops", "cyber"]
+phase1 = "Summarize the team's rules of engagement and national directives in one line each, and list the authorities the team would need to ask for."
+prepare = "Screen the chosen COA: is it inside the rules of engagement? If not, draft the RFF for the authority."
+cons = "Give the Con about law and legitimacy: their target is protected, their action breaks their own government's stated limits."
+rfis = ["Is [TARGET] a lawful military objective under our rules of engagement?", "Has [NATION] declared an exclusion zone, and is it recognized?"]
+coas = ["None of its own. It makes everyone else's COAs survive the white cell's screen."]
+pros = ["The COA is inside our rules of engagement and proportional, so it is acceptable (the 'A' in FASDC)."]
+
+[[cell]]
+key = "sof"
+name = "Special Operations Cell"
+short = "SOF"
+lead = "Special operations commander (JFSOCC)"
+job = "Plans raids, special reconnaissance, partner training, and information support with special operations forces"
+fits = "Scenarios with a partner force, a population, or targets that need people on the ground."
+concern = "Secrecy and the risk to small teams. A captured team is a political disaster, so this cell resists missions without a way out."
+owns = ["sof"]
+works_with = ["intel", "info", "civil"]
+phase1 = "Say where special operations forces can go unseen, and which partner forces they can work with."
+prepare = "Pitch a special operations COA, or offer special reconnaissance to confirm a target for another cell."
+cons = "Give the Con about the ground truth only people on the ground see: the target isn't where they think, the partner force won't fight."
+rfis = ["What is the state of [PARTNER FORCE]?", "Is [SITE] guarded, and by whom?"]
+coas = ["Special reconnaissance to find a hidden asset.", "Train and advise a partner force so it can hold a zone."]
+pros = ["Precision and surprise: a small team where a large force would be seen."]
+
+[[cell]]
+key = "civil"
+name = "Civil Affairs Cell"
+short = "CA"
+lead = "Civil affairs officer"
+job = "Works with populations, local authorities, and aid groups; owns the humanitarian picture and host-nation relations"
+fits = "Scenarios with a population, refugees, a host nation, or a humanitarian track."
+concern = "The people. This cell argues against COAs that hurt civilians and for aid that wins support."
+owns = ["info", "authority"]
+works_with = ["info", "diplo", "land"]
+phase1 = "Describe the population and local authorities in each zone, and what they want."
+prepare = "Say what this turn's COA means for civilians, and propose a humanitarian COA when it would move a track."
+cons = "Give the Con about civilians: their strike will cause casualties, their blockade starves a city, their troops are unwelcome."
+rfis = ["How many civilians are displaced from [ZONE]?", "What do the local authorities in [ZONE] want?"]
+coas = ["A humanitarian airlift into a contested area.", "A local agreement with the authorities in a zone."]
+pros = ["Popular support: the people in the zone want this, so they help, not hinder."]
+
+[[cell]]
+key = "comms"
+name = "Communications and Records Cell"
+short = "COM"
+lead = "Executive officer"
+job = "Runs the team's Slack posts, keeps the record of deals and established facts, and times the team against the clock"
+fits = "Large teams, and exercises about staff work. A good job for a player who wants to see the whole team at work."
+concern = "Getting it right on time. This cell insists that COAs, Cons, and requests are posted in the right channel before each step ends, and holds the team to its word."
+owns = []
+works_with = ["ops", "intel", "diplo"]
+phase1 = "Set up the team's Slack posting, a list of established facts, and a list of the team's agreements."
+prepare = "Post the requests (one per message) before Prepare ends, and remind the team of the deadline at the halfway mark."
+cons = "Post the Cons in the group channel by the end of the Cons slot, and remind the briefer of established facts the other team has broken."
+rfis = ["Has the white cell answered all of last turn's requests?"]
+coas = ["None of its own."]
+pros = ["An established fact from the record: 'On Turn 2 they agreed to …'."]

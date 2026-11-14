@@ -1,0 +1,91 @@
+---
+title: "{{ game.name }} — {{ team.label }} Team Packet"
+subtitle: "{{ team.nation }}: objectives, intelligence estimate, constraints, planning guide"
+short: "{{ team.label }} Team Packet"
+---
+
+**{{ team.label }} EYES ONLY.** This packet is for the {{ team.label }} team and the white cell. **Never show it to {{ others }}.**
+
+*Fictional training scenario. All military systems are real U.S. systems, described with unclassified, approximate capabilities.*
+
+**Your {{ team.label }} read-ahead** is four documents: the **Commander's Read-Ahead** (your orders), this **Team Packet**, the **{{ team.label }} Order of Battle** (your forces, your RFF pool, and the forces of the other teams you can see), and the **{{ team.label }} Intelligence Products**.{% if team.cells %} Each cell also has its own **Cell Brief**.{% endif %} You also have the common documents: the {% if rules == "full" %}Player Rules Handbook{% else %}Basic Rules{% endif %}, the Scenario Brief, the Scenario Schedule, and the Player Forms.
+
+> **FORMAT NOTE (delete before printing):** TEMPLATE, written by `tools/presets.py add-team` from the `$key` preset. Fill each section from `scenario/$id-packet.md` and `scenario/00-overview.md`. This is the player-facing version of the packet: same objectives and estimate, plus the constraints and planning questions that point the team at good COAs, including non-kinetic ones.
+
+## 1. You are one of {{ word(n_teams) }} teams
+
+You play {{ team.nation }}: $archetype_lower. $summary
+
+You are not on anyone's side by default. {{ others }} each want something from you, and you want something from each of them. That is your strength: a deal with one team can change the balance against another, and you can walk away from a deal that stops paying. It is also your risk: if the other teams decide you are the problem, they can work together against you.
+
+- **Talk to everyone.** You may ask for a parley with any team, or with several at once ({% if rules == "full" %}Rules Handbook §2.6{% else %}Basic Rules §5.3{% endif %}). Agreements made there happen, with no roll.
+- **Spend your Cons where they matter.** In your Cons slot you give up to three Cons in total, against any of the other teams' COAs. You don't have to answer every COA.
+- **Expect to be argued about.** The other teams may make COAs aimed at you, and may agree a deal about you. Watch for it, and make your own COAs first.
+
+**What you can do that the main teams can't:**
+
+$levers
+
+## 2. Secret objectives
+
+Keep these from {{ others }}. The white cell scores them after the final turn.
+
+| # | Objective | Achieved | Partial | Not achieved |
+| --- | --- | --- | --- | --- |
+| **{{ team.prefix }}1** | **"[Objective]"** | | | |
+| **{{ team.prefix }}2** | **"[Objective]"** | | | |
+| **{{ team.prefix }}3** | **"[Objective]"** | | | |
+
+### Things to think about
+
+- No single COA will settle an objective. Plan a sequence.
+- [Which tracks each objective runs through.]
+- A negotiated outcome can count. Talks are your strongest weapon.
+
+## 3. Intelligence estimate
+
+*This is [the headquarters]' assessment of what {{ team.nation }} believes. It may be incomplete or wrong. The Intelligence Products are the raw reporting behind it, and they don't all agree.*
+
+- **[Topic]:** [what the side believes, from `scenario/$id-packet.md` §2]
+
+**Good first RFIs** might target the gaps above: [two or three examples].
+
+<!-- pagebreak -->
+
+## 4. Your constraints at a glance
+
+**Your starting conditions** (full text in Scenario Brief §6)
+
+| ID | Name | What it means for you |
+| --- | --- | --- |
+| S-{{ team.prefix }}1 | [Name] | |
+
+**Your rules of engagement** (Scenario Brief §8): [the limits in one line each, separated by ·].
+
+### Tracks that matter most to you
+
+| Track | Starts | Watch for |
+| --- | --- | --- |
+| [Track] | | |
+
+{% if team.cells %}
+
+## 5. Your cells
+
+Your team works in cells under the flight commander ({% if rules == "full" %}Rules Handbook §2.10{% else %}Basic Rules §5.4{% endif %}). Each cell has its own brief.
+
+| Cell | Lead | Job |
+| --- | --- | --- |
+| {{ cell_rows("**{name}** ({short}) | {lead} | {job}", team.id) }} |
+
+{% endif %}
+
+## {% if team.cells %}6{% else %}5{% endif %}. Phase I & Phase III Planning
+
+### Planning questions
+
+1. Which objective do we push first, and which team do we need to deal with to get it?
+2. What does each other team want from us, and what will we ask in return?
+3. Which intelligence products do we believe, which do we doubt, and which do we need to confirm before we act on them?
+4. What are our **non-kinetic** COAs? Some ideas to test: [diplomatic, information, economic options from the scenario].
+5. What would we do if the other teams made a deal without us?

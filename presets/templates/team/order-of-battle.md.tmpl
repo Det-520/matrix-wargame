@@ -1,0 +1,35 @@
+---
+title: "{{ game.name }} — {{ team.label }} Order of Battle"
+subtitle: "{{ team.nation }} forces, RFF pool, and the visible forces of {{ others }}"
+short: "{{ team.label }} Order of Battle"
+---
+
+**{{ team.label }} EYES ONLY.** **Never show this to {{ others }}.** *Fictional training scenario. All military systems are real U.S. systems, described with unclassified, approximate capabilities.*
+
+**Counter states:** Ready · Degraded (−1 when used) · Destroyed (removed).\
+**Visible** counters start on the central map, and the other teams can see them. **Hidden** counters stay on this sheet until you use them or another team finds them. In the tables below, hidden assets are in **bold**.\
+**Core function** (AFDP 3-0): AS = Air Superiority, GPA = Global Precision Attack, RGM = Rapid Global Mobility, GISR = Global ISR, C2 = Command and Control. **Joint** = Army, Navy, or Marine Corps.
+
+> **FORMAT NOTE (delete before printing):** TEMPLATE, written by `tools/presets.py add-team`. Copy the force tables from `scenario/$id-packet.md` §1, and the **visible** rows only from the other teams' packets for §3. Never copy another team's hidden asset into §3.
+
+## 1. In place at start
+
+<!-- mw:compact -->
+
+| ID | Asset | Zone | What it does | Key limitations |
+| --- | --- | --- | --- | --- |
+$oob_start
+
+## 2. RFF pool
+
+| ID | Asset | Arrives | Approval notes |
+| --- | --- | --- | --- |
+$oob_rff
+
+## 3. Forces of the other teams you can see
+
+<!-- mw:compact -->
+
+| ID | Asset | Zone | What it does | Key limitations |
+| --- | --- | --- | --- | --- |
+| [ID] | [Visible asset of another team] | [Zone] | | |

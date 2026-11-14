@@ -1,0 +1,60 @@
+---
+title: "{{ game.name }} — {{ team.label }} {{ cell.name }}"
+subtitle: "Cell brief: your job, your counters, and your part in each turn"
+short: "{{ team.label }} {{ cell.name }}"
+---
+
+**{{ team.label }} EYES ONLY.** This brief is for the {{ team.label }} team and the white cell. **Never show it to {{ others }}.**
+
+*Fictional training scenario. All military systems are real U.S. systems, described with unclassified, approximate capabilities.*
+
+> **FORMAT NOTE (delete before printing):** TEMPLATE, written by `tools/presets.py` from the `$key` cell preset (`presets/cells.toml`). Rewrite the examples for the scenario: name the zones, the tracks, and the intelligence products this cell should read first, and give the cell a concern that pulls against another cell's (`RULES.md` §9.4). Keep it to one page or two. Assign counters to the cell with the `cell` column of `scenario/data/assets.csv` (`$key`); the table in §2 follows on the next build.
+
+**Your cell:** {{ cell.name }} ({{ cell.short }}) · **Led by:** the {{ cell.lead }} · **Your job:** {{ cell.job }}.
+
+## 1. How a team with cells works
+
+{{ team.label }} is split into cells under its flight commander: {% for c in team.cells %}{{ c.name }}{% if not loop.last %}, {% endif %}{% endfor %}. The rules are the same as for any team ({% if rules == "full" %}Player Rules Handbook §2.10{% else %}Basic Rules §5.4{% endif %}):
+
+- **One COA per team.** Your cell doesn't make its own COA. You **propose** the COA you think matters most, with its Pros, and the flight commander chooses **one** for the whole team. A COA may use counters from any cell.
+- **Requests are shared.** The team has {{ requests }} RFIs and RFFs a turn in total ({{ planning_requests }} in Phase I), not {{ requests }} for each cell. Agree with the other cells whose requests go first.
+- **Brief what the commander chose.** Once the commander decides, the whole team argues for that COA, including the cells whose idea lost.
+- **Bring disagreements to the commander early**, in Prepare, not in your COA slot. In the slot, the team speaks with one voice.
+
+## 2. What your cell owns
+
+{{ cell.assets_table }}
+
+Your team's full forces are in the {{ team.label }} Order of Battle. Counters your cell owns show **{{ cell.short }}** after the owner on the counter.
+
+## 3. Your part in each step
+
+| Step | What your cell does |
+| --- | --- |
+| **Before the event** | Read your team's documents and this brief. $phase1 |
+| **Prepare** | $prepare Pitch your proposal to the commander in one minute: action, measurable effect, three reasons. |
+| **Your team's COA slot** | Stay silent unless the commander asks you to brief. Help the poster get the COA and Pros into the group channel before the step ends. |
+| **Prepare Cons** | $cons |
+| **White cell resolves** | Listen for what changed for your cell: counters lost or revealed, tracks moved, RFF rulings. Tell the commander what it means for next turn. |
+
+## 4. What your cell cares about
+
+$concern
+
+That concern will sometimes pull against another cell's. That is deliberate: a staff that agrees on everything isn't thinking. Argue it out in Prepare, and let the commander decide.
+
+## 5. Ideas to start from
+
+**RFIs your cell might want:**
+
+$rfis
+
+**COAs your cell might propose:**
+
+$coas
+
+**Pros your cell is best placed to give:**
+
+$pros
+
+**Cells you work with most:** $works_with.

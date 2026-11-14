@@ -31,7 +31,7 @@ short: "Basic Rules"
 
 ## 1. The game in one page
 
-1. **You win by arguing well.** There are no unit stats. Each turn your team proposes **one course of action (COA)** and gives **up to three reasons it will work** (Pros). The other team gives **up to three reasons it won't** (Cons). The **white cell** weighs the reasons, sets the odds, rolls two dice with a computer program, and tells you what happens.
+1. **You win by arguing well.** There are no unit stats. Each turn your team proposes **one course of action (COA)** and gives **up to three reasons it will work** (Pros). {{ "The other team gives" if n_teams == 2 else "The other teams give" }} **up to three reasons it won't** (Cons). The **white cell** weighs the reasons, sets the odds, rolls two dice with a computer program, and tells you what happens.
 2. **{{ Word(sides|length) }} teams.** You are on one team: {{ teams_or }}. Your team's documents give you your forces, your intel, and **three secret objectives**. Don't show them to {{ "the other team" if sides|length == 2 else "the other teams" }}.{% if sides|length > 2 %} Each team gets its own COA slot and its own Cons slot; in your Cons slot, give up to three Cons in total against any of the other teams' COAs.{% endif %}{% if cells %} Some teams work in cells: each cell proposes a COA, and the flight commander picks the team's one.{% endif %}
 3. **One COA per turn:** one main action with a measurable effect. Several assets can work together in it, but it can't do two unrelated things.
 4. **Brief it out loud,** in this form:
@@ -169,17 +169,20 @@ Four yeses make a strong reason, worth +1 or −1; a single decisive one can be 
 
 ### 5.3 Negotiation
 
-During Prepare, your flight commander may ask the lead adjudicator for a **parley**: up to {{ mins(parley) }} face to face with one person from the other team. Whatever you both agree **happens**, with no roll. You can break a deal later, but the broken deal becomes an established fact the other side can use.
+During Prepare, your flight commander may ask the lead adjudicator for a **parley**: up to {{ mins(parley) }} face to face with one person from {{ "the other team" if n_teams == 2 else "one or more of the other teams" }}. Whatever you agree **happens**, with no roll. You can break a deal later, but the broken deal becomes an established fact the other side can use.
 
 ### 5.4 Roles and Slack
 
-- Your **flight commander** leads the team, makes the final call, and briefs. Everyone else takes whatever job the commander needs: operations, intel, logistics, briefing.
+- Your **flight commander** leads the team, makes the final call, and briefs. Everyone else takes whatever job the commander needs: operations, intel, logistics, briefing.{% if cells %} Teams with **cells** ({% for s in sides if s.cells %}{{ s.label }}{% if not loop.last %}, {% endif %}{% endfor %}) give those jobs to the cells instead; each cell has a brief.{% endif %}
+{% if cells %}
+- **In a cell:** each cell lead pitches one COA in Prepare, and the commander picks the team's one. Disagree in Prepare, then argue for the commander's choice with one voice. The {{ requests }} requests a turn are the team's, shared by all its cells.
+{% endif %}
 - The **lead adjudicator** runs the clock and the dice and has the final say. A **logger** for each side hears briefs and moves counters.
-- Bring a laptop. Post your COA, Pros, and Cons in your **group channel** (both teams see it), and your requests in your **team channel** (only your team and the white cell see it). Use asset IDs (R-01, B-07). Only what your briefer says aloud counts; the post is the written record.
+- Bring a laptop. Post your COA, Pros, and Cons in your **group channel** ({{ both }} teams see it), and your requests in your **team channel** (only your team and the white cell see it). Use asset IDs ({% for s in sides %}{{ s.prefix }}-0{{ loop.index }}{% if not loop.last %}, {% endif %}{% endfor %}). Only what your briefer says aloud counts; the post is the written record.
 
 ### 5.5 End of game
 
-After the last turn the white cell scores each team's three secret objectives as **Achieved**, **Partial**, or **Not achieved**. The two sides' objectives aren't always opposed, so both teams can achieve something. Talking to the other team can pay off.
+After the last turn the white cell scores each team's three secret objectives as **Achieved**, **Partial**, or **Not achieved**. The teams' objectives aren't always opposed, so {{ both }} teams can achieve something. Talking to {{ other_team }} can pay off.
 
 ## 6. Reference
 
