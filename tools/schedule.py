@@ -5,7 +5,8 @@
     python3 tools/schedule.py whitecell          # print the white cell's (turn-clock, turn-clock-whitecell: one turn)
     python3 tools/schedule.py values             # list the names a document template can use
     python3 tools/schedule.py --write            # refresh the timer program's settings
-    python3 tools/schedule.py --check            # exit 1 if the timer is stale or any template fails to render
+    python3 tools/schedule.py --check            # exit 1 if the timer is stale or any template fails to render;
+                                                 # also prints design advice (fewer than 6 turns, an odd team count)
     python3 tools/schedule.py --clock OUT.html   # write a copy of the timer program set up from game.toml
 
 The documents are Jinja2 templates (tools/game.py render()), filled in when the handouts
@@ -30,7 +31,7 @@ import subprocess
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from game import (GAME, ROOT, RULE_SETS, clock_config, clock_len, clock_time, fill, fmt_num,  # noqa: E402
+from game import (GAME, ROOT, RULE_SETS, warnings, clock_config, clock_len, clock_time, fill, fmt_num,  # noqa: E402
                   game_texts, render, run_of_show, values, word)
 
 CLOCK_SRC = os.path.join(ROOT, "tools", "whitecell-clock.html")
@@ -181,6 +182,8 @@ def main(argv):
     elif "--write" in argv or "--check" in argv:
         old, new = clock_html()
         if "--check" in argv:
+            for w in warnings():
+                print("advice:", w)
             check_templates()
             if new != old:
                 sys.exit("out of date: tools/whitecell-clock.html. Run python3 tools/schedule.py --write")
@@ -190,7 +193,7 @@ def main(argv):
     elif argv[1:] == ["values"]:
         show(values())
         print("functions: mins(m), clock(m), word(n), Word(n), days(d), days(d, adj=True), ticks(first=1), "
-              "turn_columns(), turn_rule(), schedule_table(who), turn_clock_table(who)")
+              "turn_columns(), turn_rule(), team_rows(row), schedule_table(who), turn_clock_table(who)")
     else:
         who = argv[1] if len(argv) > 1 else "players"
         t = tables()

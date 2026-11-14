@@ -31,7 +31,7 @@ For reference. Your Phase I brief and Phase III FRAGO don't have to follow this 
 
 | COA WORKSHEET | |
 | --- | --- |
-| **Turn / Team** | Turn ___ / ☐ REDFOR ☐ BLUEFOR |
+| **Turn / Team** | Turn ___ / {{ team_boxes }} |
 | **Planned COA?** | ☐ Yes ☐ No |
 
 <!-- mw:form tall -->
@@ -53,7 +53,7 @@ For reference. Your Phase I brief and Phase III FRAGO don't have to follow this 
 
 | CONS WORKSHEET | |
 | --- | --- |
-| **Turn / Team** | Turn ___ / ☐ REDFOR ☐ BLUEFOR |
+| **Turn / Team** | Turn ___ / {{ team_boxes }} |
 | **Their COA** (in a few words) | |
 
 <!-- mw:form tall -->
@@ -74,7 +74,7 @@ For reference. Your Phase I brief and Phase III FRAGO don't have to follow this 
 
 | REQUEST SLIP | |
 | --- | --- |
-| **Turn / Team / Type** | Turn ___ / ☐ REDFOR ☐ BLUEFOR / ☐ RFI ☐ RFF |
+| **Turn / Team / Type** | Turn ___ / {{ team_boxes }} / ☐ RFI ☐ RFF |
 | **Details** | |
 | | |
 | | |
@@ -86,7 +86,7 @@ For reference. Your Phase I brief and Phase III FRAGO don't have to follow this 
 
 | REQUEST SLIP | |
 | --- | --- |
-| **Turn / Team / Type** | Turn ___ / ☐ REDFOR ☐ BLUEFOR / ☐ RFI ☐ RFF |
+| **Turn / Team / Type** | Turn ___ / {{ team_boxes }} / ☐ RFI ☐ RFF |
 | **Details** | |
 | | |
 | | |
@@ -98,7 +98,7 @@ For reference. Your Phase I brief and Phase III FRAGO don't have to follow this 
 
 | REQUEST SLIP | |
 | --- | --- |
-| **Turn / Team / Type** | Turn ___ / ☐ REDFOR ☐ BLUEFOR / ☐ RFI ☐ RFF |
+| **Turn / Team / Type** | Turn ___ / {{ team_boxes }} / ☐ RFI ☐ RFF |
 | **Details** | |
 | | |
 | | |
@@ -115,7 +115,7 @@ Copy a template into Slack, fill in the blanks, and post it. COAs and Cons go in
 ### 5.1 COA (group channel, by the end of your COA slot)
 
 ```text
-COA | Turn __ | REDFOR/BLUEFOR | Planned COA: Y/N
+COA | Turn __ | Team ______ | Planned COA: Y/N
 Action (who, what, where, which assets):
 In order to (measurable effect):
 Pro 1:
@@ -127,8 +127,8 @@ Public statement (optional):
 ### 5.2 Cons (group channel, by the end of your Cons slot)
 
 ```text
-CONS | Turn __ | REDFOR/BLUEFOR
-Their COA (in a few words):
+CONS | Turn __ | Team ______
+Against (team and COA, in a few words):
 Con 1:
 Con 2:
 Con 3:
@@ -137,7 +137,7 @@ Con 3:
 ### 5.3 Request (team channel, one message per request, during Prepare)
 
 ```text
-RFI/RFF | Turn __ | REDFOR/BLUEFOR
+RFI/RFF | Turn __ | Team ______
 RFI: (one question, one sentence)
 RFF: Asset (pool ID or free text) | Destination | Purpose
 ```
@@ -147,7 +147,7 @@ RFF: Asset (pool ID or free text) | Destination | Purpose
 ### 5.4 Secret COA (team channel, once per phase)
 
 ```text
-SECRET COA | Turn __ (or Planning) | REDFOR/BLUEFOR | Phase II/IV
+SECRET COA | Turn __ (or Planning) | Team ______ | Phase II/IV
 The trap or deception (what, where, which assets):
 Precise trigger (If ... then ...):
 Intended effect:
@@ -165,7 +165,7 @@ Intended effect:
 
 | SECRET COA SLIP | |
 | --- | --- |
-| **Turn / Team / Phase** | Turn ___ (or ☐ posted in planning) / ☐ REDFOR ☐ BLUEFOR / ☐ II ☐ IV |
+| **Turn / Team / Phase** | Turn ___ (or ☐ posted in planning) / {{ team_boxes }} / ☐ II ☐ IV |
 
 <!-- mw:form tall -->
 

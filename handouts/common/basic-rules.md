@@ -4,7 +4,7 @@ subtitle: "[Event] · [Month Year]"
 short: "Basic Rules"
 ---
 
-**Audience:** every player, REDFOR and BLUEFOR{% if rules == "full" %}, and especially anyone playing a matrix wargame for the first time{% endif %}. Nothing in it is secret. Released ASAP, before the scenario; scenario details in the examples are replaced with bracketed placeholders.
+**Audience:** every player, {{ teams }}{% if rules == "full" %}, and especially anyone playing a matrix wargame for the first time{% endif %}. Nothing in it is secret. Released ASAP, before the scenario; scenario details in the examples are replaced with bracketed placeholders.
 
 {% if rules == "full" %}
 
@@ -32,7 +32,7 @@ short: "Basic Rules"
 ## 1. The game in one page
 
 1. **You win by arguing well.** There are no unit stats. Each turn your team proposes **one course of action (COA)** and gives **up to three reasons it will work** (Pros). The other team gives **up to three reasons it won't** (Cons). The **white cell** weighs the reasons, sets the odds, rolls two dice with a computer program, and tells you what happens.
-2. **Two teams.** You are **REDFOR** or **BLUEFOR**. Your team's documents give you your forces, your intel, and **three secret objectives**. Don't show them to the other team.
+2. **{{ Word(sides|length) }} teams.** You are on one team: {{ teams_or }}. Your team's documents give you your forces, your intel, and **three secret objectives**. Don't show them to {{ "the other team" if sides|length == 2 else "the other teams" }}.{% if sides|length > 2 %} Each team gets its own COA slot and its own Cons slot; in your Cons slot, give up to three Cons in total against any of the other teams' COAs.{% endif %}{% if cells %} Some teams work in cells: each cell proposes a COA, and the flight commander picks the team's one.{% endif %}
 3. **One COA per turn:** one main action with a measurable effect. Several assets can work together in it, but it can't do two unrelated things.
 4. **Brief it out loud,** in this form:
 
@@ -45,7 +45,7 @@ short: "Basic Rules"
 6. **Good reasons are specific and true.** Point to your assets, the map, what already happened in the game, and doctrine.
 7. **The odds.** With no strong reasons either way, a COA works on 7 or more on two dice (58%). Each strong Pro adds 1 and each strong Con subtracts 1.
 8. **Requests.** Each turn you may post up to **{{ requests }} requests** in your team's secret Slack channel: questions (RFIs) or requests for more forces (RFFs).
-9. **The day.** A planning phase comes first (no COAs: you build your plan and brief it to the white cell), then the turns. The Scenario Schedule gives the phases and times. **BLUEFOR always goes first** in a turn.
+9. **The day.** A planning phase comes first (no COAs: you build your plan and brief it to the white cell), then the turns. The Scenario Schedule gives the phases and times. **{{ first_team }} always goes first** in a turn{% if sides|length > 2 %}, and the order ({{ team_order }}) never changes{% endif %}.
 10. **No interrupting.** Speak in your slot, stay silent in theirs. A point you miss is lost.
 11. **The point** is good decisions and clear reasoning under pressure: plan, brief, defend your choices, and adapt.
 
@@ -55,7 +55,7 @@ short: "Basic Rules"
 
 ### 2.1 The turn clock
 
-Each turn is **{{ mins(turn_min) }}** of real time and about **{{ days(game_days) }}** of game time. Both teams' COAs happen at the same time across those {{ days(game_days) }}. A timer on the room's screen runs the clock.
+Each turn is **{{ mins(turn_min) }}** of real time and about **{{ days(game_days) }}** of game time. {{ "Both teams' COAs" if sides|length == 2 else "All the teams' COAs" }} happen at the same time across those {{ days(game_days) }}. A timer on the room's screen runs the clock.
 
 {{ turn_clock_table() }}
 

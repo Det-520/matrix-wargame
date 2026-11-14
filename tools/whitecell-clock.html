@@ -26,6 +26,7 @@
     --text: #22272d; --muted: #5f6670;
     --blue: #2f5278; --red: #8a3b36; --good: #3c6b52; --warn: #86631a; --bad: #8a3b36; --accent: #3f4f5f;
     --blue-f: #cfdeec; --red-f: #efd3cf; --good-f: #d3e5d8; --warn-f: #f2e5c2; --accent-f: #dde2e7;
+    --side-ink: #000; --side-ink-amt: 72%; --side-fill-amt: 22%;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -33,6 +34,7 @@
       --text: #e7e5df; --muted: #a2a9b2;
       --blue: #a9c4de; --red: #e3b1ab; --good: #a9d0b7; --warn: #e3cd94; --bad: #e3b1ab; --accent: #b7c3cf;
       --blue-f: #34465a; --red-f: #54383a; --good-f: #324a3e; --warn-f: #4f4630; --accent-f: #353d46;
+      --side-ink: #fff; --side-ink-amt: 45%; --side-fill-amt: 35%;
     }
   }
   :root[data-theme="dark"] {
@@ -40,7 +42,10 @@
     --text: #e7e5df; --muted: #a2a9b2;
     --blue: #a9c4de; --red: #e3b1ab; --good: #a9d0b7; --warn: #e3cd94; --bad: #e3b1ab; --accent: #b7c3cf;
     --blue-f: #34465a; --red-f: #54383a; --good-f: #324a3e; --warn-f: #4f4630; --accent-f: #353d46;
+    --side-ink: #fff; --side-ink-amt: 45%; --side-fill-amt: 35%;
   }
+  /* A team's colour (game.toml [[side]] color): .side-ID sets --sc (text, borders) and --sf (fill), muted to the theme. */
+  [class*="side-"] { --sc: color-mix(in srgb, var(--side) var(--side-ink-amt), var(--side-ink)); --sf: color-mix(in srgb, var(--side) var(--side-fill-amt), var(--panel)); }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
   body {
@@ -92,7 +97,7 @@
   #turnHead { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
   #turnTitle { font-size: 1.2rem; font-weight: 700; }
   #stepName { font-size: clamp(1.4rem, 3.5vw, 2.2rem); font-weight: 600; margin-top: 12px; }
-  #stepName.blue { color: var(--blue); } #stepName.red { color: var(--red); }
+  #stepName[class*="side-"] { color: var(--sc); }
   #clock {
     font-size: clamp(4.5rem, 16vw, 10rem); font-weight: 600; line-height: 1;
     font-variant-numeric: tabular-nums; letter-spacing: -.02em; margin: 6px 0 4px;
@@ -129,10 +134,10 @@
   .field { margin: 10px 0; }
   .field > .label { display: block; font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 4px; }
   .odds { font-variant-numeric: tabular-nums; }
-  .sides button.on[data-side="BLUEFOR"] { background: var(--blue-f); border-color: var(--blue); }
-  .sides button.on[data-side="REDFOR"] { background: var(--red-f); border-color: var(--red); }
+  .sides button.on { background: var(--sf); border-color: var(--sc); }
   .opp { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .opp .blue { color: var(--blue); } .opp .red { color: var(--red); }
+  .opp .label { color: var(--sc); } .opp .label input { margin: 0 6px 0 0; vertical-align: -2px; }
+  .opp .field.off .stepper { opacity: .4; }
   #rollBtn { width: 100%; min-height: 56px; font-size: 1.1rem; margin-top: 8px; }
 
   #result { margin-top: 14px; min-height: 140px; }
@@ -143,7 +148,7 @@
   }
   .die i { width: 12px; height: 12px; border-radius: 50%; place-self: center; background: transparent; }
   .die i.p { background: #22272d; }
-  .die.blue { border: 2px solid var(--blue); } .die.red { border: 2px solid var(--red); }
+  .die[class*="side-"] { border: 2px solid var(--sc); }
   .math { font-size: 1.3rem; font-variant-numeric: tabular-nums; }
   .pct { font-size: 3rem; font-weight: 600; font-variant-numeric: tabular-nums; }
   .banner { margin-top: 10px; padding: 8px 12px; border-left: 4px solid var(--line); background: var(--panel-2); visibility: hidden; }
@@ -154,8 +159,9 @@
   .banner.part { border-color: var(--warn); background: var(--warn-f); }
   .banner.succ { border-color: var(--good); background: var(--good-f); }
   .banner.exc  { border-color: var(--good); background: var(--good-f); outline: 1px solid var(--good); }
-  .banner.blue { border-color: var(--blue); background: var(--blue-f); } .banner.red { border-color: var(--red); background: var(--red-f); }
-  .oppres { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .banner[class*="side-"] { border-color: var(--sc); background: var(--sf); }
+  .oppres { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .oppres .who { color: var(--sc); font-weight: 700; }
 
   /* Tracks */
   #tracksCard { grid-column: 1 / -1; }
@@ -337,10 +343,7 @@
     <div data-panel="coa">
       <div class="field">
         <span class="label">Side</span>
-        <div class="row sides" id="sideBtns">
-          <button data-side="BLUEFOR" class="on">BLUEFOR</button>
-          <button data-side="REDFOR">REDFOR</button>
-        </div>
+        <div class="row sides" id="sideBtns"></div>
       </div>
       <div class="field">
         <span class="label">Net modifier (capped at ±4)</span>
@@ -350,17 +353,8 @@
     </div>
 
     <div data-panel="opp" hidden>
-      <div class="opp">
-        <div class="field">
-          <span class="label blue">BLUEFOR modifier</span>
-          <div class="stepper" data-stepper="blue"></div>
-        </div>
-        <div class="field">
-          <span class="label red">REDFOR modifier</span>
-          <div class="stepper" data-stepper="red"></div>
-        </div>
-      </div>
-      <div class="small muted oppNote">Each side rolls 2d6 and adds its own modifier. Higher total wins. A tie means both are Partial and the situation stays contested.</div>
+      <div class="opp" id="oppSides"></div>
+      <div class="small muted oppNote">Each team in the roll (ticked) rolls 2d6 and adds its own modifier. The highest total wins. A tie for highest means those teams are Partial and the situation stays contested.</div>
     </div>
 
     <div data-panel="vote" hidden>
@@ -450,6 +444,18 @@
    3
   ]
  },
+ "sides": [
+  {
+   "id": "bluefor",
+   "label": "BLUEFOR",
+   "color": "#0969da"
+  },
+  {
+   "id": "redfor",
+   "label": "REDFOR",
+   "color": "#cf222e"
+  }
+ ],
  "blocks": [
   {
    "tag": "P1",
@@ -571,7 +577,7 @@
    "name": "BLUEFOR COA + Pros",
    "min": 2,
    "who": "BLUEFOR",
-   "side": "blue",
+   "side": "bluefor",
    "say": "“BLUEFOR, your COA.” No interruptions.",
    "brief": "Brief aloud: action, measurable effect, up to 3 reasons. Post the same COA in the group channel before the step ends."
   },
@@ -580,7 +586,7 @@
    "name": "REDFOR COA + Pros",
    "min": 2,
    "who": "REDFOR",
-   "side": "red",
+   "side": "redfor",
    "say": "“REDFOR, your COA.” No interruptions. REDFOR may react to BLUEFOR's COA but not negate it.",
    "brief": "Brief aloud: action, measurable effect, up to 3 reasons. Post the same COA in the group channel before the step ends."
   },
@@ -597,7 +603,7 @@
    "name": "REDFOR Cons → BLUEFOR COA",
    "min": 1,
    "who": "REDFOR",
-   "side": "red",
+   "side": "redfor",
    "say": "“REDFOR, your Cons on BLUEFOR's COA.”",
    "brief": "Up to 3 reasons BLUEFOR's COA fails or has costs. Post them in the group channel before the step ends."
   },
@@ -606,7 +612,7 @@
    "name": "BLUEFOR Cons → REDFOR COA",
    "min": 1,
    "who": "BLUEFOR",
-   "side": "blue",
+   "side": "bluefor",
    "say": "“BLUEFOR, your Cons on REDFOR's COA.”",
    "brief": "Up to 3 reasons REDFOR's COA fails or has costs. Post them in the group channel before the step ends."
   },
@@ -746,6 +752,7 @@
   const minSec = m => Math.round(m * 60);
   const fill = (text, vals) => String(text || "").replace(/\{(turn|first|last|min)\}/g, (all, k) => vals[k] != null ? fmtMin(vals[k]) : all);
   const fmtMin = m => String(Math.round(m * 100) / 100);
+  const stepSide = v => ({ blue: "bluefor", red: "redfor" })[v] || v || "";  // side = "blue" / "red" from before [[side]]
   const trackValues = t => t.range ? Array.from({ length: t.range[1] - t.range[0] + 1 }, (_, i) => t.range[0] + i) : (t.values || []);
   const PAGE = "<!doctype html>\n" + document.documentElement.outerHTML;  // before anything changes the page
   const BUILT_IN = JSON.parse($("#mw-config").textContent);
@@ -795,7 +802,7 @@
       for (let n = first; n <= last; n++) BLOCKS.push({ tag: `T${n}`, short: `Turn ${n}`, name: `${b.name} · Turn ${n}`, turn: n, first, last });
     } else {
       BLOCKS.push({ tag: b.tag || b.short.slice(0, 3), short: b.short, name: b.name,
-        steps: b.steps.map((s, i) => ({ id: `s${i}`, name: s.name, dur: minSec(s.min), who: s.who || "", side: s.side || "", say: fill(s.say, { min: s.min }) })) });
+        steps: b.steps.map((s, i) => ({ id: `s${i}`, name: s.name, dur: minSec(s.min), who: s.who || "", side: stepSide(s.side), say: fill(s.say, { min: s.min }) })) });
     }
   });
   const blk = () => BLOCKS[state.block];
@@ -804,7 +811,7 @@
   function turnSteps(b) {
     return TURN.map((s, i) => {
       const min = FLEX && s === FLEX ? state.flex : s.min;
-      return { id: s.id || `t${i}`, name: s.name, dur: minSec(min), who: s.who || "", side: s.side || "",
+      return { id: s.id || `t${i}`, name: s.name, dur: minSec(min), who: s.who || "", side: stepSide(s.side),
         say: fill(s.say, { turn: b.turn, first: b.first, last: b.last, min }) };
     });
   }
@@ -928,7 +935,7 @@
       li.appendChild(b); ol.appendChild(li);
     });
     const cur = steps[state.idx];
-    const name = $("#stepName"); name.textContent = cur.name; name.className = cur.side || "";
+    const name = $("#stepName"); name.textContent = cur.name; name.className = cur.side ? "side-" + cur.side : "";
     $("#script").textContent = cur.say || "";
     const total = steps.reduce((a, s) => a + s.dur, 0);
     $("#bar").innerHTML = steps.map((s, i) =>
@@ -1022,8 +1029,27 @@
   const cap = m => Math.max(-4, Math.min(4, m));
   const sgn = m => (m > 0 ? "+" : m < 0 ? "−" : "±") + Math.abs(m);
 
+  // ---------- teams (game.toml [[side]]): colours, the COA side buttons, the opposed-roll rows ----------
+  const DEFAULT_SIDES = [{ id: "bluefor", label: "BLUEFOR", color: "#0969da" }, { id: "redfor", label: "REDFOR", color: "#cf222e" }];
+  const SIDES = (CFG.sides && CFG.sides.length ? CFG.sides : BUILT_IN.sides && BUILT_IN.sides.length ? BUILT_IN.sides : DEFAULT_SIDES)
+    .filter(x => x && /^[a-z][a-z0-9-]*$/.test(x.id));
+  const sideOf = id => SIDES.find(x => x.id === id);
+  const sideStyle = document.createElement("style");
+  sideStyle.textContent = SIDES.map(x => `.side-${x.id} { --side: ${/^#[0-9a-f]{6}$/i.test(x.color) ? x.color : "#6e7781"}; }`).join("\n");
+  document.head.appendChild(sideStyle);
+  $("#sideBtns").innerHTML = SIDES.map((x, i) => `<button data-side="${x.id}" class="side-${x.id}${i ? "" : " on"}">${esc(x.label)}</button>`).join("");
+  $("#oppSides").innerHTML = SIDES.map((x, i) => `<div class="field side-${x.id}${i < 2 ? "" : " off"}" data-opp="${x.id}">
+      <label class="label"><input type="checkbox" data-in="${x.id}"${i < 2 ? " checked" : ""}>${esc(x.label)} modifier</label>
+      <div class="stepper" data-stepper="opp:${x.id}"></div></div>`).join("");
+  const inOpp = new Set(SIDES.slice(0, 2).map(x => x.id));
+  $("#oppSides").addEventListener("change", e => {
+    const c = e.target.closest("[data-in]"); if (!c) return;
+    c.checked ? inOpp.add(c.dataset.in) : inOpp.delete(c.dataset.in);
+    c.closest(".field").classList.toggle("off", !c.checked);
+  });
+
   // steppers
-  const mods = { coa: 0, blue: 0, red: 0 };
+  const mods = { coa: 0, ...Object.fromEntries(SIDES.map(x => ["opp:" + x.id, 0])) };
   $$("[data-stepper]").forEach(el => {
     const key = el.dataset.stepper;
     el.innerHTML = `<button data-d="-2" aria-label="minus 2">−2</button><button data-d="-1" aria-label="minus 1">−1</button><output>±0</output><button data-d="1" aria-label="plus 1">+1</button><button data-d="2" aria-label="plus 2">+2</button><button data-d="0">Clear</button>`;
@@ -1056,10 +1082,10 @@
   }
   $("#voteBtns").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { vote = +b.dataset.vote; renderVote(); } });
 
-  let side = "BLUEFOR";
+  let side = SIDES[0] ? SIDES[0].label : "";
   $("#sideBtns").addEventListener("click", e => {
     const b = e.target.closest("button"); if (!b) return;
-    side = b.dataset.side; $$("#sideBtns button").forEach(x => x.classList.toggle("on", x === b));
+    side = sideOf(b.dataset.side).label; $$("#sideBtns button").forEach(x => x.classList.toggle("on", x === b));
   });
 
   let rollType = "coa";
@@ -1106,17 +1132,26 @@
         <div class="banner ${bd.cls}"><b>${bd.name}</b>${bd.text}</div>`;
       animate(() => addLog(`${side} COA: 2d6 ${a}+${b}=${a + b}, mod ${sgn(m)}, total ${t} → ${bd.code}`));
     } else if (rollType === "opp") {
-      const ba = d6(), bb = d6(), ra = d6(), rb = d6(), bm = cap(mods.blue), rm = cap(mods.red);
-      const bt = ba + bb + bm, rt = ra + rb + rm;
-      const win = bt > rt ? "blue" : rt > bt ? "red" : "tie";
-      const msg = win === "tie" ? ["Tie: both Partial", "The situation stays contested. Describe a stalemate."]
-        : [`${win === "blue" ? "BLUEFOR" : "REDFOR"} wins`, `Higher total, ${Math.max(bt, rt)} to ${Math.min(bt, rt)}.`];
-      box.innerHTML = `<div class="oppres">
-          <div><div class="small blue" style="color:var(--blue);font-weight:700">BLUEFOR</div><div class="dice">${dieHTML(ba, "blue")}${dieHTML(bb, "blue")}</div><div class="math">${ba}+${bb} ${bm < 0 ? "−" : "+"} ${Math.abs(bm)} = <b>${bt}</b></div></div>
-          <div><div class="small" style="color:var(--red);font-weight:700">REDFOR</div><div class="dice">${dieHTML(ra, "red")}${dieHTML(rb, "red")}</div><div class="math">${ra}+${rb} ${rm < 0 ? "−" : "+"} ${Math.abs(rm)} = <b>${rt}</b></div></div>
-        </div>
-        <div class="banner ${win === "tie" ? "part" : win}"><b>${msg[0]}</b>${msg[1]}</div>`;
-      animate(() => addLog(`Opposed: BLUEFOR ${ba}+${bb}${sgn(bm)}=${bt} vs REDFOR ${ra}+${rb}${sgn(rm)}=${rt} → ${win === "tie" ? "tie (both partial)" : (win === "blue" ? "BLUEFOR" : "REDFOR") + " wins"}`));
+      const rolls = SIDES.filter(x => inOpp.has(x.id)).map(x => {
+        const a = d6(), b = d6(), m = cap(mods["opp:" + x.id]);
+        return { x, a, b, m, t: a + b + m };
+      });
+      if (rolls.length < 2) {
+        box.innerHTML = `<p class="muted">Tick at least two teams for an opposed roll.</p>`;
+        box.classList.add("revealed");
+        return;
+      }
+      const top = Math.max(...rolls.map(r => r.t)), winners = rolls.filter(r => r.t === top);
+      const rest = rolls.filter(r => r.t !== top).map(r => r.t);
+      const names = rs => rs.map(r => r.x.label).join(", ");
+      const msg = winners.length > 1 ? [`Tie: ${names(winners)} Partial`, "The situation stays contested. Describe a stalemate."]
+        : [`${winners[0].x.label} wins`, `Highest total, ${top} to ${rest.join(" and ")}.`];
+      box.innerHTML = `<div class="oppres">${rolls.map(r => `<div class="side-${r.x.id}"><div class="small who">${esc(r.x.label)}</div>` +
+          `<div class="dice">${dieHTML(r.a, "side-" + r.x.id)}${dieHTML(r.b, "side-" + r.x.id)}</div>` +
+          `<div class="math">${r.a}+${r.b} ${r.m < 0 ? "−" : "+"} ${Math.abs(r.m)} = <b>${r.t}</b></div></div>`).join("")}</div>
+        <div class="banner ${winners.length > 1 ? "part" : "side-" + winners[0].x.id}"><b>${esc(msg[0])}</b>${esc(msg[1])}</div>`;
+      animate(() => addLog(`Opposed: ${rolls.map(r => `${r.x.label} ${r.a}+${r.b}${sgn(r.m)}=${r.t}`).join(" vs ")} → ` +
+        (winners.length > 1 ? `tie (${names(winners)} partial)` : `${winners[0].x.label} wins`)));
     } else if (rollType === "vote") {
       const v = VOTES[vote];
       if (v.pct) {
@@ -1230,7 +1265,7 @@
   const dlg = $("#setupDlg");
   let draft = null;
   const clone = o => JSON.parse(JSON.stringify(o));
-  const SIDES = [["", "—"], ["blue", "BLUEFOR"], ["red", "REDFOR"]];
+  const SIDE_OPTS = [["", "—"], ...SIDES.map(x => [x.id, x.label])];
 
   function openSetup() {
     draft = clone(CFG);
@@ -1253,7 +1288,7 @@
     return `<div class="r ${isTurn ? "t" : "s"}">` +
       (isTurn ? inp(`${base}.id`, s.id, "Id", { ph: "prep" }) : "") +
       inp(`${base}.name`, s.name, "Step") + inp(`${base}.min`, s.min, "Minutes", { num: true }) +
-      inp(`${base}.who`, s.who, "Who") + sel(`${base}.side`, s.side, "Side", SIDES) +
+      inp(`${base}.who`, s.who, "Who") + sel(`${base}.side`, s.side, "Team", SIDE_OPTS) +
       inp(`${base}.say`, s.say, "Script or action (on screen)", { wide: true }) + acts(list, i) + `</div>`;
   }
 

@@ -2,20 +2,20 @@
 
 Usage: python3 tools/make_counters.py [--size INCHES] [--copies N] [--blanks N]
 
-Writes three US Letter PDFs, one per audience folder, so each team only gets
-its own counters:
-  handouts/redfor/counters.pdf     REDFOR counters
-  handouts/bluefor/counters.pdf    BLUEFOR counters
-  handouts/whitecell/counters.pdf  all counters, plus blank counters, on one page
-                                   at the default size
+Writes one US Letter PDF per audience folder, so each team only gets its own
+counters (the teams are the [[side]] entries in game.toml):
+  handouts/<side id>/counters.pdf  that team's counters
+  handouts/whitecell/counters.pdf  every team's counters, plus blank counters
 
-Each counter is a small square: ID and owner in a colored band, a short asset
-name, then service and availability (HOME, RFF, HIDDEN) along the bottom.
+Each counter is a small square: ID and owner in a band of the team's colour, a
+short asset name, then service and availability (HOME, RFF, HIDDEN) along the
+bottom. An asset whose `cell` column names one of its team's cells shows the
+cell's short name (AIR, INT) in the band after the owner.
 A counter whose `parts` column is 2 or more is printed once per part, lettered
 after the ID (B-07a, B-07b, B-07c), so each part can sit in its own zone. Its
 `part_asset` column, if filled, gives the singular name printed on each part.
-The white cell sheet ends with blank counters (--blanks of each: REDFOR, BLUEFOR,
-and grey OTHER for third parties) to write on when an RFF or inject creates a
+The white cell sheet ends with blank counters (--blanks of each: one kind per team,
+with its ID prefix, and grey OTHER for third parties) to write on when an RFF or inject creates a
 force that has no counter. Each has a write-in line for the ID and two for the name.
 Counters share cut lines, so a paper cutter can take a whole row at once.
 No third-party packages are needed; the PDF is written directly.
@@ -32,29 +32,31 @@ from game import GAME  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 CSV_PATH = ROOT / "scenario" / "data" / "assets.csv"
-OUTPUTS = {
-    ROOT / "handouts" / "redfor" / "counters.pdf": ("REDFOR",),
-    ROOT / "handouts" / "bluefor" / "counters.pdf": ("BLUEFOR",),
-    ROOT / "handouts" / "whitecell" / "counters.pdf": ("REDFOR", "BLUEFOR"),
-}
-AUDIENCE = {
-    ("REDFOR",): "REDFOR + white cell only",
-    ("BLUEFOR",): "BLUEFOR + white cell only",
-    ("REDFOR", "BLUEFOR"): "White cell only",
-}
+LABELS = tuple(s["label"] for s in GAME["side"])
+OUTPUTS = {ROOT / "handouts" / s["id"] / "counters.pdf": (s["label"],) for s in GAME["side"]}
+OUTPUTS[ROOT / "handouts" / "whitecell" / "counters.pdf"] = LABELS
+AUDIENCE = {(s["label"],): f"{s['label']} + white cell only" for s in GAME["side"]}
+AUDIENCE[LABELS] = "White cell only"
+CELLS = {(s["label"], c["id"]): c["short"] for s in GAME["side"] for c in s["cells"]}
 
 PAGE_W, PAGE_H = 612, 792  # US Letter, points
 MARGIN = 36
 HEADER = 30
 
-# Band color and light fill, as RGB 0-1.
-COLORS = {
-    "REDFOR": ((0.70, 0.11, 0.11), (1.00, 0.92, 0.92)),
-    "BLUEFOR": ((0.10, 0.25, 0.60), (0.91, 0.94, 1.00)),
-    "OTHER": ((0.38, 0.38, 0.38), (0.95, 0.95, 0.95)),
-}
+
+
+def side_colors(hexcolor):
+    """A team's band colour (its game.toml colour, darkened a little for print) and a light fill, as RGB 0-1."""
+    rgb = [int(hexcolor[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+    return tuple(c * 0.85 for c in rgb), tuple(0.9 + 0.1 * c for c in rgb)
+
+
+# Band color and light fill, as RGB 0-1. OTHER is third parties (white cell actors).
+COLORS = {s["label"]: side_colors(s["color"]) for s in GAME["side"]}
+COLORS["OTHER"] = ((0.38, 0.38, 0.38), (0.95, 0.95, 0.95))
 # Blank counters go on the white cell sheet only. ID prefix written in the band.
-BLANK_PREFIX = {"REDFOR": "R-", "BLUEFOR": "B-", "OTHER": "X-"}
+BLANK_PREFIX = {s["label"]: s["prefix"] + "-" for s in GAME["side"]}
+BLANK_PREFIX["OTHER"] = "X-"
 
 # Helvetica and Helvetica-Bold advance widths (1/1000 em), ASCII 32-126.
 _HELV = [
@@ -182,6 +184,9 @@ def draw_counter(page, x, y, s, row):
     base = y + s - band_h + (band_h - id_size * 0.72) / 2
     page.text(x + pad, base, row["id"], "F2", id_size, (1, 1, 1))
     owner = row["owner"]
+    cell = CELLS.get((row["side"], (row.get("cell") or "").strip()))
+    if cell:
+        owner = f"{owner} {cell}" if owner else cell
     owner_size = min(band_h * 0.42, (s * 0.42) / max(text_width(owner, "F2", 1), 1))
     page.text(x + s - pad, base, owner, "F2", owner_size, (1, 1, 1), "right")
 
@@ -287,7 +292,7 @@ def main():
     parser.add_argument("--size", type=float, default=0.75, help="counter edge in inches (default 0.75)")
     parser.add_argument("--copies", type=int, default=1, help="copies of each counter (default 1)")
     parser.add_argument("--blanks", type=int, default=10,
-                        help="blank counters of each kind (REDFOR, BLUEFOR, OTHER) on the white cell sheet (default 10)")
+                        help="blank counters of each kind (one per team, and OTHER) on the white cell sheet (default 10)")
     args = parser.parse_args()
 
     with CSV_PATH.open(newline="", encoding="utf-8") as f:
@@ -301,7 +306,7 @@ def main():
             sheet += [None] * (-len(sheet) % cols)
             sheet += [r for r in rows if r["side"] == side for _ in range(args.copies)]
         if len(sides) > 1 and args.blanks > 0:
-            for side in ("REDFOR", "BLUEFOR", "OTHER"):
+            for side in (*LABELS, "OTHER"):
                 sheet += [None] * (-len(sheet) % cols)
                 sheet += [{"side": side, "blank": True}] * args.blanks
         label = sides[0] if len(sides) == 1 else "all"

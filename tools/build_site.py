@@ -8,8 +8,8 @@
 The site has four parts, set out in pages() below:
 
 - Running the game: the white cell's handouts and the timer program.
-- Player handouts: what each audience gets (both teams, REDFOR, BLUEFOR), with
-  each intelligence product on its own page.
+- Player handouts: what each audience gets (every team, then each team in
+  game.toml [[side]]), with each intelligence product and cell brief on its own page.
 - Designing a scenario: the design guide, rules, event setup, scenario files,
   map guide, writing guide, and repository guide.
 - Downloads: build/ (and handouts/word/) exactly as released.
@@ -34,7 +34,8 @@ import sys
 import urllib.parse
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from build_handouts import FIN, H, PACKET_NAME, REF_PACKET_NAME, ROOT, WC, clean, front_matter, packet_markdown  # noqa: E402
+from build_handouts import (FIN, H, PACKET_NAME, REF_PACKET_NAME, ROOT, SIDES, WC, clean, front_matter,  # noqa: E402
+                            packet_markdown, side_releases, tint)
 from game import GAME  # noqa: E402
 
 SITE = os.path.join(ROOT, "site")
@@ -42,40 +43,45 @@ SRC = os.path.join(SITE, "src")
 G = GAME["game"]
 WEEK, ASAP = "Common Scenario - 1WK RELEASE", "Common Matrix - ASAP RELEASE"
 
-# Audience banner and accent for each top folder of the site.
+# Audience banner and accent for each top folder of the site. A team's banner takes its game.toml colour.
 AUDIENCE = {
     "whitecell": ("wc", "WHITE CELL ONLY"),
-    "common": ("public", "BOTH TEAMS"),
-    "redfor": ("red", "REDFOR ONLY"),
-    "bluefor": ("blue", "BLUEFOR ONLY"),
+    "common": ("public", "ALL TEAMS" if len(SIDES) > 2 else "BOTH TEAMS"),
     "design": ("wc", "DESIGNER AND WHITE CELL ONLY"),
+    **{s["id"]: (s["color"], f"{s['label']} ONLY") for s in SIDES},
 }
 
 
 # ---------------------------------------------------------------- the pages
 
-def side_pages(side, label):
-    rel = f"{label} - 24H RELEASE"
-    letter_dl = [("formatted PDF", f"{rel}/{label} - Commander's Letter.pdf")]
-    if os.path.exists(os.path.join(H, "word", f"{label} - Commander's Letter.docx")):
-        letter_dl.append(("Word", f"word/{label} - Commander's Letter.docx"))
+def side_pages(s):
+    side, label, rel = s["id"], s["label"], s["folder"]
+    made = {name for _f, name, _h, _src in side_releases(s)}
+    letter = next((n for n in made if n.endswith("Commander's Letter.pdf")), "")
+    letter_dl = [("formatted PDF", f"{rel}/{letter}")]
+    if os.path.exists(os.path.join(H, "word", letter[:-4] + ".docx")):
+        letter_dl.append(("Word", f"word/{letter[:-4]}.docx"))
     intel = []
-    for md in sorted(glob.glob(os.path.join(H, side, "intel", f"{side[0].upper()}I-*.md"))):
+    for md in sorted(glob.glob(os.path.join(H, side, "intel", f"{s['prefix']}I-*.md"))):
         code = os.path.basename(md)[:5]
         dl = [("Full Intel PDF", f"{rel}/{label} Full Intel.pdf")]
         for w in glob.glob(os.path.join(H, "word", code + " *.docx")):
             name = os.path.splitext(os.path.basename(w))[0]
             dl = [("formatted PDF", f"word/{name}.pdf"), ("Word", f"word/{name}.docx")]
         intel.append(dict(src=os.path.relpath(md, ROOT), page=f"{side}/intel/{code.lower()}.md", dl=dl, intel=True))
-    return [
+    cells = [dict(src=f"handouts/{side}/cells/{c['id']}.md", page=f"{side}/cells/{c['id']}.md", title=c["name"],
+                  dl=[("PDF", f"{rel}/{label} Cell Brief - {c['name']}.pdf")])
+             for c in s["cells"] if os.path.exists(os.path.join(H, side, "cells", c["id"] + ".md"))]
+    out = [
         dict(src=f"handouts/{side}/commanders-letter.md", page=f"{side}/commanders-letter.md", title="Commander's Letter", dl=letter_dl),
         dict(src=f"handouts/{side}/team-packet.md", page=f"{side}/team-packet.md", title="Team Packet",
-             dl=[("PDF", f"{rel}/{label} Team Packet.pdf")]),
+             dl=[("PDF", f"{rel}/{label} Team Packet.pdf")], children=cells),
         dict(src=f"handouts/{side}/order-of-battle.md", page=f"{side}/order-of-battle.md", title="Order of Battle",
              dl=[("PDF", f"{rel}/{label} Order of Battle.pdf"), ("counters", f"{rel}/counters.pdf")]),
         dict(src=f"handouts/{side}/intel/00-read-me-first.md", page=f"{side}/intel/index.md", title="Intelligence Products",
              dl=[("Full Intel PDF", f"{rel}/{label} Full Intel.pdf")], children=intel),
     ]
+    return [p for p in out if os.path.exists(os.path.join(ROOT, p["src"]))]
 
 
 def pages():
@@ -103,7 +109,7 @@ def pages():
             dict(src=None, page="whitecell/timer.md", title="Timer and Dice Program", text=TIMER),
         ]),
         ("Player handouts", [
-            dict(src=None, page="common/index.md", title="Both Teams", text=INTROS["common"], children=[
+            dict(src=None, page="common/index.md", title=AUDIENCE["common"][1].title(), text=INTROS["common"], children=[
                 dict(src="handouts/common/rules-handbook.md", page="common/rules-handbook.md",
                      dl=[("PDF", f"{ASAP}/Player Rules Handbook.pdf")],
                      note=None if GAME["rules"]["set"] == "full" else
@@ -120,8 +126,8 @@ def pages():
                 dict(src="handouts/common/starting-conditions.md", page="common/starting-conditions.md",
                      dl=[("PDF", f"{WEEK}/Starting Conditions.pdf")]),
             ]),
-            dict(src=None, page="redfor/index.md", title="REDFOR", text=INTROS["redfor"], children=side_pages("redfor", "REDFOR")),
-            dict(src=None, page="bluefor/index.md", title="BLUEFOR", text=INTROS["bluefor"], children=side_pages("bluefor", "BLUEFOR")),
+            *[dict(src=None, page=f"{s['id']}/index.md", title=s["label"], text=INTROS[s["id"]], children=side_pages(s))
+              for s in SIDES],
         ]),
         ("Designing a scenario", [
             dict(src="README.md", page="design/getting-started.md", title="Getting Started"),
@@ -130,8 +136,8 @@ def pages():
             dict(src="EVENT-SETUP.md", page="design/event-setup.md", title="Event Setup"),
             dict(src="scenario/README.md", page="design/scenario/index.md", title="Scenario Files", children=[
                 dict(src="scenario/00-overview.md", page="design/scenario/overview.md", title="Scenario Overview"),
-                dict(src="scenario/redfor-packet.md", page="design/scenario/redfor-packet.md", title="REDFOR Packet"),
-                dict(src="scenario/bluefor-packet.md", page="design/scenario/bluefor-packet.md", title="BLUEFOR Packet"),
+                *[dict(src=f"scenario/{s['id']}-packet.md", page=f"design/scenario/{s['id']}-packet.md", title=f"{s['label']} Packet")
+                  for s in SIDES],
                 dict(src="scenario/whitecell-injects.md", page="design/scenario/injects.md", title="Injects"),
                 dict(src="scenario/whitecell-ground-truth.md", page="design/scenario/ground-truth.md", title="Ground Truth"),
             ]),
@@ -167,11 +173,14 @@ The lead adjudicator runs this program on the room's TV, where both teams can se
 """
 
 INTROS = {
-    "common": "# Both Teams\n\nReleased to every player. Nothing here is secret.\n\n"
+    "common": f"# {AUDIENCE['common'][1].title()}\n\nReleased to every player. Nothing here is secret.\n\n"
               "- **As soon as possible**, before the scenario is announced: the Rules Handbook and Player Forms.\n"
               "- **One week before**: the Scenario Brief, Scenario Schedule, Starting Conditions, and the map.\n",
-    "redfor": "# REDFOR\n\nReleased to REDFOR only, 24 hours before the event. Never show these pages to BLUEFOR.\n",
-    "bluefor": "# BLUEFOR\n\nReleased to BLUEFOR only, 24 hours before the event. Never show these pages to REDFOR.\n",
+    **{s["id"]: f"# {s['label']}\n\nReleased to {s['label']} only, 24 hours before the event. Never show these pages to "
+                + " or ".join(x["label"] for x in SIDES if x is not s) + ".\n"
+                + ("\nThe team works in cells: " + "; ".join(f"**{c['name']}** ({c['lead']}): {c['job']}" if c["job"] else f"**{c['name']}**"
+                                                          for c in s["cells"]) + ".\n" if s["cells"] else "")
+       for s in SIDES},
 }
 
 
@@ -183,7 +192,7 @@ def demo_note():
     src = f" The source is at [{repo}]({os.environ.get('GITHUB_SERVER_URL', 'https://github.com')}/{repo})." if repo else ""
     return ("> **Demo.** This is the matrix wargame base, built from its placeholder scenario (Redland and Blueland) "
             "to show what the tools make: the handouts, the release PDFs, and the "
-            "[timer and dice program](tools/whitecell-clock.html). A real scenario's site shows both sides' secrets, "
+            "[timer and dice program](tools/whitecell-clock.html). A real scenario's site shows every team's secrets, "
             f"so don't publish one where players can find it.{src}\n\n")
 
 
@@ -198,7 +207,7 @@ def index_page(site):
 
 <p class="mw-subtitle">{html.escape(G['event'])} · {html.escape(G['date'])}</p>
 
-{demo_note()}Every document in the game, for the designer, the lead adjudicators, and the loggers. This site shows **both sides' secrets**: hidden assets, secret objectives, intelligence ground truth, and injects. Keep it off every screen the players can see.
+{demo_note()}Every document in the game, for the designer, the lead adjudicators, and the loggers. This site shows **every team's secrets**: hidden assets, secret objectives, intelligence ground truth, and injects. Keep it off every screen the players can see.
 
 ## During the game
 
@@ -264,8 +273,7 @@ TITLES = {
     "Scenario Schedule": "handouts/common/scenario-schedule.md",
     "Starting Conditions": "handouts/common/starting-conditions.md",
     "Player Forms": "handouts/common/player-forms.md",
-    "REDFOR Team Packet": "handouts/redfor/team-packet.md",
-    "BLUEFOR Team Packet": "handouts/bluefor/team-packet.md",
+    **{f"{s['label']} Team Packet": f"handouts/{s['id']}/team-packet.md" for s in SIDES},
     "Design Guide": "DESIGN-GUIDE.md",
     "EVENT-SETUP": "EVENT-SETUP.md",
     "Team Packet": None,
@@ -302,7 +310,7 @@ class Linker:
         if title == "Handbook":
             return "handouts/whitecell/handbook.md" if here.startswith("handouts/whitecell/") else "handouts/common/rules-handbook.md"
         if title == "Team Packet":
-            side = re.match(r"handouts/(redfor|bluefor)/", here)
+            side = re.match(r"handouts/(%s)/" % "|".join(re.escape(s["id"]) for s in SIDES), here)
             return f"handouts/{side.group(1)}/team-packet.md" if side else None
         return TITLES[title]
 
@@ -392,6 +400,8 @@ def quote(path):
 
 def banner(page):
     cls, text = AUDIENCE.get(page.split("/")[0], ("wc", "WHITE CELL ONLY"))
+    if cls.startswith("#"):  # a team: its own colour
+        return f'<div class="mw-banner" style="--mw-accent: {cls}; --mw-tint: {tint(cls)}">// {text} //</div>\n\n'
     return f'<div class="mw-banner mw-aud-{cls}">// {text} //</div>\n\n'
 
 

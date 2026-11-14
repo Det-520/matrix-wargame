@@ -78,6 +78,10 @@ def read_dates():
     return dates
 
 
+# The audience line at the top of a document ("**REDFOR EYES ONLY.**"), for any team in game.toml.
+AUDIENCE_LINE = re.compile(r"^\*\*(%s|WHITE CELL)[^*]*\*\*" % "|".join(re.escape(x["label"]) for x in GAME["side"]))
+
+
 def parse(path):
     text = open(os.path.join(ROOT, path), encoding="utf-8").read()
     text = re.sub(r"\A---\n.*?\n---\n", "", text, flags=re.S)
@@ -89,7 +93,7 @@ def parse(path):
         first = lines[0]
         if first.startswith("# "):
             doc["title"] = plain(first[2:])
-        elif re.match(r"^\*\*(REDFOR|BLUEFOR|WHITE CELL)[^*]*\*\*", first) or first.startswith(">") or p == "---":
+        elif AUDIENCE_LINE.match(first) or first.startswith(">") or p == "---":
             continue
         elif first.startswith("**Rating:**"):
             bits = [plain(b).strip() for b in p.split("·") if not b.strip().startswith("**Date:**")]

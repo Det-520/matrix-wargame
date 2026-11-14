@@ -55,7 +55,7 @@ Text that applies to only one rule set sits inside `{% if rules == "full" %}` �
 ## 1. Player Quick-Start (read this if you read nothing else)
 
 1. **What this is.** A *matrix wargame*: there is no rulebook of unit stats. You win arguments, not dice-math puzzles. Each turn your team proposes **one course of action (COA)** and gives **up to three reasons it will work**. The other team gives **up to three reasons it won't**. The **white cell** weighs the reasons, sets the odds, rolls the dice (with a computer program), and narrates what happens.
-2. **Your side.** You are either **REDFOR** or **BLUEFOR**. Your team packet gives you your forces, your intel, and **three secret objectives**. Don't show the other team your objectives.
+2. **Your side.** You are on one team: **REDFOR** or **BLUEFOR**, or another team the scenario adds (§2.6). Your team packet gives you your forces, your intel, and **three secret objectives**. Don't show another team your objectives.
 3. **One COA per turn.** A COA is *one* main action with a *measurable effect*, e.g. "F-35As and an EC-37B strike the enemy's Patriot battery at the port **so that** the battery is destroyed and our ISR aircraft can operate over the coast." You can use several assets in one COA (a strike package counts as one action), but you can't do two unrelated things. Everything else your forces do is background activity.
 4. **Format of your COA ({{ mins(steps.bcoa.min) }}):**
    > "Our COA: **[action]** in order to **[measurable effect]**. It will work because: **(1)** … **(2)** … **(3)** …"
@@ -67,7 +67,7 @@ Text that applies to only one rule set sits inside `{% if rules == "full" %}` �
    - **RFI (Request for Information):** a question about the situation.
    - **RFF (Request for Forces):** a request for more assets or authorities from your national command. Reinforcements take time to arrive.
    Requests don't count as your COA, and there is no debate on them. **Diplomacy needs no RFF:** your team speaks for its government, so you can negotiate or make a diplomatic COA without anyone's permission (§6.2).
-9. **Turn clock (15 min by default, run by a timer program):** prepare 5 → BLUEFOR COA 2 → REDFOR COA 2 → prepare Cons 2 → REDFOR Cons 1 → BLUEFOR Cons 1 → white cell resolves 2. BLUEFOR always goes first.
+9. **Turn clock (15 min by default, run by a timer program):** prepare 5 → BLUEFOR COA 2 → REDFOR COA 2 → prepare Cons 2 → REDFOR Cons 1 → BLUEFOR Cons 1 → white cell resolves 2. BLUEFOR always goes first (the first team listed in `game.toml` `[[side]]`).
 10. **No interrupting.** It's a courtroom, not a debate. You speak in your slot and are silent in theirs. Raise only points of fact or procedure. **If you miss your slot, the point is lost.** There are no do-overs.
 11. **Arguing about the other side is allowed.** You can argue *their* troops are tired or *their* radar has a gap. You cannot argue that a player-controlled actor *agrees* to something. Ask them in person instead.
 12. **The point** is good decisions and good reasoning under pressure: plan, communicate, brief, defend your choices, and adapt.
@@ -117,8 +117,8 @@ The step lengths below are the default, set in `game.toml` `[[turn_step]]`. A de
 | 7 | BLUEFOR Cons → REDFOR COA | {{ steps.bcons.min }} min | BLUEFOR | |
 | 8 | White cell resolves | {{ steps.res.min }} min | White cell | Adjudicate both COAs (§4). Rule on RFFs. Update the map and tracks. Possibly deliver an inject. |
 
-- **[CANON] Fixed order.** BLUEFOR always briefs first and REDFOR second, every turn. The order never switches.
-- **[CANON] Simultaneous execution.** Although BLUEFOR briefs first, both teams' COAs happen at the same time in game terms. REDFOR, briefing second, **may** react to BLUEFOR's COA, which is realistic. It **may not** simply negate it ("their strike doesn't happen") or preempt BLUEFOR's roll. Negating is what Cons are for; a counter-move is resolved as an interacting or opposed COA (§4.2).
+- **[CANON] Fixed order.** BLUEFOR always briefs first and REDFOR second, every turn. The order never switches. (The order is the order of the teams in `game.toml` `[[side]]`; with a third team, §2.6.)
+- **[CANON] Simultaneous execution.** Although BLUEFOR briefs first, both teams' COAs happen at the same time in game terms. REDFOR, briefing second, **may** react to BLUEFOR's COA, which is realistic. It **may not** simply negate it ("their strike doesn't happen") or preempt BLUEFOR's roll. Negating is what Cons are for; a counter-move is resolved as an interacting or opposed COA (§4.2). The same holds for any team that briefs later than another.
 
 ### 2.3 Phase I – Planning [CANON]
 
@@ -151,6 +151,17 @@ Use a short prefix for the scenario (for example, `opx-` for Operation Example) 
 - **[PROPOSED]** **Backup:** if Slack or the network fails, teams write the same thing on paper (backup slips in the Print Packet) and hand it to the white cell.
 - Time cost: none. Posting happens inside steps that already exist, and the white cell no longer collects or returns slips.
 
+### 2.6 More than two teams [PROPOSED]
+
+The default game has two player teams. A scenario may add more (`game.toml` `[[side]]`): a GRAYFOR, a coalition partner with its own agenda, an insurgency. Use one only when the actor has real capacity for independent action and objectives that pull against **every** other team; otherwise the white cell plays it as a white-cell actor (§3.5), which costs no time. Mouat's advice is that an even number of actors plays best, and that a "laundry list" of actors on one side makes a one-sided game (`DESIGN-GUIDE.md` §2.1).
+
+- **Turn.** Each team has its own COA slot and its own Cons slot, in the order of `[[side]]` (`game.toml` `[[turn_step]]`, one COA step and one Cons step per team). All COAs happen simultaneously (§2.2).
+- **Cons.** In its Cons slot a team gives **up to 3 Cons in total**, against any of the other teams' COAs, naming the COA each one is against. It may spend all three on one COA. A COA may therefore draw Cons from several teams; the white cell counts each strong one as usual, within the ±4 cap.
+- **Resolving.** The white cell resolves every COA in briefing order. Directly opposed COAs use one opposed roll among the teams involved (§4.2).
+- **Parleys and agreements** may involve any two or more teams (§6.1). An agreement binds only the teams that made it.
+- **White cell.** One logger per team (§9.2).
+- **Time cost:** each extra team adds its COA slot and its Cons slot (3 minutes at the default lengths) and about 1 minute of resolve time: about 4 minutes a turn. Fit the run of show to it (§2.1), or keep the turn length and cut the number of turns no lower than 6.
+
 ---
 
 ## 3. Courses of action (arguments)
@@ -181,7 +192,7 @@ Use a short prefix for the scenario (for example, `opx-` for Operation Example) 
 
 ### 3.3 Cons (reasons it won't work)
 
-- **[CANON]** The opposing team gives **up to 3** reasons the COA will fail, be ineffective, or have minimal impact.
+- **[CANON]** The opposing team gives **up to 3** reasons the COA will fail, be ineffective, or have minimal impact. (With more than two teams, each team gives up to 3 in total across the COAs it opposes, §2.6.)
 - **[PROPOSED]** The same quality rules apply.
 - **[PROPOSED] Cons about consequences** ("that strike will cause civilian casualties and outrage") don't argue the action fails. They argue it has **costs**. The white cell treats them as shaping the *outcome* (side effects, track changes) rather than as −1s against success.
 
@@ -239,11 +250,11 @@ Use a short prefix for the scenario (for example, `opx-` for Operation Example) 
 
 ### 4.2 Interacting COAs [CANON]
 
-Both COAs are briefed before either is resolved, so **they happen simultaneously across the {{ days(game_days, adj=True) }} turn window**. Because REDFOR briefs second, REDFOR's COA cannot prevent BLUEFOR's COA from being rolled; instead, a reactive move is resolved as an interacting or directly opposed COA.
+All COAs are briefed before any is resolved, so **they happen simultaneously across the {{ days(game_days, adj=True) }} turn window**. Because REDFOR briefs second, REDFOR's COA cannot prevent BLUEFOR's COA from being rolled; instead, a reactive move is resolved as an interacting or directly opposed COA. The same holds between any two teams when there are more than two.
 
-- **Independent COAs** (different places or effects): resolve each normally, BLUEFOR's first.
+- **Independent COAs** (different places or effects): resolve each normally, in briefing order (BLUEFOR's first).
 - **Interacting COAs** (one affects the other's odds, e.g. BLUEFOR disperses its SAMs while REDFOR strikes them): fold the interaction into the modifiers. A well-timed counter-move is a strong Pro or Con even if nobody said it out loud.
-- **Directly opposed COAs** (both can't succeed, e.g. both sides try to seize the same port): use an **opposed roll**. The program rolls 2d6 for each side, each side adds its own modifiers, and the higher total wins. On a tie, both are **Partial**, the situation stays contested, and the white cell describes a stalemate.
+- **Directly opposed COAs** (both can't succeed, e.g. both sides try to seize the same port): use an **opposed roll**. The program rolls 2d6 for each side, each side adds its own modifiers, and the higher total wins. On a tie, both are **Partial**, the situation stays contested, and the white cell describes a stalemate. With more than two teams, every team whose COA is opposed rolls at once and the highest total wins; a tie for highest leaves those teams Partial.
 
 ### 4.3 Time pressure
 
@@ -306,7 +317,7 @@ The scenario lists its split counters in the packet force tables and in `scenari
 
 ### 6.1 Parleys between teams
 
-- **What it is.** A parley is a short face-to-face talk between the two teams, held during **Prepare**. In the game world it stands for talks between the two governments during the turn's {{ days(game_days) }}, whether direct, through a back channel, or through a mediator. It is the **only** way to get a decision from the other team, because no COA can argue that a player-controlled actor agrees (§3.5).
+- **What it is.** A parley is a short face-to-face talk between two teams (or more, §2.6), held during **Prepare**. In the game world it stands for talks between the two governments during the turn's {{ days(game_days) }}, whether direct, through a back channel, or through a mediator. It is the **only** way to get a decision from the other team, because no COA can argue that a player-controlled actor agrees (§3.5).
 - **What it is not.** It is not a COA and not a request. It has no roll and no Pros or Cons, doesn't count against the {{ requests }} requests, and needs no RFF (§6.2). It is not a way to talk to white-cell actors (third-party states, the press, populations). Those are persuaded with COAs.
 - **Asking for one.** Either team's flight commander (or a delegate) asks the lead adjudicator. The lead adjudicator authorizes it and runs the parley timer in the timer program. The other team may decline.
 - **Who and how long.** The flight commander (or a delegate) from each team meets at the white cell end of the table, and the lead adjudicator listens. The rest of each team keeps working on its COA. A parley lasts **≤ {{ parley }} min** (`game.toml` `[schedule]` `parley`), taken out of Prepare. Time cost: none, since Prepare doesn't get longer.
@@ -384,7 +395,7 @@ If the game runs at several tables simultaneously, every white cell uses this do
 ### 9.1 Players (REDFOR and BLUEFOR teams)
 
 - **[CANON]** Each team has an assigned **flight commander**. Who is assigned and when command changes hands is set in `EVENT-SETUP.md`.
-- **[CANON]** **The team builds the rest of its own structure** during Phase I: who handles operations, intel, logistics, briefing, and so on. The rules don't prescribe staff roles.
+- **[CANON]** **The team builds the rest of its own structure** during Phase I: who handles operations, intel, logistics, briefing, and so on. The rules don't prescribe staff roles. (Unless the scenario splits the team into cells, §9.4.)
 - **[CANON]** Players **may use computers, online searches, and AI** during play, and every player may bring a laptop. The decisions and the briefs must still be the team's own.
 
 ### 9.2 White cell [CANON]
@@ -394,10 +405,21 @@ If the game runs at several tables simultaneously, every white cell uses this do
 | **Lead adjudicator** | 1 | Runs the timer program, gives injects, runs the dice program, final adjudication authority |
 | **BLUEFOR logger** | 1 | Receives the BLUEFOR Phase I brief and Phase III FRAGO. Keeps the BLUEFOR placement form (App. B). Moves BLUEFOR counters. Watches BLUEFOR's team channel, counts its requests, and posts the lead adjudicator's answers there (§2.5). |
 | **REDFOR logger** | 1 | Same for REDFOR, in REDFOR's team channel |
+| **Logger for each added team** | 1 per team | Same for that team (§2.6) |
 
 ### 9.3 End of game [PROPOSED]
 
 After the final turn's resolution, the white cell states the end state (map and tracks) and scores each team's three objectives as Achieved, Partial, or Not achieved, using the criteria in §3 of each team packet (`scenario/redfor-packet.md`, `scenario/bluefor-packet.md`). The loggers record the result.
+
+### 9.4 Cells within a team [PROPOSED]
+
+A scenario may split a team into **cells** under its flight commander, for example an intelligence cell, a communications cell, and an air component (`game.toml` `[[side.cell]]`). Use cells when the point of the exercise is coordination inside a staff, or to give a large team (more than about 8 players) defined jobs. Without cells, §9.1 stands.
+
+- **One COA per team.** Cells don't make their own COAs. Each cell proposes the COA it thinks matters most, and the flight commander chooses **one** for the team (Mouat: several players representing an actor work up alternative arguments, and the team leader chooses). A COA may use assets from any cell. The commander names the briefer.
+- **What a cell has.** A lead (a role title), a one-line job, and optionally its own brief (`handouts/<team>/cells/<cell>.md`) and its own assets (the `cell` column of `scenario/data/assets.csv`; the cell's short name prints on those counters). A cell brief may give the cell its own concern or an objective that pulls against another cell's, so the team has to agree before it acts ("a house divided", in Mouat's term). Keep it to one page.
+- **Requests and Slack.** The team's {{ requests }} requests a turn are shared by its cells, and the team channel stays the record (§2.5). A team may open cell threads in its channel; the logger counts requests across the whole team.
+- **What it is not.** Cells are not extra actors: they don't get turn slots, Cons slots, or their own objectives on the score sheet. A sub-team that needs its own COA every turn is a team (§2.6).
+- Time cost: none. Cells work inside Prepare.
 
 ---
 
@@ -444,6 +466,21 @@ Open for every new scenario:
 | O3 | The run of show (§2.1): the phases, their order and lengths, and the number of turns in each, which follow from the time the event has (`EVENT-SETUP.md` §3). Set in `game.toml` `[[block]]`. | The default four phases, with 4 and 3 turns |
 | O4 | Slack channel prefix and group names (§2.5) | `[prefix]-group1-[room]` |
 | O5 | Replace the generic worked example (§10) with one from the scenario | Generic example |
+| O6 | More than two player teams (§2.6): whether to add one, and the Cons rule for three or more (up to 3 in total per team, spread as it likes) | Two teams |
+| O7 | Cells within a team (§9.4) | No cells |
+
+**From a check against Mouat's *Practical Advice on Matrix Games* v15** (`references/PracticalAdviceOnMatrixGames.pdf`). Most of these rules follow his advice: Pros and Cons, one action with a measurable effect, weighted probability on 2d6, automatic success when unopposed, established facts against reasonable assumptions, secret arguments for misdirection only, three layers and three-argument big projects, long-term arguments, free announcements, consequence management, negotiation in person, courtroom order, and the estimative vote for contentious calls. These are where the rules differ from his advice or leave it out. Each is a decision for the designer; the recommendation is in the last column.
+
+| ID | Decision | Mouat's advice | Recommendation |
+| --- | --- | --- | --- |
+| O8 | Who votes in an estimative vote (§4.3) | Everyone present votes, independently and at the same time, and the median is taken; the arguing player may be kept out so no one votes for themselves (pp. 9–10, 13). The vote crowdsources the odds. | Let the players of the teams that didn't make the COA vote too, with the white cell, all showing fingers on the lead adjudicator's count. Time cost: none. Three white cell members alone are a small crowd. |
+| O9 | Late objections (§4.3) | If a point comes late because the facilitator rushed the game, pause, apologize, and re-run the adjudication (p. 35). | Keep "no recalculation", except when the white cell itself cut a slot short: then hear the point and re-run once. Time cost: rare, under a minute. |
+| O10 | A Turn Zero rehearsal (§2.1) | With inexperienced players, have two opposed actors make example arguments and discuss them before the game starts (pp. 14, 38). | Under the basic rules, add a 5-minute Turn Zero step to Phase I in which the lead adjudicator walks through the worked example (§10) with one Pro and one Con from each team. Time cost: 5 minutes, once. |
+| O11 | Debrief content (`EVENT-SETUP.md` §3) | Each actor reads out its objectives and says why it did or didn't achieve them; then ask the room "who won?" If everyone agrees, look closer (p. 37). | Add those two prompts to the debrief steps in `game.toml` and the White Cell Handbook. The rules themselves stay free of debrief content. Time cost: none; it fits the existing debriefs. |
+| O12 | Non-military markers on the map | Players argue about what they can see: if every counter is military, the arguments will be too. Put political, economic, social, information, and infrastructure effects on the map as markers (pp. 27, 36). | Print a sheet of generic effect markers (protest, refugees, outage, cyber intrusion, media story, sanctions) with the white cell's blank counters, and use them for ongoing effects (§7). Time cost: none. |
+| O13 | Loose secret COA triggers (§3.4) | The facilitator makes sure the trigger is tight when the secret argument is written; if one slips through, the player makes an extra argument for why it fires (pp. 19–20). | When a secret COA is posted, the logger reads the trigger and asks for a fix in the thread if it is loose. A trigger that is still loose doesn't fire, as now. Time cost: none. |
+| O14 | Several weak reasons (§4.1, §8.2) | Two or three weaker reasons may together count as one (p. 7). | Keep weak reasons at 0. Adding them up costs the white cell time it doesn't have, and the rule rewards laundry lists. |
+| O15 | Number of turns (§2.1) | At least 6 turns, so players live with their decisions through two cycles of action, reaction, and counteraction (pp. 10, 17). | The default has 7. Keep 6 or more in any run of show; `python3 tools/schedule.py --check` warns below 6. |
 
 ## Appendix A — Phase I brief and Phase III FRAGO formats (AFDP 5-0 App. E) [CANON: format; outline PROPOSED]
 
@@ -515,7 +552,8 @@ When something changes, cross out the old entry and write the new one. Ongoing e
 | **RFI / RFF** | Request for Information / Request for Forces |
 | **Inject** | A white cell event that changes the situation |
 | **White cell** | The neutral control group: adjudicator and loggers |
-| **REDFOR / BLUEFOR** | The two opposing player sides |
+| **REDFOR / BLUEFOR** | The two default player teams. A scenario may add more, e.g. GRAYFOR (§2.6). |
+| **Cell** | A part of a team with its own lead and job, under the team's flight commander (§9.4) |
 | **Counter** | A printed piece on the central map representing an asset or effect |
 | **Track** | A numeric value, shown on the white cell's screen, for something abstract (opinion, stability) |
 | **Degraded / Destroyed** | Asset states. A Degraded asset gives −1 when used. A Destroyed one is removed. |

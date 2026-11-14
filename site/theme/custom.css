@@ -1,6 +1,6 @@
 /* The white cell site's additions to mdbook's theme: the same accent per
-   audience as the PDFs (green both teams, red REDFOR, blue BLUEFOR, purple
-   white cell), shown in the banner at the top of each page. */
+   audience as the PDFs (green all teams, purple white cell; a team's page
+   sets its own game.toml colour inline), shown in the banner at the top of each page. */
 
 .mw-aud-public { --mw-accent: #1a7f37; --mw-tint: #dafbe1; }
 .mw-aud-red    { --mw-accent: #cf222e; --mw-tint: #ffebe9; }
