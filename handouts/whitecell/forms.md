@@ -35,7 +35,7 @@ Fill this in after Turn {{ turns }} (Handbook §8). Score each objective **A** (
 
 ## 2. Ongoing effects and big projects
 
-This sheet sits beside the map where both teams can see it. The tracks are not on paper: the lead adjudicator moves them in the tracker on the timer and dice program, which is on the room's TV or projector.
+This sheet sits beside the map where {{ both }} teams can see it. The tracks are not on paper: the lead adjudicator moves them in the tracker on the timer and dice program, which is on the room's TV or projector.
 
 <!-- mw:log -->
 
@@ -58,7 +58,7 @@ This sheet sits beside the map where both teams can see it. The tracks are not o
 
 ## 3. Objective status card
 
-**Keep face down, with the logger.** This card shows what the secret objectives look for. Update it in the resolve step, after the tracks move (Handbook §4.1). Record a player agreement only after both teams confirm it.
+**Keep face down, with the logger.** This card shows what the secret objectives look for. Update it in the resolve step, after the tracks move (Handbook §4.1). Record a player agreement only after every team in it confirms it.
 
 <!-- mw:log -->
 
@@ -77,11 +77,11 @@ This sheet sits beside the map where both teams can see it. The tracks are not o
 
 ## 4. Placement forms
 
-**Keep face down, with that side's logger.** This form shows where things are **now**. It is not a log: don't write down every move. When a counter moves or changes state, cross out the old entry and write the new one. Visible counters start where Handbook §2.3 shows them; list one here only after it moves, is Degraded, or is Destroyed. The lead adjudicator checks this form before ruling on a hidden counter or a planned COA. **State:** R = Ready, D = Degraded, X = Destroyed.
+**Keep face down, with that team's logger.** This form shows where things are **now**. It is not a log: don't write down every move. When a counter moves or changes state, cross out the old entry and write the new one. Visible counters start where Handbook §2.3 shows them; list one here only after it moves, is Degraded, or is Destroyed. The lead adjudicator checks this form before ruling on a hidden counter or a planned COA. **State:** R = Ready, D = Degraded, X = Destroyed.
 
 > **FORMAT NOTE (delete before printing):** one form per team, in the order of `game.toml` `[[side]]`, each headed "4.*n* LABEL placement form" (the Print Packet finds its spares by that heading). A team added in `game.toml` needs its own copy of the form.
 
-### 4.1 REDFOR placement form
+### 4.1 BLUEFOR placement form
 
 <!-- mw:log -->
 
@@ -98,8 +98,8 @@ This sheet sits beside the map where both teams can see it. The tracks are not o
 
 | Hidden counter | Starts in | Now in | Revealed (turn) | State |
 | --- | --- | --- | --- | --- |
-| R-18 B-2A Spirit | Z1 | | | ☐ R ☐ D ☐ X |
-| | | | | ☐ R ☐ D ☐ X |
+| B-09 Harpoon coastal-defense battery | Z10 | | | ☐ R ☐ D ☐ X |
+| [A hidden counter the team places in Phase I] | **Chosen in Phase I:** ☐ Z10 ☐ Z11 ☐ Z12 | | | ☐ R ☐ D ☐ X |
 | | | | | ☐ R ☐ D ☐ X |
 
 <!-- mw:log -->
@@ -122,7 +122,7 @@ This sheet sits beside the map where both teams can see it. The tracks are not o
 
 <!-- pagebreak -->
 
-### 4.2 BLUEFOR placement form
+### 4.2 REDFOR placement form
 
 <!-- mw:log -->
 
@@ -139,8 +139,8 @@ This sheet sits beside the map where both teams can see it. The tracks are not o
 
 | Hidden counter | Starts in | Now in | Revealed (turn) | State |
 | --- | --- | --- | --- | --- |
-| B-09 Harpoon coastal-defense battery | Z10 | | | ☐ R ☐ D ☐ X |
-| [A hidden counter the team places in Phase I] | **Chosen in Phase I:** ☐ Z10 ☐ Z11 ☐ Z12 | | | ☐ R ☐ D ☐ X |
+| R-18 B-2A Spirit | Z1 | | | ☐ R ☐ D ☐ X |
+| | | | | ☐ R ☐ D ☐ X |
 | | | | | ☐ R ☐ D ☐ X |
 
 <!-- mw:log -->

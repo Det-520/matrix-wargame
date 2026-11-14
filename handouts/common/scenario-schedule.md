@@ -4,9 +4,9 @@ subtitle: "Phases, timings, and planning for the event · [Event]"
 short: "Scenario Schedule"
 ---
 
-**Audience:** every player, REDFOR and BLUEFOR. Nothing in this document is secret. Released one week before the event, with the Scenario Brief.
+**Audience:** every player, {{ teams }}. Nothing in this document is secret. Released one week before the event, with the Scenario Brief.
 
-**You are expected to arrive at the event having read, and knowing, everything in your read-ahead:** the {% if rules == "full" %}Player Rules Handbook{% else %}Basic Rules{% endif %}, the Scenario Brief, this Scenario Schedule, the Player Forms, and your team's documents. Your team's documents are secret, so don't show them to the other team.
+**You are expected to arrive at the event having read, and knowing, everything in your read-ahead:** the {% if rules == "full" %}Player Rules Handbook{% else %}Basic Rules{% endif %}, the Scenario Brief, this Scenario Schedule, the Player Forms, and your team's documents. Your team's documents are secret, so don't show them to {{ other_team }}.
 
 *All countries, people, and events in this scenario are fictional. All military systems are real U.S. systems, described with unclassified, approximate capabilities.*
 

@@ -1,18 +1,18 @@
 # Matrix Wargame Base
 
-A starting point for building a two-sided matrix wargame (REDFOR vs. BLUEFOR with a white cell) to run as an AFROTC leadership exercise. It holds a scenario-free rule set, templates for every scenario file and handout, and the tools that turn the markdown into printable release packets, counters, a map, a white cell clock, and a white cell reference site.
+A starting point for building a matrix wargame (REDFOR vs. BLUEFOR with a white cell by default, or more player teams, each optionally split into cells) to run as an AFROTC leadership exercise. It holds a scenario-free rule set, templates for every scenario file and handout, and the tools that turn the markdown into printable release packets, counters, a map, a white cell clock, and a white cell reference site.
 
 It was generalized from *Operation Zugzwang* (AFROTC LLAB 12, November 2026). The rules, forms, schedule, and build are the ones that ran there. The scenario files are templates with a small Redland vs. Blueland example, so the build works before you write anything.
 
 > **Demo.** The base's own example builds into a live site on GitHub Pages on every push to `main`: the white cell site, every release PDF, and the timer and dice program. See [Publishing the white cell site](#publishing-the-white-cell-site).
 >
-> **Secrecy.** Once you fill in a scenario, this repository holds both teams' secret packets, the white cell's ground truth, and the injects. Keep your scenario's repository private, and don't share it with players.
+> **Secrecy.** Once you fill in a scenario, this repository holds every team's secret packets, the white cell's ground truth, and the injects. Keep your scenario's repository private, and don't share it with players.
 
 ## Starting a new scenario
 
 1. Copy this repository (GitHub **Use this template**, or clone it and change the remote).
 2. Fetch the third-party files and build the example once to check your setup (see [Building](#building)).
-3. Edit `game.toml`: the game's name, designer, event, date, number of tables, side names, the rule set (full, or basic for new players), the run of show (the phases, their order and timing, and the turns in each), the tracks, and the Tongue and Quill letterheads. The default run of show is the first game's: four phases and 7 turns in a 3-hour block (`RULES.md` §2.1).
+3. Edit `game.toml`: the game's name, designer, event, date, number of tables, the player teams (`[[side]]`: two by default, more allowed, each optionally split into cells), the rule set (full, or basic for new players), the run of show (the phases, their order and timing, and the turns in each), the tracks, and the Tongue and Quill letterheads. The default run of show is the first game's: four phases and 7 turns in a 3-hour block (`RULES.md` §2.1).
 4. Follow `DESIGN-GUIDE.md`. It walks through the scenario files in the order that works best, from the public world to the injects.
 5. Draw the map (`map/README.md`) and fill in the handouts (`handouts/`).
 6. Rebuild, playtest, and repeat.
@@ -21,11 +21,11 @@ It was generalized from *Operation Zugzwang* (AFROTC LLAB 12, November 2026). Th
 
 | Path | What it is |
 | --- | --- |
-| `game.toml` | The facts about this game that the tools read: name, dates, tables, rule set, run of show (phases, timing, turns), tracks, map, Tongue and Quill documents |
+| `game.toml` | The facts about this game that the tools read: name, dates, tables, rule set, player teams and their cells, run of show (phases, timing, turns), tracks, map, Tongue and Quill documents |
 | `RULES.md` | How to play: turns, COAs, adjudication, requests, injects. Scenario-free. |
 | `EVENT-SETUP.md` | Event logistics: schedule, rooms, groups, staffing, evaluation, risks |
 | `DESIGN-GUIDE.md` | How to build a scenario from these templates, with balance heuristics and lessons learned |
-| `scenario/` | The world, each side's forces and objectives, injects, and ground truth (templates; `scenario/README.md`) |
+| `scenario/` | The world, each team's forces and objectives, injects, and ground truth (templates; `scenario/README.md`) |
 | `handouts/` | The documents players and the white cell get, by audience. The markdown is the source for every PDF and the site. |
 | `map/` | The map's master SVG and the scripts that print it (`map/README.md`) |
 | `tools/` | Build scripts, the counters generator, the Tongue and Quill builder, and the white cell clock |
@@ -84,9 +84,16 @@ Post up to {{ requests }} requests (Phase I: {{ planning_requests }}, due at min
 Prepare runs {{ steps.prep.span }}; Phase IV is Turns {{ blocks.P4.turns }} ({{ blocks.P4.span }}).
 {% if rules == "full" %}Secret COAs ...{% else %}...{% endif %}
 {{ turn_clock_table() }}    {{ schedule_table("whitecell") }}    | {{ ticks() }} |
+Audience: every player, {{ teams }}. Don't show {{ other_team }} your objectives.
+{{ first_team }} briefs first; the order is {{ team_order }}. Its COA takes {{ clock(sides[0].coa.min) }}.
+| {{ team_rows("**{label} logger** | Keeps the {label} placement form") }} |
+| Group | {{ team_cols("{label} team channel") }} |
+{% for s in sides %}{{ s.label }} plays {{ s.nation }}; its IDs start {{ s.prefix }}-. {% endfor %}
 ```
 
 - `python3 tools/schedule.py values` lists every name: the numbers, `steps.ID` (each `[[turn_step]]` by `id`) and `blocks.TAG` (each `[[block]]` by `tag`), and the functions `mins()`, `clock()` (`5:00`), `word()` and `Word()` (`four`), `days()` (`3 days`, `3 weeks`; `days(n, adj=True)` gives `3-day`), `ticks()`, `turn_columns()`, `turn_rule()`, `schedule_table()`, and `turn_clock_table()`.
+- **Teams.** Never type a team's name, prefix, or count either: a scenario may rename the teams or add one. `sides` lists the teams in briefing order, and `side.ID` gives one by its `id`; each has `label`, `nation`, `prefix`, `color`, `cells` (each with `name`, `short`, `lead`, `job`), `folder` (its release folder), and `coa` and `cons` (its two turn steps, with `min`, `span`, `start`, `end`). `teams` ("BLUEFOR and REDFOR"), `teams_or`, `team_slash`, `team_order` ("BLUEFOR, then REDFOR"), `first_team`, `n_teams`, `cells` (true if any team has cells), `other_team` ("the other team" or "the other teams"), and `both` / `Both` ("both" or "all") write the teams into a sentence. `turn_line` is the turn in one line.
+- **A row or a column per team.** `team_rows("cells")` repeats a table row for each team, filling in `{label}`, `{prefix}`, `{nation}`, `{id}`, `{coa}`, and `{cons}` (the step's clock span); `team_rows(row, "cons")` orders the rows by the teams' Cons steps. `team_cols("cell")` repeats a cell for each team in one row, so a header, its `---` row, and every body row get the same count; with a group number, `team_cols("[prefix]-{lname}-{id}", 1, code=True)` adds each team's call sign in that group (`team_name(group, i)`: Alpha, Bravo, ...). Write the whole row on one line, as above, so the raw markdown stays a valid table.
 - Use the function form, not Jinja filters (`{{ mins(turn_min) }}`, not `{{ turn_min | mins }}`): a `|` breaks a markdown table.
 - A `{% if %}` or `{% endif %}` alone on its line disappears with the line. Don't put one on its own line inside a table or a list; put it inside the cell or the item instead.
 - Anything in backticks is printed as written, so a document can show an example.

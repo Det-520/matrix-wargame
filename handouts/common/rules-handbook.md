@@ -6,7 +6,7 @@ short: "Player Rules Handbook"
 
 **Audience:** every player, {{ teams }}. Nothing in this handbook is secret. Released ASAP, before the scenario; scenario details in the examples are replaced with bracketed placeholders.
 
-**You are expected to arrive at the event having read, and knowing, everything in your read-ahead:** this handbook, the Scenario Brief, the Scenario Schedule, the Player Forms, and your team's documents. Your team's documents are secret, so don't show them to the other team.
+**You are expected to arrive at the event having read, and knowing, everything in your read-ahead:** this handbook, the Scenario Brief, the Scenario Schedule, the Player Forms, and your team's documents. Your team's documents are secret, so don't show them to {{ other_team }}.
 
 *All countries, people, and events in this scenario are fictional. All military systems are real U.S. systems, described with unclassified, approximate capabilities.*
 
@@ -25,11 +25,11 @@ short: "Player Rules Handbook"
 1. **What this is.** A *matrix wargame*: there is no rulebook of unit stats. You win via arguments. Each turn your team proposes **one course of action (COA)** and gives **up to three reasons it will work**. The other team gives **up to three reasons it won't**. The **white cell** weighs the reasons, sets the odds, rolls the dice (with a computer program), and narrates what happens.
 2. **Your side.** You are on one team: {{ teams_or }}. Your team's documents give you your forces, your intel, and **three secret objectives**. Don't show {{ "the other team" if sides|length == 2 else "the other teams" }} your objectives.{% if cells %} Some teams work in cells under their flight commander (§2.10).{% endif %}
 3. **One COA per turn.** A COA is *one* main action with a *measurable effect*, e.g. "[FIGHTER JET]s and an [EW AIRCRAFT] strike the [AIR DEFENSE] site near [CHOKEPOINT] **so that** [AIR DEFENSE UNIT] is destroyed and our ISR aircraft can operate over [STRAIT AREA]." You can use several assets in one COA (a strike package counts as one action), but you can't do two unrelated things. Everything else your forces do is background activity.
-4. **Format of your COA ({{ mins(steps.bcoa.min) }}):**
+4. **Format of your COA ({{ mins(sides[0].coa.min) }}):**
 
    > "Our COA: **[action]** in order to **[measurable effect]**. It will work because: **(1)** … **(2)** … **(3)** …"
 
-5. **Format of your Cons ({{ mins(steps.rcons.min) }}):**
+5. **Format of your Cons ({{ mins(sides[0].cons.min) }}):**
 
    > "Their COA will fail or fall short because: **(1)** … **(2)** … **(3)** …"
 
@@ -54,20 +54,21 @@ Each turn is **{{ mins(turn_min) }}** of real time and about **{{ days(game_days
 
 ### 1.3 Example turn
 
-*Scenario details are replaced with bracketed placeholders such as [FIGHTER JET].*
+{% set a, b = sides[0], sides[1] %}
+*Scenario details are replaced with bracketed placeholders such as [FIGHTER JET].{% if n_teams > 2 %} The example shows two of the {{ word(n_teams) }} teams.{% endif %}*
 
-**BLUEFOR COA ({{ clock(steps.bcoa.min) }}):** "[NAVY] [PATROL BOAT]s and the [MILITIA GROUP] maritime militia, covered by our [COASTAL MISSILE BATTERY], establish an armed maritime exclusion and inspection zone across [CHOKEPOINT], **in order to** move [SHIPPING TRACK] from Restricted to **Closed**. It works because: (1) [CHOKEPOINT] is only ~[XX] miles wide and sits inside our ~[XX]-mile [ANTI-SHIP MISSILE] umbrella, so REDFOR surface ships can't escort freighters through safely; (2) the militia's [NUMBER] armed boats blend in with coastal traffic and swarm any ship that tries to run [CHOKEPOINT], which gives us *surprise* and *mass*; (3) closing [CHOKEPOINT] pressures [REDFOR NATION]'s economy and its [MORALE TRACK] without us firing first on [REDFOR NATION] warships."
+**{{ a.label }} COA ({{ clock(a.coa.min) }}):** "[NAVY] [PATROL BOAT]s and the [MILITIA GROUP] maritime militia, covered by our [COASTAL MISSILE BATTERY], establish an armed maritime exclusion and inspection zone across [CHOKEPOINT], **in order to** move [SHIPPING TRACK] from Restricted to **Closed**. It works because: (1) [CHOKEPOINT] is only ~[XX] miles wide and sits inside our ~[XX]-mile [ANTI-SHIP MISSILE] umbrella, so {{ b.label }} surface ships can't escort freighters through safely; (2) the militia's [NUMBER] armed boats blend in with coastal traffic and swarm any ship that tries to run [CHOKEPOINT], which gives us *surprise* and *mass*; (3) closing [CHOKEPOINT] pressures [{{ b.label }} NATION]'s economy and its [MORALE TRACK] without us firing first on [{{ b.label }} NATION] warships."
 
-**REDFOR COA ({{ clock(steps.rcoa.min) }}):** "A strike package of [FIGHTER JET]s and an [EW AIRCRAFT], refueled by [TANKER]s, strikes [AIR DEFENSE UNIT] covering [CHOKEPOINT], **in order to** destroy [AIR DEFENSE UNIT] and open the air over [STRAIT AREA] for our ISR. It works because: (1) the [FIGHTER JET] is a stealth aircraft built to penetrate integrated air defenses; (2) [EW AIRCRAFT] jamming cuts [AIR DEFENSE UNIT] off from its early-warning radar network, which is *synergistic effects*; (3) the war just started, which gives us *surprise*, because [AIR DEFENSE UNIT] hasn't had time to relocate."
+**{{ b.label }} COA ({{ clock(b.coa.min) }}):** "A strike package of [FIGHTER JET]s and an [EW AIRCRAFT], refueled by [TANKER]s, strikes [AIR DEFENSE UNIT] covering [CHOKEPOINT], **in order to** destroy [AIR DEFENSE UNIT] and open the air over [STRAIT AREA] for our ISR. It works because: (1) the [FIGHTER JET] is a stealth aircraft built to penetrate integrated air defenses; (2) [EW AIRCRAFT] jamming cuts [AIR DEFENSE UNIT] off from its early-warning radar network, which is *synergistic effects*; (3) the war just started, which gives us *surprise*, because [AIR DEFENSE UNIT] hasn't had time to relocate."
 
-**REDFOR Cons on BLUEFOR ({{ clock(steps.rcons.min) }}):** "(1) Our [SIGINT AIRCRAFT], [MARITIME PATROL AIRCRAFT], and [RECON DRONE]s have been watching [CHOKEPOINT] since Phase I and will track patrol boat formations and holds. (2) Shutting down [CHOKEPOINT] by threatening merchant shipping will turn [OPINION TRACK] against [BLUEFOR NATION]."
+**{{ b.label }} Cons on {{ a.label }} ({{ clock(b.cons.min) }}):** "(1) Our [SIGINT AIRCRAFT], [MARITIME PATROL AIRCRAFT], and [RECON DRONE]s have been watching [CHOKEPOINT] since Phase I and will track patrol boat formations and holds. (2) Shutting down [CHOKEPOINT] by threatening merchant shipping will turn [OPINION TRACK] against [{{ a.label }} NATION]."
 
-**BLUEFOR Cons on REDFOR ({{ clock(steps.bcons.min) }}):** "(1) [AIR DEFENSE SYSTEM] is a mobile system, and our Phase I brief said we'd relocate [AIR DEFENSE UNIT] at the outbreak of war. (2) [REDFOR AIR BASE]-based fighters have to fly ~[XXX] miles each way, so they depend on tankers."
+**{{ a.label }} Cons on {{ b.label }} ({{ clock(a.cons.min) }}):** "(1) [AIR DEFENSE SYSTEM] is a mobile system, and our Phase I brief said we'd relocate [AIR DEFENSE UNIT] at the outbreak of war. (2) [{{ b.label }} AIR BASE]-based fighters have to fly ~[XXX] miles each way, so they depend on tankers."
 
 **White cell resolution ({{ clock(steps.res.min) }}):**
 
-- **BLUEFOR exclusion zone.** Pros 1 and 2 are strong (+2). Pro 3 is about the *effect*, not about success, so it counts 0 here. REDFOR Con 1 is strong (−1), because the maritime ISR presence is an established fact. REDFOR Con 2 is about *consequences*, so it doesn't change the odds but will shape the outcome. Closing [CHOKEPOINT] with patrol boats and coastal missiles was a planned COA in BLUEFOR's Phase I brief and is still valid (+1). The COA needs [NAVY] and [MILITIA GROUP] forces to work together, so starting condition [DISUNITY CONDITION] applies (−1). **Net +1.** The program rolls 6, and 6 + 1 = **7, a Partial success.** The exclusion zone is declared and shipping halts, moving [SHIPPING TRACK] to **Closed**, but REDFOR [MARITIME PATROL AIRCRAFT]s and SIGINT tracked the patrol boats' patrol sectors and radar handoffs (now an established fact). [OPINION TRACK] moves 1 toward [REDFOR NATION].
-- **REDFOR strike.** Pros 1 and 2 are strong (+2). BLUEFOR Con 1 is strong (−1), because the relocation was briefed before the war, and it cancels REDFOR Pro 3 (surprise counts 0). BLUEFOR Con 2 is true, but the [TANKER]s are part of the package, so it counts 0. **Net +1.** The program rolls 9, and 9 + 1 = **10, a Success.** [AIR DEFENSE UNIT] is caught relocating and is **Destroyed**.
+- **{{ a.label }} exclusion zone.** Pros 1 and 2 are strong (+2). Pro 3 is about the *effect*, not about success, so it counts 0 here. {{ b.label }} Con 1 is strong (−1), because the maritime ISR presence is an established fact. {{ b.label }} Con 2 is about *consequences*, so it doesn't change the odds but will shape the outcome. Closing [CHOKEPOINT] with patrol boats and coastal missiles was a planned COA in {{ a.label }}'s Phase I brief and is still valid (+1). The COA needs [NAVY] and [MILITIA GROUP] forces to work together, so starting condition [DISUNITY CONDITION] applies (−1). **Net +1.** The program rolls 6, and 6 + 1 = **7, a Partial success.** The exclusion zone is declared and shipping halts, moving [SHIPPING TRACK] to **Closed**, but {{ b.label }} [MARITIME PATROL AIRCRAFT]s and SIGINT tracked the patrol boats' patrol sectors and radar handoffs (now an established fact). [OPINION TRACK] moves 1 toward [{{ b.label }} NATION].
+- **{{ b.label }} strike.** Pros 1 and 2 are strong (+2). {{ a.label }} Con 1 is strong (−1), because the relocation was briefed before the war, and it cancels {{ b.label }} Pro 3 (surprise counts 0). {{ a.label }} Con 2 is true, but the [TANKER]s are part of the package, so it counts 0. **Net +1.** The program rolls 9, and 9 + 1 = **10, a Success.** [AIR DEFENSE UNIT] is caught relocating and is **Destroyed**.
 - **Ongoing effect** announced: "Exclusion zone in [CHOKEPOINT]": −1 to any COA moving shipping through [STRAIT AREA] until the coastal threat and patrol boats are suppressed.
 
 **What to take from it:** specific Pros win, the best Cons attack the reasons rather than the goal, a good Phase I plan pays off, and Cons about *consequences* still matter even when they don't change the roll.

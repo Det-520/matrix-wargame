@@ -1,12 +1,12 @@
 ---
 title: "Operation Example — Likely Plans"
-subtitle: "What each side will probably try, the traps in their intel, and how to rule on it"
+subtitle: "What each team will probably try, the traps in their intel, and how to rule on it"
 short: "Likely Plans"
 ---
 
-**WHITE CELL ONLY.** It names both sides' hidden assets and secret objectives. *Fictional training scenario.*
+**WHITE CELL ONLY.** It names every team's hidden assets and secret objectives. *Fictional training scenario.*
 
-> **FORMAT NOTE (delete before printing):** TEMPLATE. Write this last, after a POC run-through: play out each side's likely COA sequence against the other's (`AGENTS.md`, "Useful ideation tasks") and record what you learn here. It is a forecast, not a script.
+> **FORMAT NOTE (delete before printing):** TEMPLATE. Write this last, after a POC run-through: play out each team's likely COA sequence against the others' (`AGENTS.md`, "Useful tasks") and record what you learn here. It is a forecast, not a script. Give each team in `game.toml` `[[side]]` its own section, and the pairing table a column for each.
 
 **BLUF.** [Two or three sentences: what each side will most likely open with, its strongest non-kinetic plays, and where the best endings come from.]
 

@@ -144,6 +144,11 @@ def check_sides(g):
             if cids.count(c["id"]) > 1:
                 errs.append(f"{at}: two cells have the id {c['id']}")
     ids = {s["id"] for s in g["side"]}
+    for s in g["side"]:   # its first step is its COA slot, its second its Cons slot (RULES.md §2.2)
+        own = sum(1 for st in g["turn_step"] if st.get("side") == s["id"])
+        if g["turn_step"] and own != 2:
+            errs.append(f"[[side]] {s['id']}: needs two [[turn_step]]s with side = \"{s['id']}\", its COA step and "
+                        f"then its Cons step (it has {own}; RULES.md §2.2, §2.6)")
     for st in g["turn_step"] + [x for b in g["block"] for x in b.get("step", [])]:
         if st.get("side") and st["side"] not in ids:
             errs.append(f"step {st.get('name', '?')}: side = {st['side']!r} names no [[side]] id")
@@ -160,10 +165,6 @@ def warnings(g=None):
     if len(g["side"]) > 2 and len(g["side"]) % 2:
         out.append(f"{len(g['side'])} player teams: Mouat finds an even number of actors plays best, since the insight "
                    "comes from action and counteraction; give the odd team objectives that conflict with every other team")
-    turn_sides = {st.get("side") for st in g["turn_step"]}
-    for s in g["side"]:
-        if g["turn_step"] and s["id"] not in turn_sides:
-            out.append(f"no [[turn_step]] has side = \"{s['id']}\", so {s['label']} has no COA or Cons slot in a turn")
     return out
 
 
@@ -215,12 +216,48 @@ def join(items, conj="and"):
     return ", ".join(items[:-1]) + f", {conj} " + items[-1]
 
 
-def team_rows(row, g=None):
+def team_rows(row, order=None, sides=None):
     """One table row per team. `row` is the cells between the outer pipes, with {label}, {prefix},
-    {nation}, and {id} filled in for each team. Write the line as | {{ team_rows("{label} | {prefix}1") }} |
-    so the markdown stays one valid table row."""
+    {nation}, and {id} filled in for each team, and {coa} and {cons}: the clock span of its COA and
+    Cons steps in a turn. Write the line as | {{ team_rows("{label} | {prefix}1") }} | so the markdown
+    stays one valid table row. order="coa" or "cons" lists the teams in the order of those steps."""
+    sides = sides if sides is not None else GAME["side"]
+    if order:
+        sides = sorted(sides, key=lambda x: (x.get(order) or {}).get("start", 0))
+    out = []
+    for x in sides:
+        f = {k: v for k, v in x.items() if k not in ("coa", "cons")}
+        f["coa"] = (x.get("coa") or {}).get("span", "")
+        f["cons"] = (x.get("cons") or {}).get("span", "")
+        out.append(row.format(**f))
+    return " |\n| ".join(out)
+
+
+NATO = ["Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India", "Juliett", "Kilo",
+        "Lima", "Mike", "November", "Oscar", "Papa", "Quebec", "Romeo", "Sierra", "Tango", "Uniform", "Victor",
+        "Whiskey", "X-ray", "Yankee", "Zulu"]
+
+
+def team_name(group, i, g=None):
+    """The call sign of team i (0 = first in briefing order) in group `group` (1, 2, ...):
+    the groups' teams take Alpha, Bravo, Charlie ... in turn (EVENT-SETUP.md §4)."""
     g = g or GAME
-    return " |\n| ".join(row.format(**x) for x in g["side"])
+    k = (group - 1) * len(g["side"]) + i
+    return NATO[k] if k < len(NATO) else f"Team {k + 1}"
+
+
+def team_cols(cell, group=None, code=False, g=None):
+    """One table cell per team, joined for the middle of a row. `cell` takes {label}, {prefix},
+    {nation}, {id}, and, with `group`, {name} (that team's call sign in the group, lowercase {lname}).
+    Write | Group | {{ team_cols("{label} team channel") }} | and the same count of cells in every row.
+    code=True sets each cell as `code` (backticks inside a template are printed as written, not filled in)."""
+    g = g or GAME
+    out = []
+    for i, x in enumerate(g["side"]):
+        name = team_name(group, i, g) if group else ""
+        text = cell.format(**x, name=name, lname=name.lower())
+        out.append(f"`{text}`" if code else text)
+    return " | ".join(out)
 
 
 def span(a, b):
@@ -252,8 +289,7 @@ def context(g=None, rule_set=None):
     c = {
         "rules": rule_set or g["rules"]["set"],
         "game": g["game"],
-        "sides": g["side"],                         # the player teams, in briefing order
-        "side": {x["id"]: x for x in g["side"]},    # side.redfor.label, .nation, .prefix, .cells
+        "sides": [dict(x) for x in g["side"]],      # the player teams, in briefing order (each with .coa and .cons, below)
         "teams": join([x["label"] for x in g["side"]]),            # "BLUEFOR and REDFOR"
         "teams_or": join([x["label"] for x in g["side"]], "or"),   # "BLUEFOR or REDFOR"
         "team_boxes": " ".join("☐ " + x["label"] for x in g["side"]),  # a form's tick boxes
@@ -268,16 +304,37 @@ def context(g=None, rule_set=None):
         "secret_coas": t["secret_coas"], "parley": g["schedule"]["parley"],
         "slips": slips, "slip_pages": -(-slips // 3),
         "mins": mins, "clock": clock_len, "word": word, "Word": lambda n: word(n).capitalize(), "days": days,
-        "ticks": ticks, "turn_columns": turn_columns, "turn_rule": turn_rule, "team_rows": team_rows,
+        "ticks": ticks, "turn_columns": turn_columns, "turn_rule": turn_rule, "team_rows": lambda row, order=None: team_rows(row, order, c["sides"]),
+        "team_cols": team_cols, "team_name": team_name,
     }
+    n = len(g["side"])
+    c.update({  # wording that follows the number of teams: "the other team" / "the other teams"
+        "other_team": "the other team" if n == 2 else "the other teams",
+        "both": "both" if n == 2 else "all",                       # "both teams", "all teams"
+        "Both": "Both" if n == 2 else "All",
+        "n_teams": n,
+    })
     flex = next((s for s in g["turn_step"] if s.get("id") and s["id"] == g["schedule"]["flex_step"]), None)
     c["flex"] = ", then ".join(clock_len(m) for m in g["schedule"]["flex_options"] if flex and m < flex["min"])
-    steps, at = {}, 0.0
+    steps, turn_steps, at = {}, [], 0.0
+    team_steps = {x["id"]: [] for x in g["side"]}
     for s in g["turn_step"]:   # steps.ID.start / end / min (minutes into the turn), .span ('5:00–7:00')
+        e = dict(name=s["name"], start=at, end=at + s["min"], min=s["min"], who=s.get("who", ""),
+                 side=s.get("side", ""), span=f"{clock_len(at)}–{clock_len(at + s['min'])}")
         if s.get("id"):
-            steps[s["id"]] = dict(name=s["name"], start=at, end=at + s["min"], min=s["min"],
-                                 span=f"{clock_len(at)}–{clock_len(at + s['min'])}")
+            steps[s["id"]] = e
+        turn_steps.append(e)
+        if s.get("side") in team_steps:
+            team_steps[s["side"]].append(e)
         at += s["min"]
+    # Each team's own steps: the first is its COA slot, the second its Cons slot (RULES.md §2.2).
+    # sides[0].coa.min, side.redfor.cons.span; None if game.toml gives the team no such step.
+    for x in c["sides"]:
+        own = team_steps[x["id"]]
+        x["coa"], x["cons"] = (own + [None, None])[:2]
+    c["side"] = {x["id"]: x for x in c["sides"]}    # side.redfor.label, .nation, .prefix, .cells, .coa
+    c["turn_steps"] = turn_steps                    # every [[turn_step]] in order, as steps.ID gives them
+    c["turn_line"] = " · ".join(f"{e['name']} ({fmt_num(e['min'])})" for e in turn_steps)  # "Prepare (5) · BLUEFOR COA + Pros (2) · …"
     blocks = {}
     for b in run_of_show(g):   # blocks.TAG.start / end (clock times), .span, .min, and .first / .last / .turns
         if not b.get("tag"):

@@ -163,7 +163,7 @@ def all_pages(site):
 
 TIMER = """# Timer and Dice Program
 
-The lead adjudicator runs this program on the room's TV, where both teams can see it. It keeps the whole run of show on one screen: the block and turn timers, the dice, the result bands, the estimative vote, the parley timer, and the tracks.
+The lead adjudicator runs this program on the room's TV, where every team can see it. It keeps the whole run of show on one screen: the block and turn timers, the dice, the result bands, the estimative vote, the parley timer, and the tracks.
 
 **[Open the timer and dice program](../tools/whitecell-clock.html)**. Once it has loaded it works offline; save the page to keep a copy.
 

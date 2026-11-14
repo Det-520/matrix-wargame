@@ -190,7 +190,7 @@ SECRET = 0 if BASIC else T["secret_coas"]  # the basic rules have no secret COAs
 PACKET = [
     ("White Cell Checklist", (WC, "White Cell Checklist.pdf"), None, 1, "Lead adjudicator. Tick it off through the event."),
     ("Table Setup Guide", (WC, "White Cell Table Setup Guide.pdf"), None, 1, "Devices, table layout, and where every counter starts. Set up before Phase I."),
-    ("White Cell Forms", (WC, "White Cell Forms.pdf"), None, 1, "Score sheet, ongoing-effects sheet, objective status card, both placement forms. The ongoing-effects sheet goes beside the map; the rest stays face down with the loggers."),
+    ("White Cell Forms", (WC, "White Cell Forms.pdf"), None, 1, "Score sheet, ongoing-effects sheet, objective status card, a placement form for each team. The ongoing-effects sheet goes beside the map; the rest stays face down with the loggers."),
     ("Starting conditions: reference and cue cards", (WEEK, "Starting Conditions.pdf"), None, 1, "Cut the cue cards apart and stand them face up beside the map."),
     ("Counters, every team", (WC, "counters.pdf"), None, 1, "Print at 100% (not \"fit to page\"), in colour, on card stock if you can. Shows hidden assets: white cell only."),
     ("Map, letter tiles", (WEEK, "map-tiles.pdf"), None, 1, "Portrait, like the rest of the packet (the map is turned on the page). Trim and tape. For one large sheet, print map-full.pdf on a plotter instead."),
@@ -206,10 +206,10 @@ for _side in [s["label"] for s in SIDES]:
         (f"{_side}: secret COA slips", (ASAP, "Player Forms and Templates.pdf"), "6. Secret COA Slip", SECRET, "One per phase"),
     ]
 PACKET += [
-    ("Spare: request slips (3 per page)", (ASAP, "Player Forms and Templates.pdf"), "4. Request Slips", 3, "9 slips, either side"),
-    ("Spare: COA worksheets", (ASAP, "Player Forms and Templates.pdf"), "2. COA Worksheet", 2, "Either side"),
-    ("Spare: Cons worksheets", (ASAP, "Player Forms and Templates.pdf"), "3. Cons Worksheet", 2, "Either side"),
-    ("Spare: secret COA slips", (ASAP, "Player Forms and Templates.pdf"), "6. Secret COA Slip", 2 if SECRET else 0, "Either side"),
+    ("Spare: request slips (3 per page)", (ASAP, "Player Forms and Templates.pdf"), "4. Request Slips", 3, "9 slips, any team"),
+    ("Spare: COA worksheets", (ASAP, "Player Forms and Templates.pdf"), "2. COA Worksheet", 2, "Any team"),
+    ("Spare: Cons worksheets", (ASAP, "Player Forms and Templates.pdf"), "3. Cons Worksheet", 2, "Any team"),
+    ("Spare: secret COA slips", (ASAP, "Player Forms and Templates.pdf"), "6. Secret COA Slip", 2 if SECRET else 0, "Any team"),
     *[(f"Spare: {s['label']} placement form", (WC, "White Cell Forms.pdf"), f"{s['label']} placement form", 1,
        "If the first fills up with crossings-out") for s in SIDES],
 ]
@@ -695,7 +695,7 @@ def packet_markdown(rows=None, variant="full"):
         "## Also needed at each table",
         "",
         "- [ ] The room's TV or projector. Use the room computer connected to it if there is one; otherwise bring the lead adjudicator's laptop and its cable",
-        "- [ ] The timer and dice program (`whitecell-clock.html`) on that screen, where both teams can see it. Its tracker keeps the tracks; there is no paper track board.",
+        "- [ ] The timer and dice program (`whitecell-clock.html`) on that screen, where every team can see it. Its tracker keeps the tracks; there is no paper track board.",
         "- [ ] Each logger's laptop with the white cell site and Slack, screen turned away from the players (Table Setup Guide §1)",
         "- [ ] An envelope for the hidden counters",
         "- [ ] Pens for each team and each logger",
